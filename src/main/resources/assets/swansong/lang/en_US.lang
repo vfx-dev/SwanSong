@@ -1,0 +1,132 @@
+# Configs
+config.swansong.modules.Modules=Modules
+config.swansong.modules.Modules.tooltip=Toggles for all SwanSong modules
+config.swansong.modules.Debug=Debug
+config.swansong.modules.Debug.tooltip=Debug helpers of all sorts
+config.swansong.modules.Shaders=Shaders
+config.swansong.modules.Shaders.tooltip=The thing you installed this mod for?
+config.swansong.modules.ThreadedScreenshots=Threaded Screenshots
+config.swansong.modules.ThreadedScreenshots.tooltip=Just a neat little thing to make screenshots faster
+config.swansong.modules.FunkyZoom=Funky! Zoom
+config.swansong.modules.FunkyZoom.tooltip=Like imagine you can squint and see further
+config.swansong.modules.Compat=Compatibility Fixes
+config.swansong.modules.Compat.tooltip=Like you got all these broken mods, but what if they just worked?...
+
+config.swansong.debug.ApplyVenterceptorLogFilters=Apply Venterceptor Log Filters
+config.swansong.debug.ApplyVenterceptorLogFilters.tooltip=Filter out spammy messages if Venterceptor GLDebug logging is in use.
+config.swansong.debug.UseGLObjectLabels=OpenGL Object Labels
+config.swansong.debug.UseGLObjectLabels.tooltip=If we should enable (or perhaps, disable?) tagged labels on created objects.
+config.swansong.debug.UseGLDebugGroups=OpenGL Debug Groups
+config.swansong.debug.UseGLDebugGroups.tooltip=Useful little grouping for marking regions where calls and stuff happen.
+
+config.swansong.shaders.CurrentShaderPack=Current ShaderPack
+config.swansong.shaders.CurrentShaderPack.tooltip=TODO: CurrentShaderPack Desc!
+config.swansong.shaders.AntiAliasing=Anti-Aliasing
+config.swansong.shaders.AntiAliasing.tooltip=TODO: AntiAliasing Desc!
+config.swansong.shaders.NormalMapping=Normal Mapping
+config.swansong.shaders.NormalMapping.tooltip=TODO: AntiAliasing Desc!
+config.swansong.shaders.SpecularMapping=Specular Mapping
+config.swansong.shaders.SpecularMapping.tooltip=TODO: AntiAliasing Desc!
+config.swansong.shaders.RenderQuality=Render Quality
+config.swansong.shaders.RenderQuality.tooltip=TODO: RenderQuality Desc!
+config.swansong.shaders.ShadowQuality=Shadow Quality
+config.swansong.shaders.ShadowQuality.tooltip=TODO: ShadowQuality Desc!
+config.swansong.shaders.HandDepth=Hand Depth
+config.swansong.shaders.HandDepth.tooltip=TODO: HandDepth Desc!
+config.swansong.shaders.OldHandLight=Old Hand Light
+config.swansong.shaders.OldHandLight.tooltip=TODO: OldHandLight Desc!
+config.swansong.shaders.OldHandDepth=Old Hand Depth
+config.swansong.shaders.OldHandDepth.tooltip=TODO: OldHandDepth Desc!
+
+config.swansong.compat.NEI_OverlayFix=NotEnoughItems: Chunk/Light Overlays
+config.swansong.compat.NEI_OverlayFix.tooltip=Fixes broken chunk grid and mob spawn overlays. (F7/F9)
+config.swansong.compat.OC_ScreenFix=OpenComputers: Screens
+config.swansong.compat.OC_ScreenFix.tooltip=Fixes flickering screens.
+config.swansong.compat.OC_HologramFix=OpenComputers: Holograms
+config.swansong.compat.OC_HologramFix.tooltip=Fixes dark/flickering holograms.
+config.swansong.compat.OC_RobotFix=OpenComputers: Robots
+config.swansong.compat.OC_RobotFix.tooltip=Fixes funky robot nametags
+config.swansong.compat.AV_CosmicShader=Avaritia: Cosmic Shader
+config.swansong.compat.AV_CosmicShader.tooltip=Fancy (and hopefully) non-flickering Infinity Gear
+config.swansong.compat.AV_HeavenArrowFix=Avaritia: Heaven Arrow Fix
+config.swansong.compat.AV_HeavenArrowFix.tooltip=Fixes the arrows from the 'Longbow of the Heavens' not being fullbright
+config.swansong.compat.TC_EldritchObeliskFix=ThaumCraft: Eldritch obelisk fix
+config.swansong.compat.TC_EldritchObeliskFix.tooltip=Fixes the portal effect on the eldritch obelisk
+config.swansong.compat.TC_VisOverlayFix=ThaumCraft: Vis overlay fix
+config.swansong.compat.TC_VisOverlayFix.tooltip=Fixes the vis info overlay on nodes and other stuff
+config.swansong.compat.THEX_TesseractStarfieldFix=Thermal Expansion: Tesseract starfield fix
+config.swansong.compat.THEX_TesseractStarfieldFix.tooltip=Fixes the starfield effect on the Tesseract
+config.swansong.compat.JM_WaypointBeaconFix=JourneyMap: Waypoint beacon fix
+config.swansong.compat.JM_WaypointBeaconFix.tooltip=Fixes waypoint beacon text flickering and bloom bleed
+config.swansong.compat.NTM_SkyFix=NTM Space: Sky Fix
+config.swansong.compat.NTM_SkyFix.tooltip=Fixes the sky renderer for HBM NTM: Space
+config.swansong.compat.Botania_SkyFix=Botania: Sky Fix
+config.swansong.compat.Botania_SkyFix.tooltip=Fixes the sky renderer in Garden of Glass
+config.swansong.compat.Galacticraft_SkyFix=GalactiCraft: Sky Fix
+config.swansong.compat.Galacticraft_SkyFix.tooltip=Fixes the sky renderer in GalactiCraft
+
+config.swansong.compat.MC_GuiLightFix=Minecraft: GUI Light Fix
+config.swansong.compat.MC_GuiLightFix.tooltip=Fixes guis turning "dark" in some modpacks
+config.swansong.compat.MC_BoundingBoxFixes=Minecraft: Renderer bounding box fixes
+config.swansong.compat.MC_BoundingBoxFixes.tooltip=Fixes render bounding boxes for some tile entities (end portals, signs)\nImproves the game performance SIGNIFICANTLY if you have a lot of signs on your base
+config.swansong.compat.MC_LightMapCoordClamp=Minecraft: Light Map Coordinate Clamping
+config.swansong.compat.MC_LightMapCoordClamp.tooltip=Clamps fixed coordinates being set for the lightmap to: 0F-240F\nFixes problems where certain things end up rendering pitch black
+
+# Options
+option.swansong.shaders.AntiAliasingCfg.DISABLED=Anti-Aliasing: OFF
+option.swansong.shaders.AntiAliasingCfg.FXAA_2X=Anti-Aliasing: FXAA 2x
+option.swansong.shaders.AntiAliasingCfg.FXAA_4X=Anti-Aliasing: FXAA 4x
+
+option.swansong.shaders.NormalMappingCfg.AUTO=Normal Map: Auto
+option.swansong.shaders.NormalMappingCfg.ENABLED=Normal Map: ON
+option.swansong.shaders.NormalMappingCfg.DISABLED=Normal Map: OFF
+
+option.swansong.shaders.SpecularMappingCfg.AUTO=Specular Map: Auto
+option.swansong.shaders.SpecularMappingCfg.ENABLED=Specular Map: ON
+option.swansong.shaders.SpecularMappingCfg.DISABLED=Specular Map: OFF
+
+option.swansong.shaders.RenderQualityCfg.MULT_0_5=Render Quality: 0.5x
+option.swansong.shaders.RenderQualityCfg.MULT_0_7=Render Quality: 0.7x
+option.swansong.shaders.RenderQualityCfg.MULT_1_0=Render Quality: 1x
+option.swansong.shaders.RenderQualityCfg.MULT_1_5=Render Quality: 1.5x
+option.swansong.shaders.RenderQualityCfg.MULT_2_0=Render Quality: 2x
+
+option.swansong.shaders.ShadowQualityCfg.MULT_0_5=Shadow Quality: 0.5x
+option.swansong.shaders.ShadowQualityCfg.MULT_0_7=Shadow Quality: 0.7x
+option.swansong.shaders.ShadowQualityCfg.MULT_1_0=Shadow Quality: 1x
+option.swansong.shaders.ShadowQualityCfg.MULT_1_5=Shadow Quality: 1.5x
+option.swansong.shaders.ShadowQualityCfg.MULT_2_0=Shadow Quality: 2x
+
+option.swansong.shaders.HandDepthCfg.MULT_0_5=Hand Depth: 0.5x
+option.swansong.shaders.HandDepthCfg.MULT_1_0=Hand Depth: 1x
+option.swansong.shaders.HandDepthCfg.MULT_2_0=Hand Depth: 2x
+
+option.swansong.shaders.OldHandLightCfg.AUTO=Old Hand Light: Auto
+option.swansong.shaders.OldHandLightCfg.ENABLED=Old Hand Light: ON
+option.swansong.shaders.OldHandLightCfg.DISABLED=Old Hand Light: OFF
+
+option.swansong.shaders.OldHandDepthCfg.AUTO=Old Hand Depth: Auto
+option.swansong.shaders.OldHandDepthCfg.ENABLED=Old Hand Depth: ON
+option.swansong.shaders.OldHandDepthCfg.DISABLED=Old Hand Depth: OFF
+
+gui.swansong.shaders.title=Shaders
+gui.swansong.shaders.default=(default)
+gui.swansong.shaders.browse=Shaders Folder
+gui.swansong.shaders.exit=Done
+gui.swansong.shaders.options=Shader Options...
+gui.swansong.shaders.profile.key=Profile
+gui.swansong.shaders.profile.custom=Custom
+gui.swansong.shaders.root.title=Shader Options
+gui.swansong.shaders.resetAll=Reset All
+gui.swansong.shaders.resetAll.query=Are you sure you want to reset all shader settings?
+gui.swansong.shaders.exit.query=Save modified settings?
+gui.swansong.shaders.apply=Apply
+
+screenshot.swansong.threaded=Taking screenshot slowly...
+screenshot.swansong.nospam=HOLD THE F2, STILL SAVING!!!
+
+key.swansong.categories.general=SwanSong
+key.swansong.zoom=Zooooom-
+
+swansong.anaglyph.standard=Standard
+swansong.anaglyph.wide=Hammerhead

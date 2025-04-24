@@ -1,0 +1,14 @@
+{
+  "zoom.begin": {
+    "category": "master",
+    "sounds": [
+      "zoom/begin"
+    ]
+  },
+  "zoom.end": {
+    "category": "master",
+    "sounds": [
+      "zoom/end"
+    ]
+  }
+}

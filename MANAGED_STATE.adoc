@@ -1,0 +1,111 @@
+[graphviz]
+....
+digraph g {
+  "Unmanaged"
+  newrank=true
+
+  subgraph cluster_pre {
+    label = "Pre";
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white,shape=box];
+
+    "BeginFrame";
+  }
+
+  subgraph cluster_0 {
+    label = "Shadow";
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white,shape=box];
+
+    "ShadowBegin";
+    "ShadowChunk0";
+    "ShadowEntities0";
+    "ShadowBlockEntities0";
+    "ShadowChunk1";
+    "ShadowEntities1";
+    "ShadowBlockEntities1";
+    "ShadowLast";
+  }
+
+  subgraph cluster_1 {
+    label = "Render";
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white,shape=box];
+
+    "RenderBegin";
+    "RenderSkyBasic";
+    "RenderSkyTextured";
+    "RenderClouds";
+    "RenderChunk0";
+    "RenderWeatherEntities0";
+    "RenderEntities0";
+    "RenderBlockEntities0";
+    "RenderSelectionBox";
+    "RenderBlockDamage";
+    "RenderParticlesLit";
+    "RenderParticles";
+    "RenderWeather";
+    "RenderHand0";
+    "RenderChunk1";
+    "RenderWeatherEntities1";
+    "RenderEntities1";
+    "RenderBlockEntities1";
+    "RenderLast";
+  }
+
+  {rank=same; "Unmanaged"; "BeginFrame"; }
+  {rank=same; "ShadowBegin"; "RenderBegin"; }
+
+  "Unmanaged" -> "BeginFrame";
+  "BeginFrame" -> "ShadowBegin";
+  "BeginFrame" -> "RenderBegin";
+  "RenderLast" -> "Unmanaged";
+
+  "ShadowLast" -> "RenderBegin";
+
+  "ShadowBegin" -> "ShadowChunk0";
+  "ShadowChunk0" -> "ShadowEntities0";
+  "ShadowChunk0" -> "ShadowChunk1" [color=magenta];
+  "ShadowEntities0" -> "ShadowBlockEntities0";
+  "ShadowBlockEntities0" -> "ShadowChunk1";
+  "ShadowBlockEntities0" -> "ShadowEntities0"; //Can happen (CNPC+ DBC Addon is one example)
+  "ShadowChunk1" -> "ShadowEntities1";
+  "ShadowChunk1" -> "ShadowLast" [color=magenta];
+  "ShadowEntities1" -> "ShadowBlockEntities1";
+  "ShadowBlockEntities1" -> "ShadowLast";
+  "ShadowBlockEntities1" -> "ShadowEntities1"; //Can happen (CNPC+ DBC Addon is one example)
+
+  "RenderBegin" -> "RenderSkyBasic";
+  "RenderBegin" -> "RenderClouds" [color="red"];
+  "RenderBegin" -> "RenderChunk0";
+  {"RenderSkyBasic"; "RenderSkyTextured"} -> "RenderClouds" [color="red"];
+  {"RenderSkyBasic"; "RenderSkyTextured"} -> "RenderChunk0";
+  {"RenderSkyBasic"; "RenderSkyTextured"} -> {"RenderSkyBasic"; "RenderSkyTextured"} [color="cyan3"];
+  "RenderClouds" -> "RenderChunk0" [color="red"];
+  "RenderChunk0" -> "RenderWeatherEntities0";
+  "RenderChunk0" -> "RenderSelectionBox" [color=magenta];
+  "RenderWeatherEntities0" -> "RenderEntities0";
+  "RenderEntities0" -> "RenderBlockEntities0";
+  "RenderBlockEntities0"  -> "RenderSelectionBox";
+  "RenderBlockEntities0" -> "RenderWeatherEntities0"; //Can happen (CNPC+ DBC Addon is one example)
+  "RenderSelectionBox" -> "RenderBlockDamage";
+  "RenderBlockDamage" -> "RenderParticlesLit";
+  "RenderParticlesLit" -> "RenderParticles";
+  "RenderParticles" -> "RenderWeather";
+  "RenderWeather" -> "RenderHand0";
+  "RenderHand0" -> "RenderChunk1";
+  "RenderChunk1" -> "RenderWeatherEntities1";
+  "RenderChunk1" -> "RenderClouds" [color="blue"];
+  "RenderChunk1" -> "RenderLast" [color=magenta];
+  "RenderWeatherEntities1" -> "RenderEntities1";
+  "RenderEntities1" -> "RenderBlockEntities1";
+  "RenderBlockEntities1" -> "RenderWeatherEntities1"; //Can happen (CNPC+ DBC Addon is one example)
+  "RenderBlockEntities1" -> "RenderClouds" [color="blue"];
+  "RenderBlockEntities1" -> "RenderLast";
+  "RenderClouds" -> "RenderLast" [color="blue"];
+  "RenderLast" -> "RenderBegin";
+}
+....
