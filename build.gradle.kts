@@ -33,6 +33,18 @@ minecraft_fp {
             repoUrl = "https://mvn.ventooth.com/releases"
             repoName = "venmaven"
         }
+        curseforge {
+            projectId = "1349982"
+            dependencies {
+                required("falsepatternlib")
+            }
+        }
+        modrinth {
+            projectId = "2mCumCZs"
+            dependencies {
+                required("fplib")
+            }
+        }
     }
 }
 
