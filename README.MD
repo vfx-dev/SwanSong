@@ -1,8 +1,6 @@
 # SwanSong <img src=".idea/icon.png" align="right" width=150>
 
-<!--TODO
 <sup>**[CurseForge](https://www.curseforge.com/minecraft/mc-mods/swansong) | [Modrinth](https://modrinth.com/mod/swansong)**</sup>
--->
 
 There's a swan song coming for you...
 
