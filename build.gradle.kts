@@ -36,7 +36,7 @@ minecraft_fp {
         curseforge {
             projectId = "1349982"
             dependencies {
-                required("falsepatternlib")
+                required("fplib")
             }
         }
         modrinth {
