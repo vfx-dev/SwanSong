@@ -27,6 +27,13 @@ minecraft_fp {
     tokens {
         tokenClass = "Tags"
     }
+
+    publish {
+        maven {
+            repoUrl = "https://mvn.ventooth.com/releases"
+            repoName = "venmaven"
+        }
+    }
 }
 
 tasks.runClient {
