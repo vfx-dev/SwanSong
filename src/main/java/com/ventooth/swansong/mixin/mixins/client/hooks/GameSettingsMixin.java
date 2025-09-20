@@ -84,7 +84,7 @@ public abstract class GameSettingsMixin implements ShaderGameSettings {
     @Redirect(method = "setOptionValue",
               at = @At(value = "INVOKE",
                        target = "Lnet/minecraft/client/Minecraft;refreshResources()V"),
-              require = 0,
+              require = 0, //Crashes for some reason in some packs https://github.com/vfx-dev/SwanSong/issues/1
               expect = 0)
     private void noAnaglyphReload(Minecraft instance) {
 
