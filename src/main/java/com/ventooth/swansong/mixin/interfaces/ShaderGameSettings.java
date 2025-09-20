@@ -12,4 +12,5 @@ package com.ventooth.swansong.mixin.interfaces;
 
 public interface ShaderGameSettings {
     float swan$anaglyph();
+    void swan$anaglyph(float value);
 }

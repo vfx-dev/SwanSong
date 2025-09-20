@@ -58,6 +58,11 @@ public abstract class GameSettingsMixin implements ShaderGameSettings {
         return swan$anaglyph;
     }
 
+    @Override
+    public void swan$anaglyph(float value) {
+        swan$anaglyph = value;
+    }
+
     @Redirect(method = "getOptionOrdinalValue",
               at = @At(value = "FIELD",
                        target = "Lnet/minecraft/client/settings/GameSettings;anaglyph:Z",

@@ -59,7 +59,8 @@ public enum Mixin implements IMixins {
                  client("TessellatorMixin_RequireFoamFix")),
     Base_NotFine(Phase.EARLY,
                  require(NotFine),
-                 client("compat.notfine.GuiCustomMenuMixin")),
+                 client("compat.notfine.GuiCustomMenuMixin",
+                        "compat.notfine.NotFineGameOptionPagesMixin")),
 
     Texture(Phase.EARLY,
             client("texture.TextureAtlasSpriteMixin",
