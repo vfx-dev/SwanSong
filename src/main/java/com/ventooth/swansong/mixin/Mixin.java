@@ -39,6 +39,7 @@ import static com.ventooth.swansong.mixin.TargetMod.RotaryCraft;
 import static com.ventooth.swansong.mixin.TargetMod.SmoothFont;
 import static com.ventooth.swansong.mixin.TargetMod.Thaumcraft;
 import static com.ventooth.swansong.mixin.TargetMod.ThermalExpansion;
+import static com.ventooth.swansong.mixin.TargetMod.Zume;
 
 @SuppressWarnings("UnstableApiUsage")
 @Accessors(fluent = false)
@@ -105,6 +106,7 @@ public enum Mixin implements IMixins {
 
     Zoom(Phase.EARLY,
          () -> ModuleConfig.FunkyZoom,
+         avoid(Zume),
          client("zoom.MinecraftMixin",
                 "zoom.EntityRendererMixin")),
 

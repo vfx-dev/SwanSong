@@ -104,7 +104,11 @@ public final class SwanSong {
                 ThreadedScreenshot.init();
             }
             if (ModuleConfig.FunkyZoom) {
-                FunkyZoom.init();
+                if (Loader.isModLoaded("zume")) {
+                    Share.log.warn("No FunkyZoom allowed, you get zume instead...");
+                } else {
+                    FunkyZoom.init();
+                }
             }
             ShaderTypes.validateRegistry();
             ShaderEngine.firstInit();

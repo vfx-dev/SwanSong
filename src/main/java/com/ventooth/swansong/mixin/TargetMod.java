@@ -31,7 +31,8 @@ public enum TargetMod implements ITargetMod {
     DragonAPI("Reika.DragonAPI.Auxiliary.DragonAPIASMHandler"),
     RotaryCraft("Reika.RotaryCraft.Auxiliary.RotaryASMHandler"),
     NotFine("jss.notfine.mixinplugin.NotFineEarlyMixins"),
-    //regular mods
+    Zume("dev.nolij.zume.api.config.v1.ZumeConfig"),
+    //regular mods,
     Avaritia("fox.spiteful.avaritia.Avaritia"),
     Thaumcraft("thaumcraft.common.Thaumcraft"),
     ThermalExpansion("cofh.thermalexpansion.ThermalExpansion"),

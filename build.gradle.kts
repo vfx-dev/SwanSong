@@ -240,4 +240,7 @@ dependencies {
     compileOnly(deobfCurse("dragonapi-235591:4722480"))
     // RotaryCraft 1.7.10 V33a.jar
     compileOnly(deobfCurse("rotarycraft-235596:4721191"))
+
+    // zume-1.1.4.jar
+    compileOnly(deobfModrinth("zume:1.1.4"))
 }
