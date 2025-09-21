@@ -29,7 +29,9 @@ import net.minecraft.util.ResourceLocation;
 import java.util.BitSet;
 import java.util.Random;
 
-@Mixin(FontRenderer.class)
+@Mixin(value = FontRenderer.class,
+       // Fixes crash with HodgePodge font patches
+       priority = 900)
 public abstract class FontRendererMixin implements FastFontRenderer {
     @Shadow
     private boolean bidiFlag;
