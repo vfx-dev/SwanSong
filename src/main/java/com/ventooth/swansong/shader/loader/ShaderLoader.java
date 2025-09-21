@@ -13,6 +13,8 @@ package com.ventooth.swansong.shader.loader;
 import com.falsepattern.lib.util.MathUtil;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
+import com.ventooth.swansong.config.DebugConfig;
+import com.ventooth.swansong.config.ModuleConfig;
 import com.ventooth.swansong.gl.GLProgram;
 import com.ventooth.swansong.gl.GLShader;
 import com.ventooth.swansong.resources.ShaderPackManager;
@@ -1269,9 +1271,15 @@ public class ShaderLoader {
             if (infoLog.isEmpty()) {
                 infoLog = "Empty program info log";
             }
-            program.glDeleteProgram();
 
-            throw new ShaderException("Failed to validate program: " + name + '\n' + (infoLog) + '\n');
+            // TODO: Unsure if this is necessary, related issue: SwanSong#3
+            val msg = "Failed to validate program: " + name + '\n' + (infoLog) + '\n';
+            if (ModuleConfig.Debug && DebugConfig.FailOnShaderValidationErrors) {
+                program.glDeleteProgram();
+                throw new ShaderException("Failed to validate program: " + name + '\n' + (infoLog) + '\n');
+            } else {
+                Share.log.warn(msg);
+            }
         }
 
         return program;

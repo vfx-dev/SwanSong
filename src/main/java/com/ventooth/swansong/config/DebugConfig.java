@@ -44,9 +44,12 @@ public final class DebugConfig {
     public static boolean UseGLDebugGroups;
 
     @Config.DefaultBoolean(false)
-    public static boolean GLDebugMarkers;
+    public static boolean FailOnShaderValidationErrors; // TODO: Desc
 
     @Config.DefaultBoolean(false)
-    public static boolean DumpCompiledUniforms;
+    public static boolean GLDebugMarkers; // TODO: Desc
+
+    @Config.DefaultBoolean(false)
+    public static boolean DumpCompiledUniforms; // TODO: Desc
 }
 
