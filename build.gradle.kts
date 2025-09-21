@@ -37,12 +37,20 @@ minecraft_fp {
             projectId = "1349982"
             dependencies {
                 required("fplib")
+                optional("mcpatcher")
+                optional("falsetweaks")
+                optional("beddium")
+                optional("rple")
             }
         }
         modrinth {
             projectId = "2mCumCZs"
             dependencies {
                 required("fplib")
+                optional("mcpatcher")
+                optional("falsetweaks")
+                optional("beddium")
+                optional("rple")
             }
         }
     }
