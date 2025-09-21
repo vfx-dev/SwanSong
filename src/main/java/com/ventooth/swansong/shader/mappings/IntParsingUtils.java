@@ -84,7 +84,7 @@ public class IntParsingUtils {
         }
         val multmin = limit / radix;
         var result = 0;
-        while (i < len) {
+        while (true) {
             // Accumulating negatively avoids surprises near MAX_VALUE
             //Avoids trimming in parseUnsignedIntMulti
             if (Character.isWhitespace(c)) {
@@ -99,6 +99,8 @@ public class IntParsingUtils {
                 return -1;
             }
             result -= digit;
+            if (i >= len)
+                break;
             c = s.charAt(++i);
         }
         return -result;
