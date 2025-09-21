@@ -107,6 +107,7 @@ dependencies {
     val testGardenOfGlass = false
     val testDecocraft = false
     val testNotFine = false
+    val testImmersiveEngineering = false
 
     // OpenModsLib-1.7.10-0.10-deobf.jar
     val OpenModsLib = "curse.maven:openmodslib-228815:2386729"
@@ -230,6 +231,12 @@ dependencies {
         devOnlyNonPublishable(notfine)
     } else {
         compileOnly(notfine)
+    }
+
+    // ImmersiveEngineering-0.7.7-deobf.jar
+    val immersiveEngineering = "curse.maven:immersive-engineering-231951:2299020"
+    if (testImmersiveEngineering) {
+        runtimeOnlyNonPublishable(immersiveEngineering)
     }
 
     //Galacticraft Core 3.0.12.504

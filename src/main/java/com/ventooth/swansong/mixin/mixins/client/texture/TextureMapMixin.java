@@ -14,6 +14,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.mixin.interfaces.PBRAtlas;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.mixin.interfaces.ShadersTextureAtlasSprite;
 import com.ventooth.swansong.pbr.PBRTextureEngine;
@@ -46,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(TextureMap.class)
-public abstract class TextureMapMixin extends AbstractTexture implements PBRTextureHolder {
+public abstract class TextureMapMixin extends AbstractTexture implements PBRTextureHolder, PBRAtlas {
     @Shadow
     @Final
     public static ResourceLocation locationBlocksTexture;
@@ -71,6 +72,11 @@ public abstract class TextureMapMixin extends AbstractTexture implements PBRText
 
     @Unique
     private ResourceLocation swan$mapLoc;
+
+    @Override
+    public void swan$mapLoc(ResourceLocation location) {
+        this.swan$mapLoc = location;
+    }
 
     @Override
     public boolean swan$supportsPbr() {

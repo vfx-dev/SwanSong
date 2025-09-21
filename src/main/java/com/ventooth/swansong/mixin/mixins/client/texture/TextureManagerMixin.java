@@ -13,6 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.texture;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.ventooth.swansong.mixin.interfaces.PBRAtlas;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.pbr.PBRTextureEngine;
 import com.ventooth.swansong.shader.ShaderEngine;
@@ -21,11 +22,26 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.util.ResourceLocation;
 
 @Mixin(TextureManager.class)
 public abstract class TextureManagerMixin {
+    @Inject(method = "loadTexture",
+            at = @At(value = "INVOKE",
+                     target = "Lnet/minecraft/client/renderer/texture/ITextureObject;loadTexture(Lnet/minecraft/client/resources/IResourceManager;)V"),
+            require = 1)
+    private void setMapLocation(ResourceLocation textureLocation,
+                                ITextureObject textureObj,
+                                CallbackInfoReturnable<Boolean> cir) {
+        if (textureObj instanceof PBRAtlas atlas) {
+            atlas.swan$mapLoc(textureLocation);
+        }
+    }
+
     @Inject(method = "bindTexture",
             at = @At(value = "INVOKE",
                      target = "Lnet/minecraft/client/renderer/texture/TextureUtil;bindTexture(I)V"),
