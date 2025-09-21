@@ -31,6 +31,7 @@ import java.util.Random;
 
 @Mixin(value = FontRenderer.class,
        // Fixes crash with HodgePodge font patches
+       // Also fixes crash with LegacyFixes nbsp patch
        priority = 900)
 public abstract class FontRendererMixin implements FastFontRenderer {
     @Shadow
