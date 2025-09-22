@@ -1,0 +1,136 @@
+# 配置项
+config.swansong.modules.Modules=模块
+config.swansong.modules.Modules.tooltip=所有 SwanSong 模块的开关
+config.swansong.modules.Debug=调试
+config.swansong.modules.Debug.tooltip=各种调试辅助功能
+config.swansong.modules.Shaders=光影
+config.swansong.modules.Shaders.tooltip=你安装这个模组不就是为了这个？
+config.swansong.modules.ThreadedScreenshots=线程化截图
+config.swansong.modules.ThreadedScreenshots.tooltip=一个小巧实用的功能，让截图更快
+config.swansong.modules.FunkyZoom=炫酷！缩放
+config.swansong.modules.FunkyZoom.tooltip=想象一下，你可以眯起眼睛看得更远
+config.swansong.modules.Compat=兼容性修复
+config.swansong.modules.Compat.tooltip=你有一堆有问题的模组，但如果它们都能正常工作呢？...
+
+config.swansong.debug.ApplyVenterceptorLogFilters=应用 Venterceptor 日志过滤器
+config.swansong.debug.ApplyVenterceptorLogFilters.tooltip=如果使用了 Venterceptor 的 GLDebug 日志记录，则过滤掉刷屏的消息。
+config.swansong.debug.UseGLObjectLabels=OpenGL 对象标签
+config.swansong.debug.UseGLObjectLabels.tooltip=我们是否应该启用（或者可能禁用？）创建对象上的标签。
+config.swansong.debug.UseGLDebugGroups=OpenGL 调试组
+config.swansong.debug.UseGLDebugGroups.tooltip=用于标记调用等操作发生区域的有用小分组。
+
+config.swansong.shaders.CurrentShaderPack=当前光影包
+config.swansong.shaders.CurrentShaderPack.tooltip=待办：CurrentShaderPack 描述！
+config.swansong.shaders.AntiAliasing=抗锯齿
+config.swansong.shaders.AntiAliasing.tooltip=待办：AntiAliasing 描述！
+config.swansong.shaders.NormalMapping=法线贴图
+config.swansong.shaders.NormalMapping.tooltip=待办：NormalMapping 描述！
+config.swansong.shaders.SpecularMapping=高光贴图
+config.swansong.shaders.SpecularMapping.tooltip=待办：SpecularMapping 描述！
+config.swansong.shaders.RenderQuality=渲染质量
+config.swansong.shaders.RenderQuality.tooltip=待办：RenderQuality 描述！
+config.swansong.shaders.ShadowQuality=阴影质量
+config.swansong.shaders.ShadowQuality.tooltip=待办：ShadowQuality 描述！
+config.swansong.shaders.HandDepth=手部深度
+config.swansong.shaders.HandDepth.tooltip=待办：HandDepth 描述！
+config.swansong.shaders.OldHandLight=旧版手部光照
+config.swansong.shaders.OldHandLight.tooltip=待办：OldHandLight 描述！
+config.swansong.shaders.OldHandDepth=旧版手部深度
+config.swansong.shaders.OldHandDepth.tooltip=待办：OldHandDepth 描述！
+
+config.swansong.compat.NEI_OverlayFix=NotEnoughItems: 区块/光照覆盖层
+config.swansong.compat.NEI_OverlayFix.tooltip=修复损坏的区块网格和生物生成覆盖层。(F7/F9)
+config.swansong.compat.OC_ScreenFix=OpenComputers: 屏幕
+config.swansong.compat.OC_ScreenFix.tooltip=修复屏幕闪烁问题。
+config.swansong.compat.OC_HologramFix=OpenComputers: 全息图
+config.swansong.compat.OC_HologramFix.tooltip=修复黑暗/闪烁的全息图。
+config.swansong.compat.OC_RobotFix=OpenComputers: 机器人
+config.swansong.compat.OC_RobotFix.tooltip=修复奇怪的机器人名称标签
+config.swansong.compat.AV_CosmicShader=Avaritia: 宇宙光影
+config.swansong.compat.AV_CosmicShader.tooltip=炫酷（且希望不会闪烁）的无限装备
+config.swansong.compat.AV_HeavenArrowFix=Avaritia: 天堂之箭修复
+config.swansong.compat.AV_HeavenArrowFix.tooltip=修复'天堂长弓'射出的箭不是全亮的问题
+config.swansong.compat.TC_EldritchObeliskFix=ThaumCraft: 邪术方尖碑修复
+config.swansong.compat.TC_EldritchObeliskFix.tooltip=修复邪术方尖碑上的传送门效果
+config.swansong.compat.TC_VisOverlayFix=ThaumCraft: 秘法覆盖层修复
+config.swansong.compat.TC_VisOverlayFix.tooltip=修复节点和其他东西上的秘法信息覆盖层
+config.swansong.compat.THEX_TesseractStarfieldFix=Thermal Expansion: 超立方体星空修复
+config.swansong.compat.THEX_TesseractStarfieldFix.tooltip=修复超立方体上的星空效果
+config.swansong.compat.JM_WaypointBeaconFix=JourneyMap: 路径点信标修复
+config.swansong.compat.JM_WaypointBeaconFix.tooltip=修复路径点信标文字闪烁和泛光渗色问题
+config.swansong.compat.NTM_SkyFix=NTM Space: 天空修复
+config.swansong.compat.NTM_SkyFix.tooltip=修复 HBM NTM: Space 的天空渲染器
+config.swansong.compat.Botania_SkyFix=Botania: 天空修复
+config.swansong.compat.Botania_SkyFix.tooltip=修复植物魔法花园玻璃世界的天空渲染器
+config.swansong.compat.Galacticraft_SkyFix=GalactiCraft: 天空修复
+config.swansong.compat.Galacticraft_SkyFix.tooltip=修复银河创世纪的天空渲染器
+
+config.swansong.compat.MC_GuiLightFix=Minecraft: GUI 光照修复
+config.swansong.compat.MC_GuiLightFix.tooltip=修复某些整合包中 GUI 变"暗"的问题
+config.swansong.compat.MC_BoundingBoxFixes=Minecraft: 渲染边界框修复
+config.swansong.compat.MC_BoundingBoxFixes.tooltip=修复某些方块实体（末地传送门、告示牌）的渲染边界框\n如果你的基地有很多告示牌，可以显著提高游戏性能
+config.swansong.compat.MC_LightMapCoordClamp=Minecraft: 光照贴图坐标钳制
+config.swansong.compat.MC_LightMapCoordClamp.tooltip=将光照贴图的固定坐标钳制在：0F-240F\n修复某些东西最终渲染为漆黑一片的问题
+
+# 设置
+option.swansong.shaders.AntiAliasingCfg.DISABLED=抗锯齿：关
+option.swansong.shaders.AntiAliasingCfg.FXAA_2X=抗锯齿：FXAA 2x
+option.swansong.shaders.AntiAliasingCfg.FXAA_4X=抗锯齿：FXAA 4x
+
+option.swansong.shaders.NormalMappingCfg.AUTO=法线贴图：自动
+option.swansong.shaders.NormalMappingCfg.ENABLED=法线贴图：开
+option.swansong.shaders.NormalMappingCfg.DISABLED=法线贴图：关
+
+option.swansong.shaders.SpecularMappingCfg.AUTO=高光贴图：自动
+option.swansong.shaders.SpecularMappingCfg.ENABLED=高光贴图：开
+option.swansong.shaders.SpecularMappingCfg.DISABLED=高光贴图：关
+
+option.swansong.shaders.RenderQualityCfg.MULT_0_5=渲染质量：0.5x
+option.swansong.shaders.RenderQualityCfg.MULT_0_7=渲染质量：0.7x
+option.swansong.shaders.RenderQualityCfg.MULT_1_0=渲染质量：1x
+option.swansong.shaders.RenderQualityCfg.MULT_1_5=渲染质量：1.5x
+option.swansong.shaders.RenderQualityCfg.MULT_2_0=渲染质量：2x
+
+option.swansong.shaders.ShadowQualityCfg.MULT_0_5=阴影质量：0.5x
+option.swansong.shaders.ShadowQualityCfg.MULT_0_7=阴影质量：0.7x
+option.swansong.shaders.ShadowQualityCfg.MULT_1_0=阴影质量：1x
+option.swansong.shaders.ShadowQualityCfg.MULT_1_5=阴影质量：1.5x
+option.swansong.shaders.ShadowQualityCfg.MULT_2_0=阴影质量：2x
+
+option.swansong.shaders.HandDepthCfg.MULT_0_5=手部深度：0.5x
+option.swansong.shaders.HandDepthCfg.MULT_1_0=手部深度：1x
+option.swansong.shaders.HandDepthCfg.MULT_2_0=手部深度：2x
+
+option.swansong.shaders.OldHandLightCfg.AUTO=旧版手部光照：自动
+option.swansong.shaders.OldHandLightCfg.ENABLED=旧版手部光照：开
+option.swansong.shaders.OldHandLightCfg.DISABLED=旧版手部光照：关
+
+option.swansong.shaders.OldHandDepthCfg.AUTO=旧版手部深度：自动
+option.swansong.shaders.OldHandDepthCfg.ENABLED=旧版手部深度：开
+option.swansong.shaders.OldHandDepthCfg.DISABLED=旧版手部深度：关
+
+# 界面
+gui.swansong.shaders.title=光影
+gui.swansong.shaders.default=（默认）
+gui.swansong.shaders.browse=光影文件夹
+gui.swansong.shaders.exit=完成
+gui.swansong.shaders.options=光影设置...
+gui.swansong.shaders.profile.key=配置文件
+gui.swansong.shaders.profile.custom=自定义
+gui.swansong.shaders.root.title=光影设置
+gui.swansong.shaders.resetAll=全部重置
+gui.swansong.shaders.resetAll.query=你确定要重置所有光影设置吗？
+gui.swansong.shaders.exit.query=是否保存已修改的设置？
+gui.swansong.shaders.apply=应用
+
+# 截图
+screenshot.swansong.threaded=正在缓慢地截取屏幕截图...
+screenshot.swansong.nospam=别急按 F2 啦，还在保存中！！！
+
+# 按键
+key.swansong.categories.general=SwanSong
+key.swansong.zoom=缩~放-
+
+# 其他
+swansong.anaglyph.standard=标准
+swansong.anaglyph.wide=宽屏
