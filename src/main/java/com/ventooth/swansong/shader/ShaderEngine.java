@@ -33,6 +33,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.AbstractObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -97,6 +98,7 @@ public final class ShaderEngine {
 
     private static @Nullable CompositePipeline deferredPipeline;
     private static @Nullable CompositePipeline compositePipeline;
+    private static @Nullable CompositePipeline finalPipeline;
     private static Framebuffer mcFramebuffer;
     private static Texture2D mcTexture;
     // TODO [SAMPLER]: Move to a better spot
@@ -340,22 +342,9 @@ public final class ShaderEngine {
         assert state != null : "Not Initialized";
         val anaglyph = ((ShaderGameSettings) Minecraft.getMinecraft().gameSettings).swan$anaglyph();
 
-        if (state.manager._final != null) {
+        if (finalPipeline != null) {
             // Actual shader pass doing it
-            GLDebugGroups.RENDER_COMPOSITE_FINAL.push();
-            {
-                use(state.manager._final);
-                bindCompositeTextures(buffers.gColor.getAllTextures());
-
-                GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.push();
-                if (anaglyph != 0) {
-                    ShadersCompositeMesh.drawWithAnaglyphField(EntityRenderer.anaglyphField);
-                } else {
-                    ShadersCompositeMesh.drawWithColor();
-                }
-                GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.pop();
-            }
-            GLDebugGroups.RENDER_COMPOSITE_FINAL.pop();
+            finalPipeline.run();
         } else {
             // Our poor blit...
 
@@ -567,6 +556,9 @@ public final class ShaderEngine {
         if (compositePipeline != null) {
             compositePipeline.resize(width, height);
         }
+        if (finalPipeline != null) {
+            finalPipeline.resize(width, height);
+        }
 
         if (!DrawBuffers.isMinecraftUpToDate(mcFramebuffer, mcTexture)) {
             mcFramebuffer = DrawBuffers.wrapMinecraft();
@@ -599,6 +591,9 @@ public final class ShaderEngine {
         mcFramebuffer = DrawBuffers.wrapMinecraft();
         if (state.manager._final != null) {
             state.manager._final.framebuffer = mcFramebuffer;
+            finalPipeline = CompositePipeline.buildPipelineFinal(buffers,
+                                                                 ObjectLists.singleton(state.manager._final),
+                                                                 report);
         }
 
         if (state.manager.deferredList != null) {
@@ -637,6 +632,10 @@ public final class ShaderEngine {
         if (compositePipeline != null) {
             compositePipeline.deinit();
             compositePipeline = null;
+        }
+        if (finalPipeline != null) {
+            finalPipeline.deinit();
+            finalPipeline = null;
         }
 
         mcFramebuffer = null;
