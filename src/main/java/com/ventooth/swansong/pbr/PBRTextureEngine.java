@@ -379,7 +379,7 @@ public final class PBRTextureEngine {
                           .getResource(pbrLoc)
                           .getInputStream();
         } catch (Exception e) {
-            log.trace("PBR Texture not found: " + pbrLoc, e);
+            log.debug("PBR Texture not found: {}", pbrLoc);
             return null;
         }
 
