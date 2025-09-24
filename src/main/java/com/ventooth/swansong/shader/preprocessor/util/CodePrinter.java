@@ -52,10 +52,6 @@ public class CodePrinter {
             val tagged = code.get(i);
             val tag = tagged.tag();
             val lb = tagged.lineBreak();
-            if (tag == TaggedLine.Tag.MultilineComment) {
-                processComment(lb, tagged.text());
-                continue;
-            }
             val opt = opts.get(i);
             String txt;
             if (opt != null) {
@@ -70,7 +66,9 @@ public class CodePrinter {
                 }
             }
             fixLineNumbers(tagged);
-            lastContent = fragments.size();
+            if (tag != TaggedLine.Tag.MultilineComment) {
+                lastContent = fragments.size();
+            }
             if (opt != null) {
                 fragments.add(opt.toCode());
             } else {
@@ -79,22 +77,6 @@ public class CodePrinter {
             if (lb) {
                 flushLine();
             }
-        }
-    }
-
-    private void processComment(boolean lb, String txt) {
-        val len = txt.length();
-        val fnws = StringUtils.firstNonWhitespace(txt, 0, len);
-        if (fnws >= 0 && len - fnws >= 2 && txt.charAt(fnws) == '/' && txt.charAt(fnws + 1) == '/') {
-            return;
-        }
-        if (lb) {
-            if (!compact) {
-                fragments.add(txt);
-            }
-            flushLine();
-        } else {
-            fragments.add(txt);
         }
     }
 
@@ -146,6 +128,7 @@ public class CodePrinter {
 
     private void flushLine() {
         if (lastContent < 0) {
+            fragments.clear();
             return;
         }
         val max = Math.min(fragments.size() - 1, lastContent);
