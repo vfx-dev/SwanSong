@@ -587,15 +587,6 @@ public final class ShaderEngine {
 
         buffers.attachTo(state.manager.gBufferList);
 
-        mcTexture = DrawBuffers.wrapMinecraftTexture();
-        mcFramebuffer = DrawBuffers.wrapMinecraft();
-        if (state.manager._final != null) {
-            state.manager._final.framebuffer = mcFramebuffer;
-            finalPipeline = CompositePipeline.buildPipelineFinal(buffers,
-                                                                 ObjectLists.singleton(state.manager._final),
-                                                                 report);
-        }
-
         if (state.manager.deferredList != null) {
             deferredPipeline = CompositePipeline.buildPipeline("deferred",
                                                                "DA_",
@@ -615,6 +606,16 @@ public final class ShaderEngine {
                                                                 width,
                                                                 height,
                                                                 report);
+        }
+
+        mcTexture = DrawBuffers.wrapMinecraftTexture();
+        mcFramebuffer = DrawBuffers.wrapMinecraft();
+
+        if (state.manager._final != null) {
+            state.manager._final.framebuffer = mcFramebuffer;
+            finalPipeline = CompositePipeline.buildPipelineFinal(buffers,
+                                                                 ObjectLists.singleton(state.manager._final),
+                                                                 report);
         }
 
         ShaderEngine.log.debug("Initialized Framebuffers");
