@@ -428,8 +428,8 @@ public final class ShaderEngine {
 
     private static void doShaderPackReload() {
         deinit();
+        val report = new Report();
         try {
-            val report = new Report();
             init(report);
 
             val viewSize = ShaderState.viewSize();
@@ -443,6 +443,8 @@ public final class ShaderEngine {
             report.endTime = System.nanoTime();
             report.print();
         } catch (RuntimeException e) {
+            report.endTime = System.nanoTime();
+            report.print();
             if (DefaultShaderPack.NAME.equals(ShaderPackManager.getCurrentShaderPackName())) {
                 ShaderEngine.log.fatal("Failed to load internal shaderpack! Unrecoverable.");
                 ShaderEngine.log.fatal("Please report this as a bug:", e);

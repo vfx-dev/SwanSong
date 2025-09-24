@@ -1206,8 +1206,9 @@ public class ShaderLoader {
                                        prog,
                                        stage2.mipmapEnabled,
                                        stage2.renderTargets);
-        } catch (ShaderException e) {
-            Share.log.error(e.getMessage());
+        } catch (Exception e) {
+            Share.log.error("Error while compiling shader {}", stage2.path);
+            Share.log.error("Stacktrace:", e);
             if (report != null) {
                 report.erroredShaders.add(stage2.path);
             }
