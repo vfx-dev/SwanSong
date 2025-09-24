@@ -146,6 +146,8 @@ public final class ShaderState {
     private static double wetnessHalfLife = 600D;
     private static double drynessHalfLife = 200D;
     private static double eyeBrightnessHalfLife = 10D;
+    private static double centerDepthHalfLife = 1.0;
+
 
     private static double centerDepth = 0;
     private static double centerDepthSmooth = 0;
@@ -165,6 +167,7 @@ public final class ShaderState {
         wetnessHalfLife = params.wetnessHalfLife;
         drynessHalfLife = params.drynessHalfLife;
         eyeBrightnessHalfLife = params.eyeBrightnessHalfLife;
+        centerDepthHalfLife = params.centerDepthHalfLife;
 
         if (params.oldLighting == null) {
             useOldBlockLight = true;
@@ -440,7 +443,9 @@ public final class ShaderState {
 
     public static void updateCenterDepth(double currentCenterDepth) {
         centerDepth = currentCenterDepth;
-        centerDepthSmooth = centerDepth; //TODO: Center depth math
+        double temp1 = (double) diffSystemTime * 0.01;
+        double temp2 = Math.exp(LOG_HALF * temp1 / centerDepthHalfLife);
+        centerDepthSmooth = centerDepth + (centerDepthSmooth - centerDepth) * temp2;
     }
 
     public static boolean isHeldItemTranslucent() {
