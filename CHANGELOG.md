@@ -12,6 +12,7 @@
 - Debug marker for screenshots
 - Better error handling on shader initialization
 - Support for custom textures
+- zh_CN translations ([#6](https://github.com/vfx-dev/SwanSong/pull/6)) (Omgise)
 
 ### Fixed
 
