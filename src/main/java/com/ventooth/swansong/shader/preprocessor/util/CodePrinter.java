@@ -53,10 +53,7 @@ public class CodePrinter {
             val tag = tagged.tag();
             val lb = tagged.lineBreak();
             if (tag == TaggedLine.Tag.MultilineComment) {
-                if (processWhitespace(lb, tagged.text())) {
-                    continue;
-                }
-                processComment(lb, tagged);
+                processComment(lb, tagged.text());
                 continue;
             }
             val opt = opts.get(i);
@@ -85,15 +82,19 @@ public class CodePrinter {
         }
     }
 
-    private void processComment(boolean lb, TaggedLine tagged) {
+    private void processComment(boolean lb, String txt) {
+        val len = txt.length();
+        val fnws = StringUtils.firstNonWhitespace(txt, 0, len);
+        if (fnws >= 0 && len - fnws >= 2 && txt.charAt(fnws) == '/' && txt.charAt(fnws + 1) == '/') {
+            return;
+        }
         if (lb) {
             if (!compact) {
-                lastContent = fragments.size();
-                fragments.add(tagged.text());
+                fragments.add(txt);
             }
             flushLine();
         } else {
-            fragments.add(tagged.text());
+            fragments.add(txt);
         }
     }
 
