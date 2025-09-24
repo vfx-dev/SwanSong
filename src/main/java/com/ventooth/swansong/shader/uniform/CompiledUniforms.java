@@ -132,7 +132,7 @@ public class CompiledUniforms {
                                 shaderVar.expression()
                                          .replace('\n', ' ')
                                          .replace('\r', ' '));
-                Share.log.error("Stacktrace:", e);
+                Share.log.trace("Stacktrace:", e);
                 continue;
             }
             if (accessor != null) {
