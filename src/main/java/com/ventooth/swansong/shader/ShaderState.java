@@ -601,7 +601,7 @@ public final class ShaderState {
         double temp2 = Math.exp(LOG_HALF * temp1 / eyeBrightnessHalfLife);
         eyeBrightnessSmooth.x = eyeBrightness.x + (eyeBrightnessSmooth.x - eyeBrightness.x) * temp2;
         eyeBrightnessSmooth.y = eyeBrightness.y + (eyeBrightnessSmooth.y - eyeBrightness.y) * temp2;
-        eyeBrightness.set((int) Math.round(eyeBrightnessSmooth.x), (int) Math.round(eyeBrightnessSmooth.y));
+        eyeBrightnessSmoothRound.set((int) Math.round(eyeBrightnessSmooth.x), (int) Math.round(eyeBrightnessSmooth.y));
     }
 
     public static void setCameraShadow(int size, double dist, Double fov, double intervalStep) {
