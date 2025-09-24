@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.image;
 
+import com.ventooth.swansong.debug.DebugMarker;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -60,6 +61,9 @@ public final class ThreadedScreenshot {
             rawImage = ImageUtils.downloadGLTextureAsBGRA(frameBuffer);
             if (rawImage == null) {
                 throw new IllegalStateException("Failed to copy from GPU");
+            }
+            if (DebugMarker.isEnabled()) {
+                DebugMarker.SCREENSHOT_TAKEN.insert();
             }
         } catch (Exception e) {
             return new ChatComponentTranslation("screenshot.failure", e.getMessage());

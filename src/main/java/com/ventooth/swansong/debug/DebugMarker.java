@@ -28,6 +28,7 @@ public enum DebugMarker {
     TEXTURE_COLOR_BLIT(500),
     TEXTURE_DEPTH_BLIT(510),
     TEXTURE_MIP_GEN(520),
+    SCREENSHOT_TAKEN(530),
 
     ;
 
@@ -38,6 +39,14 @@ public enum DebugMarker {
 
     public static boolean isEnabled() {
         return DebugConfig.GLDebugMarkers;
+    }
+
+    public void insert() {
+        if (!isEnabled()) {
+            return;
+        }
+
+        doInsertMessage(name());
     }
 
     public void insert(String message) {
