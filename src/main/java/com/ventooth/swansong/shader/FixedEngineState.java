@@ -136,7 +136,7 @@ class FixedEngineState {
         PBRTextureEngine.init();
 
         // TODO: Check if the shader actually needs center depth before populating, this call is not free.
-        if (true) {
+        if (ShadersConfig.LetMeUseDepthOfFieldPlease) {
             b.depthSampler = new DepthSampler();
             b.depthSampler.init();
         }

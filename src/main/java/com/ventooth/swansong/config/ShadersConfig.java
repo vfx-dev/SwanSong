@@ -85,6 +85,9 @@ public final class ShadersConfig {
     @Config.DefaultEnum("AUTO")
     public static OldHandDepthCfg OldHandDepth;
 
+    @Config.DefaultBoolean(false)
+    public static boolean LetMeUseDepthOfFieldPlease; // TODO: Desc
+
     @RequiredArgsConstructor
     @Accessors(fluent = true,
                chain = false)

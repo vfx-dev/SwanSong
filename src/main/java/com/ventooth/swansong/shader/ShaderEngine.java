@@ -748,6 +748,8 @@ public final class ShaderEngine {
 
         if (state.depthSampler != null) {
             ShaderState.updateCenterDepth(state.depthSampler.getSample());
+        } else {
+            ShaderState.updateCenterDepth(1F); // TODO: This assumes that far depth is 1.0
         }
 
         ShaderState.updatePreRenderWorld();

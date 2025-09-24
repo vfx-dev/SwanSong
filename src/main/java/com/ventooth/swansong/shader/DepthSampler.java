@@ -109,6 +109,7 @@ public final class DepthSampler {
 
         GL15.glBindBuffer(GL21.GL_PIXEL_PACK_BUFFER, buf);
 
+        // TODO: This part seems to choke on Nvidia drivers?
         GL11.glReadPixels(centerX, centerY, 1, 1, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT, 0L);
         GL15.glBindBuffer(GL21.GL_PIXEL_PACK_BUFFER, 0);
     }
