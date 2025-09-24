@@ -11,6 +11,7 @@
 package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.Share;
+import com.ventooth.swansong.sufrace.FramebufferAttachment;
 import com.ventooth.swansong.sufrace.Texture2D;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -172,7 +173,7 @@ public class Report {
                         if (sb.length() != 0) {
                             sb.append(", ");
                         }
-                        sb.append(output.getKey())
+                        sb.append(output.getKey().name())
                           .append(" -> ")
                           .append(output.getValue());
                     }
@@ -250,7 +251,7 @@ public class Report {
         public final String name;
         public final ObjectList<String> mipmaps = new ObjectArrayList<>(16);
         public final Map<CompositeTextureData, String> inputs = new EnumMap<>(CompositeTextureData.class);
-        public final Int2ObjectMap<String> outputs = new Int2ObjectArrayMap<>();
+        public final Map<FramebufferAttachment, String> outputs = new EnumMap<>(FramebufferAttachment.class);
     }
 
     public static class ShaderInfo {

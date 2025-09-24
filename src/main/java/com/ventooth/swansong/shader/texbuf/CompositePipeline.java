@@ -21,6 +21,7 @@ import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShadersCompositeMesh;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.sufrace.Framebuffer;
+import com.ventooth.swansong.sufrace.FramebufferAttachment;
 import com.ventooth.swansong.sufrace.Texture2D;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -117,7 +118,7 @@ public class CompositePipeline implements Runnable {
                 recordShaderIOInfo(shader, info, mipInputs, inputTex, outputTex);
             }
 
-            shader.framebuffer = Framebuffer.create(name + i, ObjectLists.unmodifiable(outputTex));
+            shader.framebuffer = Framebuffer.create(name + i, Collections.unmodifiableMap(outputTex));
             steps.add(new CompositeStep(Collections.unmodifiableMap(inputTex), shader));
         }
         genAuxPostBlit(buffers, auxTex, info, aux, steps);
@@ -128,7 +129,7 @@ public class CompositePipeline implements Runnable {
                                            Report.CompositePipelineInfo info,
                                            ObjectArrayList<Texture2D> mipInputs,
                                            EnumMap<CompositeTextureData, Texture2D> inputTex,
-                                           @Nullable ObjectList<Texture2D> outputTex) {
+                                           @Nullable EnumMap<FramebufferAttachment, Texture2D> outputTex) {
         val stage = new Report.CompositeStageInfo(shader.srcPath());
         info.stages.add(stage);
         for (val mipmap : mipInputs) {
@@ -140,11 +141,10 @@ public class CompositePipeline implements Runnable {
                                   .name());
         }
         if (outputTex != null) {
-            val size = outputTex.size();
-            for (int i = 0; i < size; i++) {
-                stage.outputs.put(i,
-                                  outputTex.get(i)
-                                           .name());
+            for (val entry: outputTex.entrySet()) {
+                stage.outputs.put(entry.getKey(),
+                                  entry.getValue()
+                                       .name());
             }
         }
     }
@@ -196,11 +196,11 @@ public class CompositePipeline implements Runnable {
         return mipInputs;
     }
 
-    private static @NotNull ObjectList<Texture2D> getOutputTex(@NotNull DrawBuffers buffers,
-                                                               CompositeShader shader,
-                                                               BitSet inputMask,
-                                                               BitSet auxTex,
-                                                               ColorBuffers aux) {
+    private static @NotNull EnumMap<FramebufferAttachment, Texture2D> getOutputTex(@NotNull DrawBuffers buffers,
+                                                                              CompositeShader shader,
+                                                                              BitSet inputMask,
+                                                                              BitSet auxTex,
+                                                                              ColorBuffers aux) {
         val outputs = new ObjectArrayList<CompositeTextureData>();
         val iter = shader.renderTargets()
                          .intIterator();
@@ -209,15 +209,21 @@ public class CompositePipeline implements Runnable {
             val id = DrawBuffers.textureFromColorTexIndex(index);
             outputs.add(id);
         }
-        val outputTex = new ObjectArrayList<Texture2D>();
+        val outputTex = new EnumMap<FramebufferAttachment, Texture2D>(FramebufferAttachment.class);
 
+        int i = 0;
         for (val output : outputs) {
             val auxIndex = DrawBuffers.colorTexIndexFromTexture(output);
             assert auxIndex >= 0;
             val outIntoAux = inputMask.get(output.gpuIndex()) && !auxTex.get(auxIndex);
             auxTex.set(auxIndex, outIntoAux);
             val tex = outIntoAux ? aux.get(output) : buffers.getByID(output);
-            outputTex.add(tex);
+            val att = FramebufferAttachment.fromColorIndex(i);
+            i++;
+            //TODO proper error handling
+            if (att != null) {
+                outputTex.put(att, tex);
+            }
         }
         return outputTex;
     }

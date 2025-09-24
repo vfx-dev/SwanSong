@@ -14,6 +14,7 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
 import com.ventooth.swansong.shader.DrawBuffers;
+import com.ventooth.swansong.sufrace.FramebufferAttachment;
 import com.ventooth.swansong.sufrace.Texture2D;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -76,9 +77,10 @@ public class ColorBuffers {
         }
     }
 
-    public ObjectList<Texture2D> getFramebufferAttachments(IntList indices) {
-        val result = new ObjectArrayList<Texture2D>();
+    public Map<FramebufferAttachment, Texture2D> getFramebufferAttachments(IntList indices) {
+        val result = new EnumMap<FramebufferAttachment, Texture2D>(FramebufferAttachment.class);
         val iter = indices.intIterator();
+        int i = 0;
         while (iter.hasNext()) {
             val index = iter.nextInt();
             val id = DrawBuffers.textureFromColorTexIndex(index);
@@ -86,9 +88,14 @@ public class ColorBuffers {
             if (tex == null) {
                 throw new IllegalArgumentException("Color buffer with index " + index + " not found!");
             }
-            result.add(tex);
+            val attachment = FramebufferAttachment.fromColorIndex(i);
+            if (attachment == null) {
+                throw new IllegalArgumentException("Invalid framebuffer color attachment index " + i);
+            }
+            result.put(attachment, tex);
+            i++;
         }
-        return ObjectLists.unmodifiable(result);
+        return Collections.unmodifiableMap(result);
     }
 
     public Map<CompositeTextureData, Texture2D> getAllTextures() {

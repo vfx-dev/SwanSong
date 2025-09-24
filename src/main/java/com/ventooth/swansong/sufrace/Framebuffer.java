@@ -22,6 +22,7 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.util.List;
+import java.util.Map;
 
 @Accessors(fluent = true,
            chain = false)
@@ -93,21 +94,21 @@ public class Framebuffer {
         return new Framebuffer(name, framebuffer);
     }
 
-    private static void attachColorAndSetDrawBuffers(List<Texture2D> colorTexList) {
+    private static void attachColorAndSetDrawBuffers(Map<FramebufferAttachment, Texture2D> colorTexList) {
         val size = colorTexList.size();
         val drawBuffers = BufferUtils.createIntBuffer(size);
-        for (int i = 0; i < size; i++) {
-            val tex = colorTexList.get(i);
-            val attachmentIndex = GL30.GL_COLOR_ATTACHMENT0 + i;
-            tex.attachToFramebufferColor(attachmentIndex);
-            drawBuffers.put(attachmentIndex);
+        for (val entry: colorTexList.entrySet()) {
+            val attachment = entry.getKey().toGLConstant();
+            val tex = entry.getValue();
+            tex.attachToFramebufferColor(attachment);
+            drawBuffers.put(attachment);
         }
         drawBuffers.flip();
 
         GL20.glDrawBuffers(drawBuffers);
     }
 
-    public static Framebuffer create(String name, List<Texture2D> colorTexList, Texture2D depthTex) {
+    public static Framebuffer create(String name, Map<FramebufferAttachment, Texture2D> colorTexList, Texture2D depthTex) {
         val framebuffer = new GLFramebuffer();
         framebuffer.glGenFramebuffers();
         framebuffer.glBindFramebuffer();
@@ -121,7 +122,7 @@ public class Framebuffer {
         return new Framebuffer(name, framebuffer);
     }
 
-    public static Framebuffer create(String name, List<Texture2D> colorTexList) {
+    public static Framebuffer create(String name, Map<FramebufferAttachment, Texture2D> colorTexList) {
         val framebuffer = new GLFramebuffer();
         framebuffer.glGenFramebuffers();
         framebuffer.glBindFramebuffer();
