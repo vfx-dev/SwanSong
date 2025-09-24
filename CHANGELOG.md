@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 2025-09-24
+
+### Fixed
+
+- Broken worldDay uniform
+
 ## [1.1.0] - 2025-09-24
 
 ### Changed
