@@ -589,9 +589,8 @@ public final class ShaderState {
 
         rainStrength = world.getRainStrength(partialTick);
 
-        val time = world.getWorldTime();
-        worldTime = (int) (time % 24000L);
-        worldDay = (int) (time % 24000L);
+        worldTime = (int) (world.getWorldTime() % 24000L);
+        worldDay = (int) (world.getTotalWorldTime() / 24000L);
         moonPhase = world.getMoonPhase();
 
         frameCounter++;
