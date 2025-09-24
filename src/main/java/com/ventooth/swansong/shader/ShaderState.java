@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4d;
 import org.joml.Matrix4dc;
 import org.joml.Vector2d;
+import org.joml.Vector2dc;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 import org.joml.Vector3d;
@@ -91,15 +92,19 @@ public final class ShaderState {
     private static final Vector2i viewSize = new Vector2i();
 
     private static final Vector2i eyeBrightness = new Vector2i();
+    private static final Vector2d eyeBrightnessD = new Vector2d();
     private static final Vector2d eyeBrightnessSmooth = new Vector2d();
     private static final Vector2i eyeBrightnessSmoothRound = new Vector2i();
+    private static final Vector2d eyeBrightnessSmoothRoundD = new Vector2d();
 
     private static final Vector3d camPos = new Vector3d();
     private static final Vector3d camPosFract = new Vector3d();
     private static final Vector3i camPosInt = new Vector3i();
+    private static final Vector3d camPosIntD = new Vector3d();
     private static final Vector3d prevCamPos = new Vector3d();
     private static final Vector3d prevCamPosFract = new Vector3d();
     private static final Vector3i prevCamPosInt = new Vector3i();
+    private static final Vector3d prevCamPosIntD = new Vector3d();
 
     private static final Vector3d upPos = new Vector3d();
 
@@ -257,6 +262,14 @@ public final class ShaderState {
         return eyeBrightnessSmoothRound;
     }
 
+    public static Vector2dc eyeBrightnessD() {
+        return eyeBrightnessD;
+    }
+
+    public static Vector2dc eyeBrightnessSmoothD() {
+        return eyeBrightnessSmoothRoundD;
+    }
+
     public static int worldTime() {
         return worldTime;
     }
@@ -301,6 +314,10 @@ public final class ShaderState {
         return camPosInt;
     }
 
+    public static Vector3dc camPosIntD() {
+        return camPosIntD;
+    }
+
     public static Vector3dc prevCamPos() {
         return prevCamPos;
     }
@@ -311,6 +328,10 @@ public final class ShaderState {
 
     public static Vector3ic prevCamPosInt() {
         return prevCamPosInt;
+    }
+
+    public static Vector3dc prevCamPosIntD() {
+        return prevCamPosIntD;
     }
 
     public static Vector3dc upPos() {
@@ -581,6 +602,7 @@ public final class ShaderState {
 
         prevCamPos.set(camPos);
         prevCamPosInt.set(camPosInt);
+        prevCamPosIntD.set(prevCamPosInt);
         prevCamPosFract.set(camPosFract);
 
         prevProjectionMat.set(projectionMat);
@@ -598,6 +620,7 @@ public final class ShaderState {
     private static void eyeBrightnessFromRaw(int brightness) {
         eyeBrightness.x = brightness & 0xFFFF;
         eyeBrightness.y = (brightness >>> 16) & 0xFFFF;
+        eyeBrightnessD.set(eyeBrightness);
     }
 
     private static void updateEyeBrightness(Entity viewEntity, float partialTick) {
@@ -607,6 +630,7 @@ public final class ShaderState {
         eyeBrightnessSmooth.x = eyeBrightness.x + (eyeBrightnessSmooth.x - eyeBrightness.x) * temp2;
         eyeBrightnessSmooth.y = eyeBrightness.y + (eyeBrightnessSmooth.y - eyeBrightness.y) * temp2;
         eyeBrightnessSmoothRound.set((int) Math.round(eyeBrightnessSmooth.x), (int) Math.round(eyeBrightnessSmooth.y));
+        eyeBrightnessSmoothRoundD.set(eyeBrightnessSmoothRound);
     }
 
     public static void setCameraShadow(int size, double dist, Double fov, double intervalStep) {
@@ -694,6 +718,7 @@ public final class ShaderState {
         camPos.z = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * partialTick;
         camPos.floor(camPosFract);
         camPosInt.set(camPosFract);
+        camPosIntD.set(camPosInt);
         camPos.sub(camPosFract, camPosFract);
 
         // We clear this just to be sure...

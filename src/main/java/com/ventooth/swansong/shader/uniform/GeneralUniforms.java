@@ -106,15 +106,15 @@ public final class GeneralUniforms {
             reg.impure(clazz.getDeclaredMethod("camPos"), "cameraPosition");
             reg.impure(clazz.getDeclaredMethod("eyeAltitude"));
             //iris stuff
-            //reg.impure(clazz.getDeclaredMethod("camPosFract"), "cameraPositionFract");
-            //reg.impure(clazz.getDeclaredMethod("camPosInt"), "cameraPositionInt");
-            //reg.impure(clazz.getDeclaredMethod("prevCamPos"), "previousCameraPosition");
-            //reg.impure(clazz.getDeclaredMethod("prevCamPosFract"), "previousCameraPositionFract");
-            //reg.impure(clazz.getDeclaredMethod("prevCamPosInt"), "previousCameraPositionInt");
+            reg.impure(clazz.getDeclaredMethod("camPosFract"), "cameraPositionFract");
+            reg.impure(clazz.getDeclaredMethod("camPosIntD"), "cameraPositionInt");
+            reg.impure(clazz.getDeclaredMethod("prevCamPos"), "previousCameraPosition");
+            reg.impure(clazz.getDeclaredMethod("prevCamPosFract"), "previousCameraPositionFract");
+            reg.impure(clazz.getDeclaredMethod("prevCamPosIntD"), "previousCameraPositionInt");
 
             reg.impure(clazz.getDeclaredMethod("upPos"), "upPosition");
-            //reg.impure(clazz.getDeclaredMethod("eyeBrightness"));
-            //reg.impure(clazz.getDeclaredMethod("eyeBrightnessSmooth"));
+            reg.impure(clazz.getDeclaredMethod("eyeBrightnessD"), "eyeBrightness");
+            reg.impure(clazz.getDeclaredMethod("eyeBrightnessSmoothD"), "eyeBrightnessSmooth");
             reg.impure(clazz.getDeclaredMethod("centerDepthSmooth"));
             reg.impure(clazz.getDeclaredMethod("isEyeInWater"));
             reg.impure(clazz.getDeclaredMethod("blindness"));
