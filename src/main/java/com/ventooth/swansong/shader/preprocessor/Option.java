@@ -225,7 +225,7 @@ public abstract class Option {
             val type = match.group(GROUP_TYPE);
             val name = match.group(GROUP_NAME);
             val value = Value.detect(match.group(GROUP_VALUE));
-            val allowed = Option.tryParseAllowedGroup(match.group(GROUP_ALLOWED));
+            val allowed = Option.tryParseAllowedGroup(value, match.group(GROUP_ALLOWED));
             if (allowed == null) {
                 if (value instanceof Value.Bool) {
                     int idx = valueIndexOf(value, TOGGLE_VALUES);
@@ -328,7 +328,7 @@ public abstract class Option {
                     return null;
                 }
                 val value = Value.detect(valueStr);
-                val allowed = Option.tryParseAllowedGroup(match.group(GROUP_ALLOWED));
+                val allowed = Option.tryParseAllowedGroup(value, match.group(GROUP_ALLOWED));
                 if (allowed == null) {
                     return new Define(name, State.Unconfigurable, Collections.singletonList(value), 0, 0);
                 } else {
@@ -376,7 +376,7 @@ public abstract class Option {
         }
     }
 
-    protected static @Nullable @Unmodifiable List<? extends Value> tryParseAllowedGroup(String allowedGroup) {
+    protected static @Nullable @Unmodifiable List<? extends Value> tryParseAllowedGroup(Value initialValue, String allowedGroup) {
         if (allowedGroup == null) {
             return null;
         } else {
@@ -385,12 +385,20 @@ public abstract class Option {
             if (allowedStr.length == 0) {
                 return null;
             } else {
+                boolean anyMatch = false;
                 val allowed = new ArrayList<Value>();
                 for (val str : allowedStr) {
-                    allowed.add(Value.detect(str));
+                    val v = Value.detect(str);
+                    if (!anyMatch) {
+                        anyMatch = valueMatches(v, initialValue);
+                    }
+                    allowed.add(v);
                 }
                 if (allowed.size() == 2 && allowed.get(0) == Value.Bool.False && allowed.get(1) == Value.Bool.True) {
                     return TOGGLE_VALUES;
+                }
+                if (!anyMatch) {
+                    allowed.add(0, initialValue);
                 }
                 return Collections.unmodifiableList(allowed);
             }
