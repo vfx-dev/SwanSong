@@ -9,6 +9,7 @@
 ### Added
 
 - Support for smoothCenterDepth
+- Support for atlasSize
 - Debug marker for screenshots
 - Better error handling on shader initialization
 - Support for custom textures
