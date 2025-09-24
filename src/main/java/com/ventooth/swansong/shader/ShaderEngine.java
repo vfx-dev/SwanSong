@@ -22,6 +22,7 @@ import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.shader.shaderobjects.GBufferShader;
 import com.ventooth.swansong.shader.shaderobjects.ManagedShader;
+import com.ventooth.swansong.shader.shaderobjects.ShadowShader;
 import com.ventooth.swansong.shader.texbuf.CompositePipeline;
 import com.ventooth.swansong.sufrace.CustomTexture2D;
 import com.ventooth.swansong.sufrace.Framebuffer;
@@ -677,6 +678,7 @@ public final class ShaderEngine {
             deferredPipeline = CompositePipeline.buildPipeline("deferred",
                                                                "DA_",
                                                                state.colorDrawBufferConfigs,
+                                                               deferredCustomTex,
                                                                buffers,
                                                                state.manager.deferredList,
                                                                width,
@@ -687,6 +689,7 @@ public final class ShaderEngine {
             compositePipeline = CompositePipeline.buildPipeline("composite",
                                                                 "CA_",
                                                                 state.colorDrawBufferConfigs,
+                                                                compositeCustomTex,
                                                                 buffers,
                                                                 state.manager.compositeList,
                                                                 width,
@@ -701,6 +704,7 @@ public final class ShaderEngine {
             state.manager._final.framebuffer = mcFramebuffer;
             finalPipeline = CompositePipeline.buildPipelineFinal(buffers,
                                                                  ObjectLists.singleton(state.manager._final),
+                                                                 compositeCustomTex,
                                                                  report);
         }
 
@@ -1311,24 +1315,39 @@ public final class ShaderEngine {
         }
         shaderSwitches++;
         if (shader != null) {
-            if (shader instanceof GBufferShader) {
+            boolean resetTexture = false;
+            val isGBuffer = shader instanceof GBufferShader;
+            val isShadow = shader instanceof ShadowShader;
+            if (isGBuffer) {
                 if (buffers.shadowColorTex0 != null) {
                     GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowcolor0.gpuIndex());
+                    resetTexture = true;
                     buffers.shadowColorTex0.bind();
                 }
                 if (buffers.shadowColorTex1 != null) {
                     GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowcolor1.gpuIndex());
+                    resetTexture = true;
                     buffers.shadowColorTex1.bind();
                 }
                 if (buffers.shadowDepthTex0 != null) {
                     GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowtex0.gpuIndex());
+                    resetTexture = true;
                     buffers.shadowDepthTex0.bind();
                 }
                 if (buffers.shadowDepthTex1 != null) {
                     GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowtex1.gpuIndex());
+                    resetTexture = true;
                     buffers.shadowDepthTex1.bind();
                 }
-
+            }
+            if (isGBuffer || isShadow) {
+                for (val entry: gbuffersCustomTex.entrySet()) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + entry.getKey().gpuIndex());
+                    resetTexture = true;
+                    entry.getValue().bind();
+                }
+            }
+            if (resetTexture) {
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
             }
         }

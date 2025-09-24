@@ -50,6 +50,7 @@ public class CompositePipeline implements Runnable {
 
     public static CompositePipeline buildPipelineFinal(@NotNull DrawBuffers buffers,
                                                        @NotNull ObjectList<CompositeShader> shaders,
+                                                       @NotNull Map<CompositeTextureData, Texture2D> customTextures,
                                                        @Nullable Report report) {
         val info = report == null ? null
                                   : report.pipelines.computeIfAbsent("final", n -> new Report.CompositePipelineInfo());
@@ -58,7 +59,7 @@ public class CompositePipeline implements Runnable {
         val inputMask = new BitSet();
         for (val shader : shaders) {
             inputMask.clear();
-            val inputTex = getInputTexFinal(buffers, shader, inputMask);
+            val inputTex = getInputTexFinal(buffers, customTextures, shader, inputMask);
 
             final var mipInputs = getMipInputs(shader, inputTex);
 
@@ -78,6 +79,7 @@ public class CompositePipeline implements Runnable {
     public static CompositePipeline buildPipeline(String name,
                                                   String auxPrefix,
                                                   @NotNull Map<CompositeTextureData, BufferConfig> gBufferConfigs,
+                                                  @NotNull Map<CompositeTextureData, Texture2D> customTextures,
                                                   @NotNull DrawBuffers buffers,
                                                   @NotNull ObjectList<CompositeShader> shaders,
                                                   int width,
@@ -100,7 +102,7 @@ public class CompositePipeline implements Runnable {
         for (int i = 0, shadersSize = shaders.size(); i < shadersSize; i++) {
             val shader = shaders.get(i);
             inputMask.clear();
-            val inputTex = getInputTex(buffers, shader, inputMask, auxTex, aux);
+            val inputTex = getInputTex(buffers, customTextures, shader, inputMask, auxTex, aux);
             val outputTex = getOutputTex(buffers, shader, inputMask, auxTex, aux);
 
             if (shader.framebuffer != null) {
@@ -229,6 +231,7 @@ public class CompositePipeline implements Runnable {
     }
 
     private static @NotNull EnumMap<CompositeTextureData, Texture2D> getInputTex(@NotNull DrawBuffers buffers,
+                                                                                 @NotNull Map<CompositeTextureData, Texture2D> customTextures,
                                                                                  CompositeShader shader,
                                                                                  BitSet inputMask,
                                                                                  BitSet auxTex,
@@ -237,12 +240,14 @@ public class CompositePipeline implements Runnable {
         val inputTex = new EnumMap<CompositeTextureData, Texture2D>(CompositeTextureData.class);
 
         for (val input : inputs) {
-            val auxIndex = DrawBuffers.colorTexIndexFromTexture(input);
-            Texture2D tex;
-            if (auxIndex >= 0 && auxTex.get(auxIndex)) {
-                tex = aux.get(input);
-            } else {
-                tex = buffers.getByID(input);
+            Texture2D tex = customTextures.get(input);
+            if (tex == null) {
+                val auxIndex = DrawBuffers.colorTexIndexFromTexture(input);
+                if (auxIndex >= 0 && auxTex.get(auxIndex)) {
+                    tex = aux.get(input);
+                } else {
+                    tex = buffers.getByID(input);
+                }
             }
 
             // TODO: This needs to be fixed properly, happens if a shader samples a gbuffer it does not write to.
@@ -254,13 +259,17 @@ public class CompositePipeline implements Runnable {
     }
 
     private static @NotNull EnumMap<CompositeTextureData, Texture2D> getInputTexFinal(@NotNull DrawBuffers buffers,
+                                                                                      @NotNull Map<CompositeTextureData, Texture2D> customTextures,
                                                                                       CompositeShader shader,
                                                                                       BitSet inputMask) {
         val inputs = scanInputs(shader, inputMask);
         val inputTex = new EnumMap<CompositeTextureData, Texture2D>(CompositeTextureData.class);
 
         for (val input : inputs) {
-            Texture2D tex = buffers.getByID(input);
+            Texture2D tex = customTextures.get(input);
+            if (tex == null) {
+                tex = buffers.getByID(input);
+            }
 
             // TODO: This needs to be fixed properly, happens if a shader samples a gbuffer it does not write to.
             if (tex != null) {
