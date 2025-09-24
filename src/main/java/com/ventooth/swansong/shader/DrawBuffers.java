@@ -16,7 +16,6 @@ import com.ventooth.swansong.shader.texbuf.BufferConfig;
 import com.ventooth.swansong.shader.texbuf.ColorBuffers;
 import com.ventooth.swansong.sufrace.Framebuffer;
 import com.ventooth.swansong.sufrace.Texture2D;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import lombok.NonNull;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -186,7 +185,7 @@ public class DrawBuffers {
             }
             shader.framebuffer = Framebuffer.create(shader.loc()
                                                           .getResourcePath(),
-                                                    gColor.getTexturesByIndex(shader.renderTargets()),
+                                                    gColor.getFramebufferAttachments(shader.renderTargets()),
                                                     gDepthTex);
         }
     }

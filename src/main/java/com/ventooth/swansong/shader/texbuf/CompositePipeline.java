@@ -25,7 +25,6 @@ import com.ventooth.swansong.sufrace.Texture2D;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -51,8 +50,8 @@ public class CompositePipeline implements Runnable {
     public static CompositePipeline buildPipelineFinal(@NotNull DrawBuffers buffers,
                                                        @NotNull ObjectList<CompositeShader> shaders,
                                                        @Nullable Report report) {
-        val info =
-                report == null ? null : report.pipelines.computeIfAbsent("final", n -> new Report.CompositePipelineInfo());
+        val info = report == null ? null
+                                  : report.pipelines.computeIfAbsent("final", n -> new Report.CompositePipelineInfo());
         val steps = new ObjectArrayList<Runnable>();
 
         val inputMask = new BitSet();
@@ -118,7 +117,7 @@ public class CompositePipeline implements Runnable {
                 recordShaderIOInfo(shader, info, mipInputs, inputTex, outputTex);
             }
 
-            shader.framebuffer = Framebuffer.create(name + i, Collections.unmodifiableMap(outputTex));
+            shader.framebuffer = Framebuffer.create(name + i, ObjectLists.unmodifiable(outputTex));
             steps.add(new CompositeStep(Collections.unmodifiableMap(inputTex), shader));
         }
         genAuxPostBlit(buffers, auxTex, info, aux, steps);
@@ -126,10 +125,10 @@ public class CompositePipeline implements Runnable {
     }
 
     private static void recordShaderIOInfo(CompositeShader shader,
-                                  Report.CompositePipelineInfo info,
-                                  ObjectArrayList<Texture2D> mipInputs,
-                                  EnumMap<CompositeTextureData, Texture2D> inputTex,
-                                  @Nullable EnumMap<CompositeTextureData, Texture2D> outputTex) {
+                                           Report.CompositePipelineInfo info,
+                                           ObjectArrayList<Texture2D> mipInputs,
+                                           EnumMap<CompositeTextureData, Texture2D> inputTex,
+                                           @Nullable ObjectList<Texture2D> outputTex) {
         val stage = new Report.CompositeStageInfo(shader.srcPath());
         info.stages.add(stage);
         for (val mipmap : mipInputs) {
@@ -141,19 +140,20 @@ public class CompositePipeline implements Runnable {
                                   .name());
         }
         if (outputTex != null) {
-            for (val output : outputTex.entrySet()) {
-                stage.outputs.put(output.getKey(),
-                                  output.getValue()
-                                        .name());
+            val size = outputTex.size();
+            for (int i = 0; i < size; i++) {
+                stage.outputs.put(i,
+                                  outputTex.get(i)
+                                           .name());
             }
         }
     }
 
     private static void genAuxPostBlit(@NotNull DrawBuffers buffers,
-                                  BitSet auxTex,
-                                  Report.CompositePipelineInfo info,
-                                  ColorBuffers aux,
-                                  ObjectArrayList<Runnable> steps) {
+                                       BitSet auxTex,
+                                       Report.CompositePipelineInfo info,
+                                       ColorBuffers aux,
+                                       ObjectArrayList<Runnable> steps) {
         val maxAux = auxTex.length();
         if (maxAux > 0) {
             val src = new Int2ObjectArrayMap<Texture2D>();
@@ -183,9 +183,9 @@ public class CompositePipeline implements Runnable {
     }
 
     private static @NotNull ObjectArrayList<Texture2D> getMipInputs(CompositeShader shader,
-                                                                     EnumMap<CompositeTextureData, Texture2D> inputTex) {
+                                                                    EnumMap<CompositeTextureData, Texture2D> inputTex) {
         val mipInputs = new ObjectArrayList<Texture2D>();
-        for (val mip: shader.mipmapEnabled()) {
+        for (val mip : shader.mipmapEnabled()) {
             val mipInput = inputTex.get(mip);
             if (mipInput == null) {
                 Share.log.debug("Failed to setup composite mipmap: [{}->colortex{}]", shader.loc(), mip);
@@ -196,11 +196,11 @@ public class CompositePipeline implements Runnable {
         return mipInputs;
     }
 
-    private static @NotNull EnumMap<CompositeTextureData, Texture2D> getOutputTex(@NotNull DrawBuffers buffers,
-                                                                                  CompositeShader shader,
-                                                                                  BitSet inputMask,
-                                                                                  BitSet auxTex,
-                                                                                  ColorBuffers aux) {
+    private static @NotNull ObjectList<Texture2D> getOutputTex(@NotNull DrawBuffers buffers,
+                                                               CompositeShader shader,
+                                                               BitSet inputMask,
+                                                               BitSet auxTex,
+                                                               ColorBuffers aux) {
         val outputs = new ObjectArrayList<CompositeTextureData>();
         val iter = shader.renderTargets()
                          .intIterator();
@@ -209,15 +209,15 @@ public class CompositePipeline implements Runnable {
             val id = DrawBuffers.textureFromColorTexIndex(index);
             outputs.add(id);
         }
-        val outputTex = new EnumMap<CompositeTextureData, Texture2D>(CompositeTextureData.class);
+        val outputTex = new ObjectArrayList<Texture2D>();
 
-        for (val output: outputs) {
+        for (val output : outputs) {
             val auxIndex = DrawBuffers.colorTexIndexFromTexture(output);
             assert auxIndex >= 0;
             val outIntoAux = inputMask.get(output.gpuIndex()) && !auxTex.get(auxIndex);
             auxTex.set(auxIndex, outIntoAux);
             val tex = outIntoAux ? aux.get(output) : buffers.getByID(output);
-            outputTex.put(output, tex);
+            outputTex.add(tex);
         }
         return outputTex;
     }
@@ -230,7 +230,7 @@ public class CompositePipeline implements Runnable {
         val inputs = scanInputs(shader, inputMask);
         val inputTex = new EnumMap<CompositeTextureData, Texture2D>(CompositeTextureData.class);
 
-        for (val input: inputs) {
+        for (val input : inputs) {
             val auxIndex = DrawBuffers.colorTexIndexFromTexture(input);
             Texture2D tex;
             if (auxIndex >= 0 && auxTex.get(auxIndex)) {
@@ -253,7 +253,7 @@ public class CompositePipeline implements Runnable {
         val inputs = scanInputs(shader, inputMask);
         val inputTex = new EnumMap<CompositeTextureData, Texture2D>(CompositeTextureData.class);
 
-        for (val input: inputs) {
+        for (val input : inputs) {
             Texture2D tex = buffers.getByID(input);
 
             // TODO: This needs to be fixed properly, happens if a shader samples a gbuffer it does not write to.
@@ -264,8 +264,7 @@ public class CompositePipeline implements Runnable {
         return inputTex;
     }
 
-    private static @NotNull ObjectArrayList<CompositeTextureData> scanInputs(CompositeShader shader,
-                                                                             BitSet inputMask) {
+    private static @NotNull ObjectArrayList<CompositeTextureData> scanInputs(CompositeShader shader, BitSet inputMask) {
         val inputs = new ObjectArrayList<CompositeTextureData>();
         for (val uniform : shader.getUniforms()
                                  .values()) {

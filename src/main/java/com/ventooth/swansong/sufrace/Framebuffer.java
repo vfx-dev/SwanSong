@@ -13,10 +13,6 @@ package com.ventooth.swansong.sufrace;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.debug.GLObjectLabel;
 import com.ventooth.swansong.gl.GLFramebuffer;
-import com.ventooth.swansong.shader.CompositeTextureData;
-import com.ventooth.swansong.shader.DrawBuffers;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
@@ -25,7 +21,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import java.util.Map;
+import java.util.List;
 
 @Accessors(fluent = true,
            chain = false)
@@ -97,38 +93,35 @@ public class Framebuffer {
         return new Framebuffer(name, framebuffer);
     }
 
-    private static void attachColorAndSetDrawBuffers(Map<CompositeTextureData, Texture2D> colorTexMap) {
-        val size = colorTexMap.size();
+    private static void attachColorAndSetDrawBuffers(List<Texture2D> colorTexList) {
+        val size = colorTexList.size();
         val drawBuffers = BufferUtils.createIntBuffer(size);
-        for (val entry : colorTexMap.entrySet()) {
-            val id = entry.getKey();
-            val index = DrawBuffers.colorTexIndexFromTexture(id);
-            assert index >= 0;
-            val colorTex = entry.getValue();
-            val attachment = GL30.GL_COLOR_ATTACHMENT0 + index;
-            colorTex.attachToFramebufferColor(attachment);
-            drawBuffers.put(attachment);
+        for (int i = 0; i < size; i++) {
+            val tex = colorTexList.get(i);
+            val attachmentIndex = GL30.GL_COLOR_ATTACHMENT0 + i;
+            tex.attachToFramebufferColor(attachmentIndex);
+            drawBuffers.put(attachmentIndex);
         }
         drawBuffers.flip();
 
         GL20.glDrawBuffers(drawBuffers);
     }
 
-    public static Framebuffer create(String name, Map<CompositeTextureData, Texture2D> colorTexMap, Texture2D depthTex) {
+    public static Framebuffer create(String name, List<Texture2D> colorTexList, Texture2D depthTex) {
         val framebuffer = new GLFramebuffer();
         framebuffer.glGenFramebuffers();
         framebuffer.glBindFramebuffer();
 
         depthTex.attachToFramebufferDepth();
 
-        attachColorAndSetDrawBuffers(colorTexMap);
+        attachColorAndSetDrawBuffers(colorTexList);
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
         return new Framebuffer(name, framebuffer);
     }
 
-    public static Framebuffer create(String name, Map<CompositeTextureData, Texture2D> colorTexList) {
+    public static Framebuffer create(String name, List<Texture2D> colorTexList) {
         val framebuffer = new GLFramebuffer();
         framebuffer.glGenFramebuffers();
         framebuffer.glBindFramebuffer();

@@ -12,6 +12,8 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.sufrace.Texture2D;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.RequiredArgsConstructor;
@@ -170,8 +172,7 @@ public class Report {
                         if (sb.length() != 0) {
                             sb.append(", ");
                         }
-                        val index = DrawBuffers.colorTexIndexFromTexture(output.getKey());
-                        sb.append(index)
+                        sb.append(output.getKey())
                           .append(" -> ")
                           .append(output.getValue());
                     }
@@ -249,7 +250,7 @@ public class Report {
         public final String name;
         public final ObjectList<String> mipmaps = new ObjectArrayList<>(16);
         public final Map<CompositeTextureData, String> inputs = new EnumMap<>(CompositeTextureData.class);
-        public final Map<CompositeTextureData, String> outputs = new EnumMap<>(CompositeTextureData.class);
+        public final Int2ObjectMap<String> outputs = new Int2ObjectArrayMap<>();
     }
 
     public static class ShaderInfo {

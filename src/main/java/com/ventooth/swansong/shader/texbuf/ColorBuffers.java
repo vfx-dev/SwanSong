@@ -15,17 +15,16 @@ import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
 import com.ventooth.swansong.shader.DrawBuffers;
 import com.ventooth.swansong.sufrace.Texture2D;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3dc;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -77,8 +76,8 @@ public class ColorBuffers {
         }
     }
 
-    public Map<CompositeTextureData, Texture2D> getTexturesByIndex(IntList indices) {
-        val result = new EnumMap<CompositeTextureData, Texture2D>(CompositeTextureData.class);
+    public ObjectList<Texture2D> getFramebufferAttachments(IntList indices) {
+        val result = new ObjectArrayList<Texture2D>();
         val iter = indices.intIterator();
         while (iter.hasNext()) {
             val index = iter.nextInt();
@@ -87,9 +86,9 @@ public class ColorBuffers {
             if (tex == null) {
                 throw new IllegalArgumentException("Color buffer with index " + index + " not found!");
             }
-            result.put(id, tex);
+            result.add(tex);
         }
-        return Collections.unmodifiableMap(result);
+        return ObjectLists.unmodifiable(result);
     }
 
     public Map<CompositeTextureData, Texture2D> getAllTextures() {
@@ -100,7 +99,7 @@ public class ColorBuffers {
         if (deinited) {
             throw new IllegalStateException("Cannot clear deinited color textures!");
         }
-        for (val tex: textures.entrySet()) {
+        for (val tex : textures.entrySet()) {
             val id = tex.getKey();
             val texture = tex.getValue();
             if (clear.contains(id)) {
