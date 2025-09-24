@@ -83,6 +83,11 @@ public abstract class TextureMapMixin extends AbstractTexture implements PBRText
         return true;
     }
 
+    @Override
+    public boolean swan$isAtlas() {
+        return true;
+    }
+
     @SuppressWarnings({"DefaultAnnotationParam", "UnnecessaryUnsafe"})
     @Inject(method = "<init>(ILjava/lang/String;Z)V",
             at = @At(value = "INVOKE",

@@ -55,6 +55,7 @@ public final class GeneralUniforms {
             .addBool("swan_portalEyeR", () -> ShaderState.portalEye()[2])
             .addBool("swan_portalEyeQ", () -> ShaderState.portalEye()[3])
             .addInt("renderStage", ShaderState::renderStage)
+            .addVec2i("atlasSize", ShaderState::atlasSize)
             .build();
 
     private final static List<Uniform<?>> GENERAL_UNIFORMS = new GeneralUniformListBuilder(LIVE_UNIFORMS)
@@ -88,7 +89,6 @@ public final class GeneralUniforms {
             .addFloat("screenBrightness", ShaderState::screenBrightness)
             .addBool("hideGUI", ShaderState::isGuiHidden)
             .addFloat("centerDepthSmooth", ShaderState::centerDepthSmooth)
-            .addVec2i("atlasSize", UniformGetterDanglingWires::atlasSize)
             .build();
     //@formatter:on
 

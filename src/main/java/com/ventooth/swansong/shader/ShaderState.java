@@ -143,6 +143,8 @@ public final class ShaderState {
 
     private static final boolean[] portalEye = new boolean[4];
 
+    private static final Vector2i atlasSize = new Vector2i();
+
     private static @Nullable ItemStack heldItem = null;
     private static boolean isHeldItemTranslucent = false;
 
@@ -426,6 +428,10 @@ public final class ShaderState {
         return renderStage;
     }
 
+    public static Vector2ic atlasSize() {
+        return atlasSize;
+    }
+
     // endregion
 
     public static void updateSubTick(float subTick) {
@@ -434,6 +440,13 @@ public final class ShaderState {
 
     public static float getSubTick() {
         return subTick;
+    }
+
+    public static void updateAtlasSize(int width, int height) {
+        if (atlasSize.x != width || atlasSize.y != height) {
+            atlasSize.set(width, height);
+            updateUniforms();
+        }
     }
 
     public static void updateRenderStage(MCRenderStage stage) {

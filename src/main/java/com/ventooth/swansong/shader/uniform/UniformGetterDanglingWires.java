@@ -28,8 +28,5 @@ public class UniformGetterDanglingWires {
     // TODO: PROP Needs_Test_Shader
     public static int       terrainIconSize() {return 1;}
 
-    // TODO: PROP Required_By_BSL
-    public static Vector2ic atlasSize() {return new Vector2i();}
-
     // @formatter:on
 }

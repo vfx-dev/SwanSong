@@ -79,6 +79,15 @@ public interface PBRTextureHolder {
     }
 
     /**
+     * @return {@code true} if this texture is an atlas.
+     *
+     * @apiNote Used to mark the texture as an atlas for special case handling
+     */
+    default boolean swan$isAtlas() {
+        return false;
+    }
+
+    /**
      * @return PBR Texture bundle if the PBR texture has been initialized
      *
      * @throws IllegalStateException if {@link #swan$isValid()} returns {@code false}
