@@ -22,21 +22,21 @@ import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.loader.MultiShaderPool;
 import com.ventooth.swansong.shader.loader.ShaderLoader;
 import com.ventooth.swansong.shader.loader.ShaderLoaderInParams;
+import com.ventooth.swansong.shader.loader.ShaderLoaderOutParams;
 import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
 import com.ventooth.swansong.shader.texbuf.BufferConfig;
 import com.ventooth.swansong.shader.uniform.CompiledUniforms;
 import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.uniform.UniformGetterDanglingWires;
 import com.ventooth.swansong.todo.tess.DanglingWiresTess;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import net.minecraft.client.resources.Locale;
 import net.minecraft.world.WorldProvider;
@@ -65,6 +65,9 @@ class FixedEngineState {
 
     // Null when no compiled uniforms were present
     public final @Nullable CompiledUniforms compiledUniforms;
+
+    public final @NotNull
+    @Unmodifiable ObjectList<ShaderLoaderOutParams.StagedTexture> textures;
 
     public final @Nullable String noiseTexPath;
     public final @Nullable Integer noiseTexSize;
@@ -124,6 +127,8 @@ class FixedEngineState {
         }
 
         val outParams = mainLoader.outParams;
+
+        b.textures = outParams.textures;
 
         b.noiseTexPath = outParams.noiseTexture;
         b.noiseTexSize = outParams.noiseTextureResolution;

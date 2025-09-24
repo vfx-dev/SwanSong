@@ -66,6 +66,8 @@ import net.minecraftforge.client.ForgeHooksClient;
 
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +94,12 @@ public final class ShaderEngine {
 
     /// runtime varying state
 
+    // TODO: [CUSTOM_TEX] Do we want to keep it loose like this?
+    private static Map<CompositeTextureData, Texture2D> gbuffersCustomTex = Collections.emptyMap();
+    private static Map<CompositeTextureData, Texture2D> compositeCustomTex = Collections.emptyMap();
+    private static Map<CompositeTextureData, Texture2D> deferredCustomTex = Collections.emptyMap();
+
+    // TODO: [CUSTOM_TEX] Do we bundle this with the custom textures?
     private static Texture2D noiseTex;
 
     private static DrawBuffers buffers;
@@ -475,12 +483,74 @@ public final class ShaderEngine {
 
         ShadersCompositeMesh.init();
 
+        gbuffersCustomTex = new EnumMap<>(CompositeTextureData.class);
+        compositeCustomTex = new EnumMap<>(CompositeTextureData.class);
+        deferredCustomTex = new EnumMap<>(CompositeTextureData.class);
+
+        if (!state.textures.isEmpty()) {
+            for (val stagedTex : state.textures) {
+                val index = BufferNameUtil.gbufferIndexFromName(stagedTex.bufferName());
+                if (index == null) {
+                    Share.log.error("Unknown buffer index for custom texture: {}", stagedTex);
+                    continue;
+                }
+
+                val stagedCustomTexMap = switch (stagedTex.stage()) {
+                    case "gbuffers" -> gbuffersCustomTex;
+                    case "composite" -> compositeCustomTex;
+                    case "deferred" -> deferredCustomTex;
+                    default -> null;
+                };
+                if (stagedCustomTexMap == null) {
+                    Share.log.error("Unknown stage for custom texture: {}", stagedTex);
+                    continue;
+                }
+
+                if (stagedCustomTexMap.containsKey(index)) {
+                    Share.log.error("Duplicate custom texture {} ignored", stagedTex);
+                    continue;
+                }
+
+                val path = "/shaders/" + stagedTex.path();
+                val customTex = CustomTexture2D.load(state.pack, path);
+                if (customTex == null) {
+                    Share.log.error("Missing custom texture {}, on exact path: {}", stagedTex, path);
+                    continue;
+                }
+
+                stagedCustomTexMap.put(index, customTex);
+                Share.log.debug("Loaded Custom Texture: {}", stagedTex);
+                // TODO: Make format look like: deferred.colortex3<TAB>lib/textures/cloud-water.png<TAB>RGBA<TAB>256x256
+                report.customTextures.put(stagedTex.path(),
+                                          new Report.TextureInfo(customTex.width(),
+                                                                 customTex.height(),
+                                                                 BufferNameUtil.gbufferFormatNameFromEnum(customTex.internalFormat())));
+            }
+        }
+
+        if (gbuffersCustomTex.isEmpty()) {
+            gbuffersCustomTex = Collections.emptyMap();
+        } else {
+            gbuffersCustomTex = Collections.unmodifiableMap(gbuffersCustomTex);
+        }
+        if (compositeCustomTex.isEmpty()) {
+            compositeCustomTex = Collections.emptyMap();
+        } else {
+            compositeCustomTex = Collections.unmodifiableMap(compositeCustomTex);
+        }
+        if (deferredCustomTex.isEmpty()) {
+            deferredCustomTex = Collections.emptyMap();
+        } else {
+            deferredCustomTex = Collections.unmodifiableMap(deferredCustomTex);
+        }
+
         if (state.noiseTexPath != null) {
             val path = "/shaders/" + state.noiseTexPath;
             noiseTex = CustomTexture2D.load(state.pack, path);
             if (noiseTex == null) {
                 Share.log.error("Missing noise texture: {}", path);
             } else {
+                // TODO: Make format look like: noise<TAB>lib/textures/noise.png<TAB>RGBA<TAB>128x128
                 report.customTextures.put(state.noiseTexPath,
                                           new Report.TextureInfo(noiseTex.width(),
                                                                  noiseTex.height(),
@@ -488,6 +558,7 @@ public final class ShaderEngine {
             }
         } else if (state.noiseTexSize != null) {
             noiseTex = HFNoiseTexture2D.create(state.noiseTexSize, state.noiseTexSize);
+            // TODO: Make format look like: noise<TAB>(builtin)<TAB>RGBA<TAB>128x128
             report.customTextures.put("noise",
                                       new Report.TextureInfo(noiseTex.width(),
                                                              noiseTex.height(),
@@ -516,6 +587,19 @@ public final class ShaderEngine {
         }
 
         shaderData.reset();
+        for (val tex : gbuffersCustomTex.values()) {
+            tex.deinit();
+        }
+        gbuffersCustomTex = Collections.emptyMap();
+        for (val tex : compositeCustomTex.values()) {
+            tex.deinit();
+        }
+        compositeCustomTex = Collections.emptyMap();
+        for (val tex : deferredCustomTex.values()) {
+            tex.deinit();
+        }
+        deferredCustomTex = Collections.emptyMap();
+
         if (noiseTex != null) {
             noiseTex.deinit();
             noiseTex = null;
@@ -932,6 +1016,7 @@ public final class ShaderEngine {
         }
     }
 
+    // TODO: [CUSTOM_TEX] Bind the custom textures if applicable
     public static void bindCompositeTextures(Map<CompositeTextureData, Texture2D> textures) {
         for (val entry: textures.entrySet()) {
             GL13.glActiveTexture(GL13.GL_TEXTURE0 + entry.getKey().gpuIndex());
