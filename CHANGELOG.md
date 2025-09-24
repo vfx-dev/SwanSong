@@ -8,7 +8,7 @@
 
 ### Added
 
-- Support for smoothCenterDepth
+- Support for smoothCenterDepth (Needs to be enabled in the config, will be automatic in the next update)
 - Support for atlasSize
 - Debug marker for screenshots
 - Better error handling on shader initialization
