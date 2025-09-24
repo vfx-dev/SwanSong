@@ -53,6 +53,9 @@ public class CodePrinter {
             val tag = tagged.tag();
             val lb = tagged.lineBreak();
             if (tag == TaggedLine.Tag.MultilineComment) {
+                if (processWhitespace(lb, tagged.text())) {
+                    continue;
+                }
                 processComment(lb, tagged);
                 continue;
             }
