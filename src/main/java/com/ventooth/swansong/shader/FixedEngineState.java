@@ -236,6 +236,7 @@ class FixedEngineState {
             depthSampler.deinit();
         }
 
+        PBRTextureEngine.deinit();
         manager.deinit();
     }
 }
