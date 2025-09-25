@@ -1266,23 +1266,6 @@ public class ShaderLoader {
             throw new ShaderException("Failed to link program: " + name + '\n' + (infoLog) + '\n');
         }
 
-        program.glValidateProgram();
-        if (!program.glGetProgramValidateStatus()) {
-            var infoLog = program.glGetProgramInfoLog();
-            if (infoLog.isEmpty()) {
-                infoLog = "Empty program info log";
-            }
-
-            // TODO: Unsure if this is necessary, related issue: SwanSong#3
-            val msg = "Failed to validate program: " + name + '\n' + (infoLog) + '\n';
-            if (ModuleConfig.Debug && DebugConfig.FailOnShaderValidationErrors) {
-                program.glDeleteProgram();
-                throw new ShaderException("Failed to validate program: " + name + '\n' + (infoLog) + '\n');
-            } else {
-                Share.log.warn(msg);
-            }
-        }
-
         return program;
     }
 
