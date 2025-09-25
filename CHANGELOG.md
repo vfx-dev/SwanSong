@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Warning if RPLE is installed and the player loads an incompatible shaderpack
+
 ## [1.1.1] - 2025-09-24
 
 ### Fixed

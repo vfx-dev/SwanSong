@@ -125,6 +125,8 @@ public class ShaderLoaderOutParams {
     public final int shadowMapResolution;
     //endregion
 
+    public final boolean rpleCompatible;
+
     @Setter
     public static class Builder {
         //region properties
@@ -186,6 +188,7 @@ public class ShaderLoaderOutParams {
         public double shadowIntervalSize = 2.0;
         public Double shadowMapFov = null;
         public int shadowMapResolution = 1024;
+        public boolean rpleCompatible = false;
         //endregion
 
         Builder() {
@@ -218,7 +221,9 @@ public class ShaderLoaderOutParams {
 
                     noiseTextureResolution,
 
-                    shadowDistance, shadowDistanceRenderMul, shadowHardwareFiltering0, shadowHardwareFiltering1, shadowIntervalSize, shadowMapFov, shadowMapResolution
+                    shadowDistance, shadowDistanceRenderMul, shadowHardwareFiltering0, shadowHardwareFiltering1, shadowIntervalSize, shadowMapFov, shadowMapResolution,
+
+                    rpleCompatible
             );
             //@formatter:on
         }

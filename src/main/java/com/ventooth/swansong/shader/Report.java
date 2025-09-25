@@ -13,8 +13,6 @@ package com.ventooth.swansong.shader;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.sufrace.FramebufferAttachment;
 import com.ventooth.swansong.sufrace.Texture2D;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,8 @@ import lombok.val;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+
+import cpw.mods.fml.common.Loader;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -37,10 +37,14 @@ import java.util.Set;
 import java.util.TimeZone;
 
 public class Report {
+    private static final String CHAT_PREFIX = "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";
+
     public String name;
 
     public long startTime;
     public long endTime;
+
+    public boolean rpleCompatible;
 
     public final Map<String, ShaderInfo> foundShaders = new LinkedHashMap<>();
     public final Map<String, String> shadersFallback = new HashMap<>();
@@ -203,17 +207,34 @@ public class Report {
             if (plr == null) {
                 break blk;
             }
-            val prefix = "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";
             val zone = TimeZone.getDefault();
             val now = ZonedDateTime.now(zone.toZoneId()).toLocalTime().toString();
-            plr.addChatMessage(new ChatComponentText(prefix + "-----------------"));
-            plr.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.YELLOW + now));
-            plr.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.RED + "Failed to load shaders:"));
+            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + "-----------------"));
+            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.YELLOW + now));
+            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.RED + "Failed to load shaders:"));
             for (val sh: erroredShaders) {
-                plr.addChatMessage(new ChatComponentText(prefix + "  " + EnumChatFormatting.RED + sh));
+                plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + "  " + EnumChatFormatting.RED + sh));
             }
-            plr.addChatMessage(new ChatComponentText(prefix + EnumChatFormatting.YELLOW + "Check the log for more details"));
-            plr.addChatMessage(new ChatComponentText(prefix + "-----------------"));
+            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.YELLOW + "Check the log for more details"));
+            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + "-----------------"));
+        }
+        if (!rpleCompatible && Loader.isModLoaded("rple")) {
+            val txt = """
+                    You are using a shaderpack which is not marked
+                    as compatible with RPLE. Do not report
+                    issues to SwanSong/RPLE.
+                    If the shaderpack works fine,
+                    add rpleCompatible=true to shaders.properties
+                    """.split("\n");
+            for (val line: txt) {
+                log.warn(line);
+            }
+            val plr = Minecraft.getMinecraft().thePlayer;
+            if (plr != null) {
+                for (val line: txt) {
+                    plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.DARK_RED + line));
+                }
+            }
         }
     }
 

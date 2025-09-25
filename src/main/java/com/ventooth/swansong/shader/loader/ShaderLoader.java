@@ -756,6 +756,8 @@ public class ShaderLoader {
         props.parseBool("rain.depth", paramsBuilder::rainDepth);
         props.parseBool("beacon.beam.depth", paramsBuilder::beaconBeamDepth);
 
+        props.parseBool("rpleCompatible", paramsBuilder::rpleCompatible);
+
         props.texture()
              .forEach((name, path) -> {
                  if ("noise".equals(name)) {

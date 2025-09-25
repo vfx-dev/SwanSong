@@ -128,6 +128,10 @@ class FixedEngineState {
 
         val outParams = mainLoader.outParams;
 
+        if (report != null) {
+            report.rpleCompatible = outParams.rpleCompatible;
+        }
+
         b.textures = outParams.textures;
 
         b.noiseTexPath = outParams.noiseTexture;
