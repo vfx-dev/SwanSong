@@ -6,6 +6,10 @@
 
 - Warning if RPLE is installed and the player loads an incompatible shaderpack
 
+### Removed
+
+- Incorrect call to glValidateProgram()
+
 ## [1.1.1] - 2025-09-24
 
 ### Fixed
