@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Option for turning off shaders
+
 ## [1.1.2] - 2025-09-25
 
 ### Added

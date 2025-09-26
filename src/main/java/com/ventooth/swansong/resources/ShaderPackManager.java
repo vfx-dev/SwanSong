@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -52,12 +53,14 @@ import java.util.zip.ZipFile;
 public final class ShaderPackManager {
     private static final Logger log = Share.getLogger();
 
-    public static String currentShaderPackName = DefaultShaderPack.NAME;
+    public static final String DISABLED_SHADER_PACK_NAME = "(disabled)";
+
+    public static String currentShaderPackName = DISABLED_SHADER_PACK_NAME;
 
     private static Path shaderpacksDir;
     private static Path shaderpacksDebugDir;
 
-    private static List<String> detectedShaderpacks = Collections.singletonList(DefaultShaderPack.NAME);
+    private static List<String> detectedShaderpacks = Arrays.asList(DISABLED_SHADER_PACK_NAME, DefaultShaderPack.NAME);
 
     public static void init() {
         val minecraftDir = Minecraft.getMinecraft().mcDataDir.toPath();
@@ -126,9 +129,7 @@ public final class ShaderPackManager {
     }
 
     public static void saveShaderSettings() {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.scheduleShaderPackReload();
-        }
+        ShaderEngine.scheduleShaderPackReload();
         Configs.syncConfigFile();
     }
 
@@ -149,7 +150,7 @@ public final class ShaderPackManager {
         if (detectedShaderpacks.contains(shaderPackName)) {
             currentShaderPackName = shaderPackName;
         } else {
-            currentShaderPackName = DefaultShaderPack.NAME;
+            currentShaderPackName = DISABLED_SHADER_PACK_NAME;
         }
         ShadersConfig.CurrentShaderPack = currentShaderPackName;
         saveShaderSettings();
@@ -193,10 +194,11 @@ public final class ShaderPackManager {
             newShaders.sort(Comparator.naturalOrder());
 
             newShaders.add(0, DefaultShaderPack.NAME);
+            newShaders.add(0, DISABLED_SHADER_PACK_NAME);
             detectedShaderpacks = newShaders;
         } catch (IOException e) {
             Share.log.error("Error while detecting shaderpacks. Using fallback.", e);
-            detectedShaderpacks = Collections.singletonList(DefaultShaderPack.NAME);
+            detectedShaderpacks = Arrays.asList(DISABLED_SHADER_PACK_NAME, DefaultShaderPack.NAME);
         }
     }
 
@@ -205,7 +207,10 @@ public final class ShaderPackManager {
         return Collections.unmodifiableList(detectedShaderpacks); //TODO: Should include the internal shader pack on top, but ONLY if it is active.
     }
 
-    public static ShaderPack createShaderPack() {
+    public static @Nullable ShaderPack createShaderPack() {
+        if (DISABLED_SHADER_PACK_NAME.equals(currentShaderPackName)) {
+            return null;
+        }
         if (DefaultShaderPack.NAME.equals(currentShaderPackName)) {
             return DefaultShaderPack.INSTANCE;
         }
@@ -225,7 +230,7 @@ public final class ShaderPackManager {
             return builder.build();
         }
         log.error("Failed to load shader pack named \"" + currentShaderPackName + "\"");
-        setShaderPackByName(DefaultShaderPack.NAME);
+        setShaderPackByName(DISABLED_SHADER_PACK_NAME);
         return DefaultShaderPack.INSTANCE;
     }
 

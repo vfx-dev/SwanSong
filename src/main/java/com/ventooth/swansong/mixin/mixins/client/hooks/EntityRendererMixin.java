@@ -48,7 +48,7 @@ public abstract class EntityRendererMixin {
                                 target = "Lnet/minecraft/client/renderer/ItemRenderer;renderItemInFirstPerson(F)V"),
                        require = 1)
     private boolean skip_RenderHand(ItemRenderer instance, float subTick) {
-        return false;
+        return !ShaderEngine.isInitialized();
     }
 
     @Inject(method = "disableLightmap(D)V",
@@ -69,7 +69,9 @@ public abstract class EntityRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void hook_BeginRenderWorld(CallbackInfo ci) {
-        ShaderEngine.beginRenderWorld();
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.beginRenderWorld();
+        }
     }
 
     @ModifyConstant(method = "setupCameraTransform",
@@ -92,7 +94,9 @@ public abstract class EntityRendererMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void state_UpdateCamera(CallbackInfo ci) {
-        ShaderState.updateCamera(true);
+        if (ShaderEngine.isInitialized()) {
+            ShaderState.updateCamera(true);
+        }
     }
 
     @Redirect(method = "renderWorld(FJ)V",
@@ -109,7 +113,7 @@ public abstract class EntityRendererMixin {
                        opcode = Opcodes.GETFIELD),
               require = 2)
     private boolean setupCameraTransform_anaglyph(GameSettings instance) {
-        return ((ShaderGameSettings) instance).swan$anaglyph() != 0;
+        return ShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
     }
 
     @Redirect(method = "renderWorld(FJ)V",
@@ -118,7 +122,7 @@ public abstract class EntityRendererMixin {
                        opcode = Opcodes.GETFIELD),
               require = 3)
     private boolean renderWorld_anaglyph(GameSettings instance) {
-        return ((ShaderGameSettings) instance).swan$anaglyph() != 0;
+        return ShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
     }
 
     @WrapOperation(method = "renderWorld(FJ)V",
@@ -128,7 +132,9 @@ public abstract class EntityRendererMixin {
                    require = 1)
     private void hook_RenderLastAndEndRenderWorld(RenderGlobal rg, float subTick, Operation<Void> original) {
         original.call(rg, subTick);
-        ShaderEngine.finishRenderFinal();
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.finishRenderFinal();
+        }
     }
 
     @WrapWithCondition(method = "setupFog(IF)V",
@@ -137,8 +143,10 @@ public abstract class EntityRendererMixin {
                                 remap = false),
                        require = 9)
     private boolean state_UpdateFogMode(int pname, int param) {
-        if (pname == GL11.GL_FOG_MODE) {
-            ShaderState.updateFogMode(param);
+        if (ShaderEngine.isInitialized()) {
+            if (pname == GL11.GL_FOG_MODE) {
+                ShaderState.updateFogMode(param);
+            }
         }
         return true;
     }
@@ -147,7 +155,9 @@ public abstract class EntityRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void state_UpdateFogColor(float r, float g, float b, float a, CallbackInfoReturnable<FloatBuffer> cir) {
-        ShaderState.updateFogColor(r, g, b);
+        if (ShaderEngine.isInitialized()) {
+            ShaderState.updateFogColor(r, g, b);
+        }
     }
 
     //region graph
@@ -157,7 +167,9 @@ public abstract class EntityRendererMixin {
                      args = "ldc=clear"),
             require = 1)
     private void renderBegin(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderBegin);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderBegin);
+        }
     }
 
     @Inject(method = "renderWorld(FJ)V",
@@ -165,7 +177,9 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;renderSky(F)V"),
             require = 1)
     private void renderSky(CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderSkyBasic);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderSkyBasic);
+        }
     }
 
     @Inject(method = "renderCloudsCheck",
@@ -173,7 +187,9 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;renderClouds(F)V"),
             require = 1)
     private void renderClouds(RenderGlobal renderer, float tickDelta, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderClouds);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderClouds);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -182,7 +198,9 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void renderChunk0(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderChunk0);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderChunk0);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -191,7 +209,9 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void renderSelectionBox(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderSelectionBox);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderSelectionBox);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -199,7 +219,9 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;drawBlockDamageTexture(Lnet/minecraft/client/renderer/Tessellator;Lnet/minecraft/entity/EntityLivingBase;F)V"),
             require = 1)
     private void renderBlockDamage(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderBlockDamage);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderBlockDamage);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -207,7 +229,9 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/particle/EffectRenderer;renderLitParticles(Lnet/minecraft/entity/Entity;F)V"),
             require = 1)
     private void renderParticlesLit(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderParticlesLit);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderParticlesLit);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -215,7 +239,9 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/particle/EffectRenderer;renderParticles(Lnet/minecraft/entity/Entity;F)V"),
             require = 1)
     private void renderParticles(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderParticles);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderParticles);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -223,11 +249,13 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/EntityRenderer;renderRainSnow(F)V"),
             require = 1)
     private void renderWeather(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        ShaderEngine.graph.moveTo(Node.RenderWeather);
+        if (ShaderEngine.isInitialized()) {
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glEnable(GL11.GL_ALPHA_TEST);
+            ShaderEngine.graph.moveTo(Node.RenderWeather);
+        }
     }
 
     @Inject(method = "renderWorld(FJ)V",
@@ -238,7 +266,9 @@ public abstract class EntityRendererMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_PreWater(CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderHand0);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderHand0);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -249,7 +279,9 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void deferredPipeline(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.runDeferredPipeline();
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.runDeferredPipeline();
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -257,9 +289,11 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/settings/GameSettings;fancyGraphics:Z"),
             require = 1)
     private void renderChunk1(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        //DepthMask is needed for composites
-        GL11.glDepthMask(true);
-        ShaderEngine.graph.moveTo(Node.RenderChunk1);
+        if (ShaderEngine.isInitialized()) {
+            //DepthMask is needed for composites
+            GL11.glDepthMask(true);
+            ShaderEngine.graph.moveTo(Node.RenderChunk1);
+        }
     }
 
     @Inject(method = "renderWorld",
@@ -267,14 +301,18 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraftforge/client/ForgeHooksClient;dispatchRenderLast(Lnet/minecraft/client/renderer/RenderGlobal;F)V"),
             require = 1)
     private void renderLast(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.RenderLast);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.RenderLast);
+        }
     }
 
     @Inject(method = "renderWorld",
             at = @At(value = "RETURN"),
             require = 1)
     private void unmanaged(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        ShaderEngine.graph.moveTo(Node.Unmanaged);
+        if (ShaderEngine.isInitialized()) {
+            ShaderEngine.graph.moveTo(Node.Unmanaged);
+        }
     }
     //endregion
 }

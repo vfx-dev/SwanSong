@@ -11,6 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.falsepattern.lib.util.RenderUtil;
+import com.ventooth.swansong.shader.ShaderEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,7 +26,9 @@ public abstract class RenderLightningBoltMixin {
             at = @At("HEAD"),
             require = 1)
     private void fixStolenLightning(CallbackInfo ci) {
-        RenderUtil.bindEmptyTexture();
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        if (ShaderEngine.isInitialized()) {
+            RenderUtil.bindEmptyTexture();
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        }
     }
 }

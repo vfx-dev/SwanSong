@@ -44,7 +44,8 @@ import cpw.mods.fml.common.gameevent.InputEvent;
      name = Tags.MOD_NAME,
      version = Tags.MOD_VERSION,
      acceptedMinecraftVersions = "[1.7.10]",
-     guiFactory = Tags.ROOT_PKG + ".config.ConfigGuiFactory")
+     guiFactory = Tags.ROOT_PKG + ".config.ConfigGuiFactory",
+     dependencies = "required-after:falsepatternlib@[1.9.0,);")
 @NoArgsConstructor
 public final class SwanSong {
     @SidedProxy(clientSide = Tags.ROOT_PKG + ".SwanSong$ClientProxy",
@@ -120,6 +121,10 @@ public final class SwanSong {
                 return;
             }
             text.right.add("§b" + Tags.MOD_NAME + " §9" + Tags.MOD_VERSION);
+            if (!ShaderEngine.isInitialized()) {
+                text.right.add("§4Shaders disabled");
+                return;
+            }
             text.right.add("§bPack §9" + ShaderPackManager.currentShaderPackName);
             text.right.add("§bShadows " + (ShaderEngine.shadowPassExists() ? "§aEnabled" : "§4Disabled"));
             text.right.add("§bShader switches: " + "§r" + ShaderEngine.prevFrameShaderSwitches);
@@ -133,22 +138,18 @@ public final class SwanSong {
 
         @SubscribeEvent
         public void onDimensionChange(EntityJoinWorldEvent event) {
-            if (ShaderEngine.isInitialized()) {
-                if (event.world.isRemote && event.entity instanceof EntityPlayerSP) {
-                    ShaderEngine.scheduleShaderPackReload();
-                }
+            if (event.world.isRemote && event.entity instanceof EntityPlayerSP) {
+                ShaderEngine.scheduleShaderPackReload();
             }
         }
 
         @SubscribeEvent
         public void onKey(InputEvent.KeyInputEvent e) {
-            if (ShaderEngine.isInitialized()) {
-                if (Keyboard.getEventKey() == Keyboard.KEY_R &&
-                    Keyboard.isKeyDown(Keyboard.KEY_F3) &&
-                    Keyboard.getEventKeyState() &&
-                    !Keyboard.isRepeatEvent()) {
-                    ShaderEngine.scheduleShaderPackReload();
-                }
+            if (Keyboard.getEventKey() == Keyboard.KEY_R &&
+                Keyboard.isKeyDown(Keyboard.KEY_F3) &&
+                Keyboard.getEventKeyState() &&
+                !Keyboard.isRepeatEvent()) {
+                ShaderEngine.scheduleShaderPackReload();
             }
         }
     }

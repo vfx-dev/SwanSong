@@ -31,6 +31,7 @@ public abstract class MinecraftMixin {
                             target = "Lcpw/mods/fml/common/FMLCommonHandler;onRenderTickStart(F)V"),
                    require = 1)
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
+        ShaderEngine.beginRenderAllPre();
         if (ShaderEngine.isInitialized()) {
             ShaderState.updateSubTick(subTick);
             ShaderEngine.beginRenderAll();
@@ -54,10 +55,8 @@ public abstract class MinecraftMixin {
                        target = "Lnet/minecraft/client/renderer/RenderGlobal;loadRenderers()V"),
               require = 1)
     private void hook_ReloadShaderPack(RenderGlobal rg) {
-        if (ShaderEngine.isInitialized()) {
-            // We will call loadRenderers() ourselves later when the shader reloads
-            ShaderEngine.scheduleShaderPackReload();
-        }
+        // We will call loadRenderers() ourselves later when the shader reloads
+        ShaderEngine.scheduleShaderPackReload();
     }
 
     @Inject(method = "updateFramebufferSize",

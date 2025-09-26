@@ -37,7 +37,7 @@ public final class WorldProviderRenderer {
     public static IRenderHandler wrapSkyRenderer(@NotNull WorldProvider worldProvider,
                                                  @Nullable IRenderHandler oldRenderer) {
         if (oldRenderer == null) {
-            return SKY_RENDER_HANDLER;
+            return ShaderEngine.isInitialized() ? SKY_RENDER_HANDLER : null;
         }
         return oldRenderer;
     }

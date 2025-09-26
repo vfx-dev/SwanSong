@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
+import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderEntityData;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,14 +42,18 @@ public abstract class MixinRenderBlocks {
             at = @At("HEAD"),
             require = 1)
     private void state_pushEntityBlock(Block block, int posX, int posY, int posZ, CallbackInfoReturnable<Boolean> cir) {
-        swansong$entityData.pushEntity(block, blockAccess.getBlockMetadata(posX, posY, posZ));
+        if (ShaderEngine.isInitialized()) {
+            swansong$entityData.pushEntity(block, blockAccess.getBlockMetadata(posX, posY, posZ));
+        }
     }
 
     @Inject(method = "renderBlockByRenderType",
             at = @At("RETURN"),
             require = 1)
     private void state_popEntityBlock(CallbackInfoReturnable<Boolean> cir) {
-        swansong$entityData.popEntity();
+        if (ShaderEngine.isInitialized()) {
+            swansong$entityData.popEntity();
+        }
     }
 
     @Inject(method = "renderBlockFlowerpot",
@@ -59,14 +64,18 @@ public abstract class MixinRenderBlocks {
                                                  int posY,
                                                  int posZ,
                                                  CallbackInfoReturnable<Boolean> cir) {
-        swansong$entityData.pushEntity(block, blockAccess.getBlockMetadata(posX, posY, posZ));
+        if (ShaderEngine.isInitialized()) {
+            swansong$entityData.pushEntity(block, blockAccess.getBlockMetadata(posX, posY, posZ));
+        }
     }
 
     @Inject(method = "renderBlockFlowerpot",
             at = @At("RETURN"),
             require = 1)
     private void state_popEntityBlockFlowerpot0(CallbackInfoReturnable<Boolean> cir) {
-        swansong$entityData.popEntity();
+        if (ShaderEngine.isInitialized()) {
+            swansong$entityData.popEntity();
+        }
     }
 
     @Redirect(method = "renderBlockFlowerpot",
@@ -74,7 +83,9 @@ public abstract class MixinRenderBlocks {
                        target = "Lnet/minecraft/block/Block;getRenderType()I"),
               require = 1)
     private int state_pushEntityBlockFlowerpot1(Block block) {
-        swansong$entityData.pushEntity(block);
+        if (ShaderEngine.isInitialized()) {
+            swansong$entityData.pushEntity(block);
+        }
         return block.getRenderType();
     }
 
@@ -85,7 +96,9 @@ public abstract class MixinRenderBlocks {
                      ordinal = 1),
             require = 1)
     private void state_popEntityBlockFlowerpot1(CallbackInfoReturnable<Boolean> cir) {
-        swansong$entityData.popEntity();
+        if (ShaderEngine.isInitialized()) {
+            swansong$entityData.popEntity();
+        }
     }
 
     // region Block Light Level
@@ -99,7 +112,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.5F),
                     require = 6)
     public float state_blockSingleLightLevel05(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderBlockBed(Lnet/minecraft/block/Block;III)Z",
@@ -111,7 +124,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.6F),
                     expect = 6)
     public float state_blockSingleLightLevel06(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderBlockBed(Lnet/minecraft/block/Block;III)Z",
@@ -123,7 +136,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.8F),
                     expect = 6)
     public float state_blockSingleLightLevel08(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = "renderPistonExtension(Lnet/minecraft/block/Block;IIIZ)Z",
@@ -132,21 +145,21 @@ public abstract class MixinRenderBlocks {
                                               target = "Lnet/minecraft/client/renderer/RenderBlocks;uvRotateEast:I")),
                     expect = 4)
     public float state_pistonBlockLightLevel05(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = "renderPistonExtension(Lnet/minecraft/block/Block;IIIZ)Z",
                     constant = @Constant(floatValue = 0.6F),
                     expect = 12)
     public float state_pistonBlockLightLevel06(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = "renderPistonExtension(Lnet/minecraft/block/Block;IIIZ)Z",
                     constant = @Constant(floatValue = 0.8F),
                     expect = 4)
     public float state_pistonBlockLightLevel08(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderStandardBlockWithAmbientOcclusionPartial(Lnet/minecraft/block/Block;IIIFFF)Z",
@@ -154,7 +167,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.5F),
                     expect = 12)
     public float state_multipleBlockLightLevel05(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderStandardBlockWithAmbientOcclusionPartial(Lnet/minecraft/block/Block;IIIFFF)Z",
@@ -162,7 +175,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.6F),
                     expect = 24)
     public float state_multipleBlockLightLevel06(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderStandardBlockWithAmbientOcclusionPartial(Lnet/minecraft/block/Block;IIIFFF)Z",
@@ -170,7 +183,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.8F),
                     expect = 24)
     public float state_multipleBlockLightLevel08(float constant) {
-        return ShaderState.blockLightLevel(constant);
+        return ShaderEngine.isInitialized() ? ShaderState.blockLightLevel(constant) : constant;
     }
     // endregion
 }

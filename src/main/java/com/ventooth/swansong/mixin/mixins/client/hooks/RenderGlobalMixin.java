@@ -32,6 +32,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.shader.Shader;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
@@ -101,9 +102,11 @@ public abstract class RenderGlobalMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;drawOutlinedBoundingBox(Lnet/minecraft/util/AxisAlignedBB;I)V"),
             require = 1)
     private static void fix_TexLightSelectionBox(CallbackInfo ci) {
-        // Needed to ensure no texture or lightmap being present
-        RenderUtil.bindEmptyTexture();
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        if (ShaderEngine.isInitialized()) {
+            // Needed to ensure no texture or lightmap being present
+            RenderUtil.bindEmptyTexture();
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        }
     }
 
     @WrapOperation(method = "renderSky(F)V",
@@ -150,13 +153,16 @@ public abstract class RenderGlobalMixin {
                      args = "ldc=global"),
             require = 1)
     private void beginWeatherEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        // Reset Render Pass
-        ForgeHooksClient.setRenderPass(renderPass.get());
+        if (ShaderEngine.isInitialized()) {
+            // Reset Render Pass
+            ForgeHooksClient.setRenderPass(renderPass.get());
 
-        if (ShaderEngine.graph.isShadowPass()) {
-            // We don't draw em
-        } else {
-            ShaderEngine.graph.moveToEither(StateGraph.Node.RenderWeatherEntities0, StateGraph.Node.RenderWeatherEntities1);
+            if (ShaderEngine.graph.isShadowPass()) {
+                // We don't draw em
+            } else {
+                ShaderEngine.graph.moveToEither(StateGraph.Node.RenderWeatherEntities0,
+                                                StateGraph.Node.RenderWeatherEntities1);
+            }
         }
     }
 
@@ -179,13 +185,15 @@ public abstract class RenderGlobalMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_BeginEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        // Reset Render Pass
-        ForgeHooksClient.setRenderPass(renderPass.get());
+        if (ShaderEngine.isInitialized()) {
+            // Reset Render Pass
+            ForgeHooksClient.setRenderPass(renderPass.get());
 
-        if (ShaderEngine.graph.isShadowPass()) {
-            ShaderEngine.graph.moveToEither(StateGraph.Node.ShadowEntities0, StateGraph.Node.ShadowEntities1);
-        } else {
-            ShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntities0, StateGraph.Node.RenderEntities1);
+            if (ShaderEngine.graph.isShadowPass()) {
+                ShaderEngine.graph.moveToEither(StateGraph.Node.ShadowEntities0, StateGraph.Node.ShadowEntities1);
+            } else {
+                ShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntities0, StateGraph.Node.RenderEntities1);
+            }
         }
     }
 
@@ -197,10 +205,12 @@ public abstract class RenderGlobalMixin {
                                     Entity entity,
                                     float subTick,
                                     @Share("render_pass") LocalIntRef renderPass) {
-        // Reset Render Pass
-        ForgeHooksClient.setRenderPass(renderPass.get());
+        if (ShaderEngine.isInitialized()) {
+            // Reset Render Pass
+            ForgeHooksClient.setRenderPass(renderPass.get());
 
-        ShaderState.nextEntity(entity);
+            ShaderState.nextEntity(entity);
+        }
         return true;
     }
 
@@ -209,13 +219,17 @@ public abstract class RenderGlobalMixin {
                      target = "Lnet/minecraft/client/renderer/RenderHelper;enableStandardItemLighting()V"),
             require = 1)
     private void hook_BeginBlockEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        // Reset Render Pass
-        ForgeHooksClient.setRenderPass(renderPass.get());
+        if (ShaderEngine.isInitialized()) {
+            // Reset Render Pass
+            ForgeHooksClient.setRenderPass(renderPass.get());
 
-        if (ShaderEngine.graph.isShadowPass()) {
-            ShaderEngine.graph.moveToEither(StateGraph.Node.ShadowBlockEntities0, StateGraph.Node.ShadowBlockEntities1);
-        } else {
-            ShaderEngine.graph.moveToEither(StateGraph.Node.RenderBlockEntities0, StateGraph.Node.RenderBlockEntities1);
+            if (ShaderEngine.graph.isShadowPass()) {
+                ShaderEngine.graph.moveToEither(StateGraph.Node.ShadowBlockEntities0,
+                                                StateGraph.Node.ShadowBlockEntities1);
+            } else {
+                ShaderEngine.graph.moveToEither(StateGraph.Node.RenderBlockEntities0,
+                                                StateGraph.Node.RenderBlockEntities1);
+            }
         }
     }
 
@@ -224,8 +238,10 @@ public abstract class RenderGlobalMixin {
                                 target = "Lnet/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher;renderTileEntity(Lnet/minecraft/tileentity/TileEntity;F)V"),
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
-        ShaderState.nextBlockEntity(tileEntity);
-        RenderUtil.bindEmptyTexture();
+        if (ShaderEngine.isInitialized()) {
+            ShaderState.nextBlockEntity(tileEntity);
+            RenderUtil.bindEmptyTexture();
+        }
         return true;
     }
 }

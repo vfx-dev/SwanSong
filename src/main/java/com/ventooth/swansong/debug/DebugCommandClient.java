@@ -46,11 +46,7 @@ public final class DebugCommandClient extends CommandBase {
                 ShaderEngine.scheduleFramebufferResize();
             }
         });
-        this.optionMap.put("sh_reset", () -> {
-            if (ShaderEngine.isInitialized()) {
-                ShaderEngine.scheduleShaderPackReload();
-            }
-        });
+        this.optionMap.put("sh_reset", ShaderEngine::scheduleShaderPackReload);
 
         this.optionList = new ArrayList<>(optionMap.keySet());
     }

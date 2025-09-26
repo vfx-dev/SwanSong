@@ -90,7 +90,7 @@ class FixedEngineState {
         return loader;
     }
 
-    public static @NotNull FixedEngineState init(@Nullable WorldProvider dimension, @Nullable Report report) {
+    public static @Nullable FixedEngineState init(@Nullable WorldProvider dimension, @Nullable Report report) {
         val b = builder();
         b.dimension = dimension;
         try {
@@ -98,17 +98,21 @@ class FixedEngineState {
         } catch (IOException ignored) {
         }
 
-        b.pack = ShaderPackManager.createShaderPack();
-        b.remapper = BlockIDRemapper.createRemapper(b.pack);
+        val pack = ShaderPackManager.createShaderPack();
+        if (pack == null) {
+            return null;
+        }
+        b.pack = pack;
+        b.remapper = BlockIDRemapper.createRemapper(pack);
 
         if (report != null) {
-            report.name = b.pack.name();
+            report.name = pack.name();
         }
 
-        val mainLoader = createLoader(b.pack, dimension);
+        val mainLoader = createLoader(pack, dimension);
 
         val loaders = new ArrayList<ShaderLoader>();
-        if (b.pack != DefaultShaderPack.INSTANCE) {
+        if (pack != DefaultShaderPack.INSTANCE) {
             loaders.add(createLoader(DefaultShaderPack.INSTANCE, dimension));
         }
         loaders.add(createLoader(InternalShaderPack.INSTANCE, dimension));

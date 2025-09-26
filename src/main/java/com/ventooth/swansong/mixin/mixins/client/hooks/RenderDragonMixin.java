@@ -11,6 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.falsepattern.lib.util.RenderUtil;
+import com.ventooth.swansong.shader.ShaderEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,7 +28,9 @@ public abstract class RenderDragonMixin {
                      target = "Lnet/minecraft/client/renderer/RenderHelper;disableStandardItemLighting()V"),
             require = 1)
     protected void fix_EnderDragonDeathBeams(EntityDragon p_77029_1_, float p_77029_2_, CallbackInfo ci) {
-        RenderUtil.bindEmptyTexture();
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        if (ShaderEngine.isInitialized()) {
+            RenderUtil.bindEmptyTexture();
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        }
     }
 }

@@ -34,9 +34,11 @@ public class ASMHooks {
     }
 
     public static void glCallList(int list) {
-        val rg = Minecraft.getMinecraft().renderGlobal;
-        if (list == rg.glSkyList) {
-            ShaderEngine.preSkyList();
+        if (ShaderEngine.isInitialized()) {
+            val rg = Minecraft.getMinecraft().renderGlobal;
+            if (list == rg.glSkyList) {
+                ShaderEngine.preSkyList();
+            }
         }
         GL11.glCallList(list);
     }

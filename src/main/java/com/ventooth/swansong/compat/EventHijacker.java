@@ -40,7 +40,10 @@ public final class EventHijacker {
                 "renderLastEvent".equals(info.methodName())) {
                 Share.log.info("Hijacked NEI overlay for compat");
                 return (original, event, info1) -> {
-                    assert ShaderEngine.graph.isManaged() : "Unexpected unmanaged state?";
+                    if (!ShaderEngine.graph.isManaged()) {
+                        original.invoke(event);
+                        return;
+                    }
 
                     ShaderEngine.graph.push(StateGraph.Stack.NEIOverlay);
 
@@ -61,7 +64,10 @@ public final class EventHijacker {
                            info.methodName());
 
             return (original, event, info1) -> {
-                assert ShaderEngine.graph.isManaged() : "Unexpected unmanaged state?";
+                if (!ShaderEngine.graph.isManaged()) {
+                    original.invoke(event);
+                    return;
+                }
 
                 ShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
 

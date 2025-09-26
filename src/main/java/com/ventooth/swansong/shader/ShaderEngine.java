@@ -133,6 +133,7 @@ public final class ShaderEngine {
         return state == null ? null : state.configScreen;
     }
 
+    //CALLED BY ASM!
     public static boolean isInitialized() {
         return state != null;
     }
@@ -201,10 +202,22 @@ public final class ShaderEngine {
         return !state.manager.portal.isFallback();
     }
 
+    public static void beginRenderAllPre() {
+        if (isInitialized()) {
+            return;
+        }
+        if (!needsShaderPackReload) {
+            return;
+        }
+        doShaderPackReload();
+    }
+
     public static void beginRenderAll() {
         needsFramebufferResize = ShaderState.updateViewSize();
         if (needsShaderPackReload) {
-            doShaderPackReload();
+            if (!doShaderPackReload()) {
+                return;
+            }
         } else if (needsFramebufferResize) {
             doFramebufferResize();
         }
@@ -421,7 +434,6 @@ public final class ShaderEngine {
      * Called to reload the shader
      */
     public static void scheduleShaderPackReload() {
-        assert state != null : "Not Initialized";
         ShaderEngine.log.debug("Scheduled ShaderPack Reload");
         needsShaderPackReload = true;
     }
@@ -435,8 +447,14 @@ public final class ShaderEngine {
         needsFramebufferResize = true;
     }
 
-    private static void doShaderPackReload() {
+    private static boolean doShaderPackReload() {
         deinit();
+        if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(ShaderPackManager.currentShaderPackName)) {
+            // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
+            Minecraft.getMinecraft().renderGlobal.loadRenderers();
+            needsShaderPackReload = false;
+            return false;
+        }
         val report = new Report();
         try {
             init(report);
@@ -451,21 +469,17 @@ public final class ShaderEngine {
 
             report.endTime = System.nanoTime();
             report.print();
+            return true;
         } catch (RuntimeException e) {
             report.endTime = System.nanoTime();
             report.print();
-            if (DefaultShaderPack.NAME.equals(ShaderPackManager.getCurrentShaderPackName())) {
-                ShaderEngine.log.fatal("Failed to load internal shaderpack! Unrecoverable.");
-                ShaderEngine.log.fatal("Please report this as a bug:", e);
-                throw e;
-            } else {
-                ShaderEngine.log.error("Caught internal error while loading shaderpack!");
-                ShaderEngine.log.error("Please report this as a bug:", e);
-                ShaderEngine.log.error("Now attempting to load the fallback");
-                // TODO: This should use the (internal) shaderpack! As we will still crash if the bad shader comes from the resourcepack!
-                ShaderPackManager.setShaderPackByName(DefaultShaderPack.NAME);
-                doShaderPackReload();
-            }
+            ShaderEngine.log.error("Caught internal error while loading shaderpack!");
+            ShaderEngine.log.error("Please report this as a bug:", e);
+            deinit();
+            ShaderPackManager.setShaderPackByName(ShaderPackManager.DISABLED_SHADER_PACK_NAME);
+            Minecraft.getMinecraft().renderGlobal.loadRenderers();
+            needsShaderPackReload = false;
+            return false;
         }
     }
 
@@ -1193,6 +1207,9 @@ public final class ShaderEngine {
     // region Shader Hooks
 
     public static void preSkyList() {
+        if (!ShaderEngine.isInitialized()) {
+            return;
+        }
         ShaderState.setUpPosition();
         val fogColor = ShaderState.fogColor();
         GL11.glColor3d(fogColor.x(), fogColor.y(), fogColor.z());

@@ -119,6 +119,9 @@ public abstract class RendererLivingEntityMixin {
                                          float yaw,
                                          float subTick,
                                          CallbackInfo ci) {
+        if (!ShaderEngine.isInitialized()) {
+            return;
+        }
         // TODO: Mob damage kinda works, but looks horribly wrong. Try hitting a skeleton to see what I mean.
         if (entity.hurtTime > 0 || entity.deathTime > 0) {
             val brightness = entity.getBrightness(subTick);
@@ -145,7 +148,7 @@ public abstract class RendererLivingEntityMixin {
                                 target = "Lnet/minecraft/client/renderer/OpenGlHelper;setActiveTexture(I)V"),
                        require = 4)
     private boolean skip_SetActiveTexture(int texture) {
-        return false;
+        return !ShaderEngine.isInitialized();
     }
 
     @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
@@ -162,6 +165,6 @@ public abstract class RendererLivingEntityMixin {
                                               float netHeadYaw,
                                               float headPitch,
                                               float scale) {
-        return false;
+        return !ShaderEngine.isInitialized();
     }
 }

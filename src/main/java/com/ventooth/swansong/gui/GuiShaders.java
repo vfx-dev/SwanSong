@@ -247,11 +247,18 @@ public final class GuiShaders extends GuiScreen {
         @Override
         protected void drawSlot(int index, int posX, int posY, int contentY, Tessellator tess, int mouseX, int mouseY) {
             String label = this.shaderPackNames.get(index);
-            if (label.equals(DefaultShaderPack.NAME)) {
+            int color;
+            if (label.equals(ShaderPackManager.DISABLED_SHADER_PACK_NAME)) {
+                label = I18n.format("options.off");
+                color = 0xe04040;
+            } else if (label.equals(DefaultShaderPack.NAME)) {
                 label = I18n.format("gui.swansong.shaders.default");
+                color = 0xa0a0a0;
+            } else {
+                color = 0xe0e0e0;
             }
 
-            GuiShaders.this.drawCenteredString(label, this.width / 2, posY + 1, 0xe0e0e0);
+            GuiShaders.this.drawCenteredString(label, this.width / 2, posY + 1, color);
         }
     }
     // endregion

@@ -47,6 +47,7 @@ public class TessellatorShaderTransformer implements TurboClassTransformer {
     private static final String SHADER_TESS_DESC = "L" + SHADER_TESS_INTERNAL + ";";
     private static final String TVS_INTERNAL = "net/minecraft/client/shader/TesselatorVertexState";
     private static final String TVS_DESC = "L" + TVS_INTERNAL + ";";
+    private static final String ENGINE_INTERNAL = "com/ventooth/swansong/shader/ShaderEngine";
 
     @Override
     public String owner() {
@@ -91,15 +92,18 @@ public class TessellatorShaderTransformer implements TurboClassTransformer {
 
     private void injectDrawHook(MethodNode methodNode) {
         val instructions = new InsnList();
+        val end = skipIfNotEnabled(instructions);
         getShaderTess(instructions);
         instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, SHADER_TESS_INTERNAL, "draw", "()I", false));
         instructions.add(new InsnNode(Opcodes.IRETURN));
         instructions.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+        instructions.add(end);
         methodNode.instructions.insert(instructions);
     }
 
     private void injectAddVertexHook(MethodNode methodNode) {
         val instructions = new InsnList();
+        val end = skipIfNotEnabled(instructions);
         getShaderTess(instructions);
         methodNode.maxStack = Math.max(methodNode.maxStack, 7);
         instructions.add(new VarInsnNode(Opcodes.DLOAD, 1));
@@ -108,11 +112,13 @@ public class TessellatorShaderTransformer implements TurboClassTransformer {
         instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, SHADER_TESS_INTERNAL, "addVertex", "(DDD)V", false));
         instructions.add(new InsnNode(Opcodes.RETURN));
         instructions.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+        instructions.add(end);
         methodNode.instructions.insert(instructions);
     }
 
     private void injectGetVertexState(MethodNode methodNode, FieldNode rawBufferIndex) {
         val instructions = new InsnList();
+        val end = skipIfNotEnabled(instructions);
         instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         instructions.add(new FieldInsnNode(Opcodes.GETFIELD, TESS_INTERNAL, rawBufferIndex.name, rawBufferIndex.desc));
         instructions.add(new InsnNode(Opcodes.ICONST_1));
@@ -122,11 +128,19 @@ public class TessellatorShaderTransformer implements TurboClassTransformer {
         instructions.add(new InsnNode(Opcodes.ARETURN));
         instructions.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
         instructions.add(endLabel);
+        instructions.add(end);
         methodNode.instructions.insert(instructions);
     }
 
     private void getShaderTess(InsnList instructions) {
         instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         instructions.add(new FieldInsnNode(Opcodes.GETFIELD, TESS_INTERNAL, "swansong$shaderTess", SHADER_TESS_DESC));
+    }
+
+    private LabelNode skipIfNotEnabled(InsnList instructions) {
+        val label = new LabelNode();
+        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, ENGINE_INTERNAL, "isInitialized", "()Z", false));
+        instructions.add(new JumpInsnNode(Opcodes.IFEQ, label));
+        return label;
     }
 }
