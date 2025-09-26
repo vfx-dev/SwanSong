@@ -26,14 +26,18 @@ public abstract class RenderEventHandlerMixin {
             at = @At("HEAD"),
             require = 1)
     private void preBlockHighlight(CallbackInfo ci) {
-        ShaderEngine.graph.push(StateGraph.Stack.BlockHighlightTextured);
-        GL11.glDepthMask(true);
+        if (ShaderEngine.graph.isManaged()) {
+            ShaderEngine.graph.push(StateGraph.Stack.BlockHighlightTextured);
+            GL11.glDepthMask(true);
+        }
     }
     @Inject(method = "blockHighlight",
             at = @At("RETURN"),
             require = 1)
     private void postBlockHighlight(CallbackInfo ci) {
-        ShaderEngine.graph.pop(StateGraph.Stack.BlockHighlightTextured);
-        GL11.glDepthMask(false);
+        if (ShaderEngine.graph.isManaged()) {
+            ShaderEngine.graph.pop(StateGraph.Stack.BlockHighlightTextured);
+            GL11.glDepthMask(false);
+        }
     }
 }
