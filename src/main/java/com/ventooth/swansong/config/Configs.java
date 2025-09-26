@@ -13,6 +13,7 @@ package com.ventooth.swansong.config;
 import com.falsepattern.lib.config.ConfigException;
 import com.falsepattern.lib.config.ConfigurationManager;
 import com.ventooth.swansong.Share;
+import ibxm.Module;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -85,6 +86,9 @@ public final class Configs {
         }
         categories.add(new CfgCategory("02_shaders", "config.swansong.modules.Shaders", ShadersConfig.class));
         categories.add(new CfgCategory("03_compat", "config.swansong.modules.Compat", CompatConfig.class));
+        if (init || ModuleConfig.FunkyZoom) {
+            categories.add(new CfgCategory("04_zoom", "config.swansong.modules.Zoom", ZoomConfig.class));
+        }
 
         return categories;
     }

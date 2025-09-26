@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.zoom;
 
+import com.ventooth.swansong.config.ZoomConfig;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -49,19 +50,24 @@ public final class FunkyZoom {
             if (keyState != isActive) {
                 isActive = keyState;
 
-                final ResourceLocation soundLoc;
                 if (isActive) {
-                    soundLoc = new ResourceLocation("swansong:zoom.begin");
                     smoothCameraState = SmoothCameraState.ACTIVE;
                 } else {
-                    soundLoc = new ResourceLocation("swansong:zoom.end");
                     smoothCameraState = SmoothCameraState.RESETTING;
                 }
 
-                val soundHandler = Minecraft.getMinecraft()
-                                            .getSoundHandler();
-                val sound = PositionedSoundRecord.func_147674_a(soundLoc, 1F);
-                soundHandler.playSound(sound);
+                if (ZoomConfig.Sound) {
+                    final ResourceLocation soundLoc;
+                    if (isActive) {
+                        soundLoc = new ResourceLocation("swansong:zoom.begin");
+                    } else {
+                        soundLoc = new ResourceLocation("swansong:zoom.end");
+                    }
+                    val soundHandler = Minecraft.getMinecraft()
+                                                .getSoundHandler();
+                    val sound = PositionedSoundRecord.func_147674_a(soundLoc, 1F);
+                    soundHandler.playSound(sound);
+                }
             }
         }
     }

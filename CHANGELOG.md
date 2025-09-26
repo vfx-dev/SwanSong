@@ -5,6 +5,7 @@
 ### Added
 
 - Option for turning off shaders
+- Config option for toggling zoom sound
 
 ### Fixed
 

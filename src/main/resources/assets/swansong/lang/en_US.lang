@@ -11,6 +11,8 @@ config.swansong.modules.FunkyZoom=Funky! Zoom
 config.swansong.modules.FunkyZoom.tooltip=Like imagine you can squint and see further
 config.swansong.modules.Compat=Compatibility Fixes
 config.swansong.modules.Compat.tooltip=Like you got all these broken mods, but what if they just worked?...
+config.swansong.modules.Zoom=Zoom
+config.swansong.modules.Zoom.tooltip=Settings for the zoom module
 
 config.swansong.debug.ApplyVenterceptorLogFilters=Apply Venterceptor Log Filters
 config.swansong.debug.ApplyVenterceptorLogFilters.tooltip=Filter out spammy messages if Venterceptor GLDebug logging is in use.
@@ -71,6 +73,9 @@ config.swansong.compat.MC_BoundingBoxFixes=Minecraft: Renderer bounding box fixe
 config.swansong.compat.MC_BoundingBoxFixes.tooltip=Fixes render bounding boxes for some tile entities (end portals, signs)\nImproves the game performance SIGNIFICANTLY if you have a lot of signs on your base
 config.swansong.compat.MC_LightMapCoordClamp=Minecraft: Light Map Coordinate Clamping
 config.swansong.compat.MC_LightMapCoordClamp.tooltip=Clamps fixed coordinates being set for the lightmap to: 0F-240F\nFixes problems where certain things end up rendering pitch black
+
+config.swansong.zoom.Sound=Sound
+config.swansong.zoom.Sound.tooptip=Should zooming make a sound?
 
 # Options
 option.swansong.shaders.AntiAliasingCfg.DISABLED=Anti-Aliasing: OFF
