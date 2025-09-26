@@ -14,6 +14,7 @@ import com.hbm.dim.SkyProviderCelestial;
 import com.hbm.render.shader.Shader;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,6 +33,29 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
     @Shadow
     @Final
     protected static Shader planetShader;
+
+    @Inject(method = "render",
+            at = @At(value = "INVOKE",
+                     target = "Lorg/lwjgl/opengl/GL11;glRotatef(FFFF)V",
+                     ordinal = 2),
+            require = 1)
+    private void preCelestialRotate(CallbackInfo ci) {
+        if (ShaderEngine.graph.isManaged()) {
+            ShaderState.preCelestialRotate();
+        }
+    }
+
+    @Inject(method = "render",
+            at = @At(value = "INVOKE",
+                     target = "Lorg/lwjgl/opengl/GL11;glRotatef(FFFF)V",
+                     ordinal = 2,
+                     shift = At.Shift.AFTER),
+            require = 1)
+    private void postCelestialRotate(CallbackInfo ci) {
+        if (ShaderEngine.graph.isManaged()) {
+            ShaderState.postCelestialRotate();
+        }
+    }
 
     @Inject(method = "renderCelestials",
             at = @At(value = "INVOKE",

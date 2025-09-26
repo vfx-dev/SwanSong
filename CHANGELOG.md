@@ -6,6 +6,10 @@
 
 - Option for turning off shaders
 
+### Fixed
+
+- NTM: Space rendering a black screen with Chocapic13
+
 ## [1.1.2] - 2025-09-25
 
 ### Added
