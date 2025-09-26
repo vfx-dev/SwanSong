@@ -101,7 +101,10 @@ public final class EventHijacker {
 
             // This stuff happens right after entities render on both pass 0 and pass 1
             return (original, event, info1) -> {
-                assert ShaderEngine.graph.isManaged() : "Unexpected unmanaged state?";
+                if (!ShaderEngine.graph.isManaged()) {
+                    original.invoke(event);
+                    return;
+                }
 
                 ShaderEngine.graph.push(StateGraph.Stack.DragonAPI);
 
