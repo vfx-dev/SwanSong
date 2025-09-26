@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Crash with DragonAPI when shaders are disabled
+
 ## [1.2.0] - 2025-09-26
 
 ### Added
