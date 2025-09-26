@@ -161,6 +161,12 @@ public enum Mixin implements IMixins {
                             require(Thaumcraft),
                             client("compat.thaumcraft.RenderEventHandlerMixin")),
 
+    Compat_TC_CultistFloatyLineFix(Phase.LATE,
+                                   () -> CompatConfig.TC_CultistFloatyLineFix,
+                                   require(Thaumcraft),
+                                   client("compat.thaumcraft.EntityCultistClericMixin",
+                                          "compat.thaumcraft.RenderCultistMixin")),
+
     Compat_THEX_TesseractStarfieldFix(Phase.LATE,
                                       () -> CompatConfig.THEX_TesseractStarfieldFix,
                                       require(ThermalExpansion),

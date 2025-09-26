@@ -77,6 +77,13 @@ public final class CompatConfig {
     @Config.RequiresMcRestart
     public static boolean TC_VisOverlayFix;
 
+    @Config.Name("TC_CultistFloatyLineFix")
+    @Config.Comment("ThaumCraft: Fixes weirdness with the floaty lines cultist have during their rituals")
+    @Config.LangKey("config.swansong.compat.TC_CultistFloatyLineFix")
+    @Config.DefaultBoolean(true)
+    @Config.RequiresMcRestart
+    public static boolean TC_CultistFloatyLineFix;
+
     @Config.Name("THEX_TesseractStarfieldFix")
     @Config.Comment("Thermal Expansion: Fixes the starfield effect on the Tesseract")
     @Config.LangKey("config.swansong.compat.THEX_TesseractStarfieldFix")

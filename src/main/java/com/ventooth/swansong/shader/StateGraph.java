@@ -474,6 +474,22 @@ public class StateGraph {
                 }
             }
         },
+        EntityParticle {
+            @Override
+            protected void push(Node currentNode) {
+                if (currentNode.isRender) {
+                    pushShader();
+                    use(state.manager.textured_lit);
+                }
+            }
+
+            @Override
+            protected void pop(Node currentNode) {
+                if (currentNode.isRender) {
+                    popShader();
+                }
+            }
+        },
         Text {
             @Override
             protected void push(Node currentNode) {

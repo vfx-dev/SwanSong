@@ -10,6 +10,7 @@
 ### Fixed
 
 - NTM: Space rendering a black screen with Chocapic13
+- Thaumcraft Cultist floaty line rendering
 
 ## [1.1.2] - 2025-09-25
 
