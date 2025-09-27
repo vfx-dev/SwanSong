@@ -1198,9 +1198,12 @@ public class ShaderLoader {
     }
 
     private ProgramCompiled compileShader(ProgramStage2 stage2, @Nullable Report report) {
+        GLShader vert = null;
+        GLShader frag = null;
+
         try {
-            val vert = createShader(GL20.GL_VERTEX_SHADER, stage2.path + ".vsh", stage2.vert.getNativeBuffer(true));
-            val frag = createShader(GL20.GL_FRAGMENT_SHADER, stage2.path + ".fsh", stage2.frag.getNativeBuffer(true));
+            vert = createShader(GL20.GL_VERTEX_SHADER, stage2.path + ".vsh", stage2.vert.getNativeBuffer(true));
+            frag = createShader(GL20.GL_FRAGMENT_SHADER, stage2.path + ".fsh", stage2.frag.getNativeBuffer(true));
             val prog = createProgram(stage2.path, vert, frag);
             return new ProgramCompiled(stage2.loc,
                                        stage2.actualLoc,
@@ -1215,8 +1218,14 @@ public class ShaderLoader {
                 report.erroredShaders.add(stage2.path);
             }
             return null;
+        } finally {
+            if (vert != null) {
+                vert.glDeleteShader();
+            }
+            if (frag != null) {
+                frag.glDeleteShader();
+            }
         }
-
     }
 
     /**

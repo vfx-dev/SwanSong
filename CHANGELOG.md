@@ -5,6 +5,7 @@
 ### Fixed
 
 - Crash with DragonAPI when shaders are disabled
+- Actually releasing shader objects after compilation and linking
 
 ## [1.2.0] - 2025-09-26
 
