@@ -16,22 +16,19 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.api.ShaderStateInfo;
+import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.renderer.entity.RenderDragon;
-import net.minecraft.client.renderer.entity.RenderEnderman;
-import net.minecraft.client.renderer.entity.RenderSpider;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -72,7 +69,8 @@ public abstract class RendererLivingEntityMixin {
                                      @Share("pass_ref") LocalIntRef passRef) {
         //separated out here because intellij screams due to the unsafe cast when inlined
         val self = (RendererLivingEntity) (Object) this;
-        if (ShaderEngine.graph.isManaged() && swan$isSpiderEyes(self, entity, modelBase, passRef.get())) {
+        if (ShaderEngine.graph.isManaged() &&
+            RendererLivingEntityExt.isSpiderEyes(self, entity, modelBase, passRef.get())) {
             if (ShaderStateInfo.shadowPassActive()) {
                 return;
             }
@@ -84,29 +82,7 @@ public abstract class RendererLivingEntityMixin {
         }
     }
 
-    /**
-     * Explicitly extracted from the rest of the code to allow for better compat/detection in the future.
-     *
-     * @param render    this renderer
-     * @param entity    the current entity
-     * @param modelBase the model reference
-     * @param pass      the entity render pass from 0-3
-     *
-     * @return {@code true} if this render call should be treated as spider eyes
-     */
-    @Unique
-    private static boolean swan$isSpiderEyes(RendererLivingEntity render,
-                                             Entity entity,
-                                             ModelBase modelBase,
-                                             int pass) {
-        // Currently only Spider/Enderman/Dragon RENDERERS on pass 0
-        if (pass == 0) {
-            return render instanceof RenderSpider || render instanceof RenderEnderman || render instanceof RenderDragon;
-        } else {
-            return false;
-        }
-    }
-
+    // TODO: Mob damage kinda works, but looks horribly wrong. Try hitting a skeleton to see what I mean.
     @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
             at = @At(value = "INVOKE",
                      target = "Lorg/lwjgl/opengl/GL11;glPushMatrix()V",
@@ -119,28 +95,26 @@ public abstract class RendererLivingEntityMixin {
                                          float yaw,
                                          float subTick,
                                          CallbackInfo ci) {
-        if (!ShaderEngine.isInitialized()) {
-            return;
-        }
-        // TODO: Mob damage kinda works, but looks horribly wrong. Try hitting a skeleton to see what I mean.
-        if (entity.hurtTime > 0 || entity.deathTime > 0) {
+        if (ShaderEngine.graph.isManaged()) {
             val brightness = entity.getBrightness(subTick);
-            ShaderState.updateEntityColor(brightness, 0F, 0F, 0.4F);
-            return;
-        }
+            val color = this.getColorMultiplier(entity, brightness, subTick);
 
-        val brightness = entity.getBrightness(subTick);
-        val color = this.getColorMultiplier(entity, brightness, subTick);
-        if ((color >> 24 & 0xFF) > 0) {
-            val a = (float) (color >> 24 & 0xFF) / 255F;
-            val r = (float) (color >> 16 & 0xFF) / 255F;
-            val g = (float) (color >> 8 & 0xFF) / 255F;
-            val b = (float) (color & 0xFF) / 255F;
-            ShaderState.updateEntityColor(r, g, b, 1F - a);
-            return;
-        }
+            if (entity.hurtTime > 0 || entity.deathTime > 0) {
+                // If the entity is hurt, apply red tint
+                ShaderState.updateEntityColor(brightness, 0F, 0F, 0.4F);
+            } else if ((color >> 24 & 0xFF) > 0) {
+                val a = (float) (color >> 24 & 0xFF) / 255F;
+                val r = (float) (color >> 16 & 0xFF) / 255F;
+                val g = (float) (color >> 8 & 0xFF) / 255F;
+                val b = (float) (color & 0xFF) / 255F;
 
-        ShaderState.updateEntityColor(0F, 0F, 0F, 0F);
+                // If the entity color alpha is more than zero, apply that instead
+                ShaderState.updateEntityColor(r, g, b, 1F - a);
+            } else {
+                // Otherwise ensure the color is reset (entity color is additive)
+                ShaderState.updateEntityColor(0F, 0F, 0F, 0F);
+            }
+        }
     }
 
     @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
