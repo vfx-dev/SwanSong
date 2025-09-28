@@ -34,7 +34,7 @@ public final class ShadersConfig {
     @Config.Name("CurrentShaderPack")
     @Config.Comment("TODO: CurrentShaderPack Desc")
     @Config.LangKey("config.swansong.shaders.CurrentShaderPack")
-    @Config.DefaultString("(default)")
+    @Config.DefaultString("(disabled)")
     public static String CurrentShaderPack;
 
     @Config.Name("AntiAliasing")
