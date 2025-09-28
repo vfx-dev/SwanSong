@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Compatibility for the Modern Warfare mod
+
 ### Fixed
 
 - Crash with DragonAPI when shaders are disabled
