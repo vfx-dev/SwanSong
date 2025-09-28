@@ -32,6 +32,7 @@ import static com.ventooth.swansong.mixin.TargetMod.Avaritia;
 import static com.ventooth.swansong.mixin.TargetMod.DragonAPI;
 import static com.ventooth.swansong.mixin.TargetMod.FoamFix;
 import static com.ventooth.swansong.mixin.TargetMod.JourneyMap;
+import static com.ventooth.swansong.mixin.TargetMod.ModernWarfare;
 import static com.ventooth.swansong.mixin.TargetMod.NotFine;
 import static com.ventooth.swansong.mixin.TargetMod.NuclearTech;
 import static com.ventooth.swansong.mixin.TargetMod.OpenComputers;
@@ -94,6 +95,12 @@ public enum Mixin implements IMixins {
                  "hooks.RenderDragonMixin",
                  "hooks.QuadComparatorMixin",
                  "hooks.GuiOptionsRowListMixin")),
+    Hooks_AvoidModernWarfare(Phase.EARLY,
+                             avoid(ModernWarfare),
+                             client("hooks.RendererLivingEntityMixin_AvoidModernWarfare")),
+    Hooks_RequireModernWarfare(Phase.EARLY,
+                               require(ModernWarfare),
+                               client("hooks.RendererLivingEntityMixin_RequireModernWarfare")),
 
     Debug(Phase.EARLY,
           () -> ModuleConfig.Debug,

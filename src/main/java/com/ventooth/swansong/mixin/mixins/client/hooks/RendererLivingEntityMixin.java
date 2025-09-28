@@ -15,22 +15,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
-import com.ventooth.swansong.api.ShaderStateInfo;
-import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
-import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
 @Mixin(RendererLivingEntity.class)
@@ -50,36 +44,6 @@ public abstract class RendererLivingEntityMixin {
                                               @Share("passRef") LocalIntRef passRef) {
         passRef.set(pass);
         return original.call(thiz, entity, pass, subTick);
-    }
-
-    @WrapOperation(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
-                   at = @At(value = "INVOKE",
-                            target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V",
-                            ordinal = 0),
-                   require = 1)
-    private void hook_WrapSpiderEyes(ModelBase modelBase,
-                                     Entity entity,
-                                     float limbSwing,
-                                     float limbSwingAmount,
-                                     float ageInTicks,
-                                     float netHeadYaw,
-                                     float headPitch,
-                                     float scale,
-                                     Operation<Void> original,
-                                     @Share("pass_ref") LocalIntRef passRef) {
-        //separated out here because intellij screams due to the unsafe cast when inlined
-        val self = (RendererLivingEntity) (Object) this;
-        if (ShaderEngine.graph.isManaged() &&
-            RendererLivingEntityExt.isSpiderEyes(self, entity, modelBase, passRef.get())) {
-            if (ShaderStateInfo.shadowPassActive()) {
-                return;
-            }
-            ShaderEngine.graph.push(StateGraph.Stack.SpiderEyes);
-            original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-            ShaderEngine.graph.pop(StateGraph.Stack.SpiderEyes);
-        } else {
-            original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-        }
     }
 
     // TODO: Mob damage kinda works, but looks horribly wrong. Try hitting a skeleton to see what I mean.
@@ -122,23 +86,6 @@ public abstract class RendererLivingEntityMixin {
                                 target = "Lnet/minecraft/client/renderer/OpenGlHelper;setActiveTexture(I)V"),
                        require = 4)
     private boolean skip_SetActiveTexture(int texture) {
-        return !ShaderEngine.isInitialized();
-    }
-
-    @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
-                       at = @At(value = "INVOKE",
-                                target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V"),
-                       slice = @Slice(from = @At(value = "INVOKE",
-                                                 target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
-                       require = 1)
-    private boolean skip_VanillaMobHurtRender(ModelBase instance,
-                                              Entity entity,
-                                              float limbSwing,
-                                              float limbSwingAmount,
-                                              float ageInTicks,
-                                              float netHeadYaw,
-                                              float headPitch,
-                                              float scale) {
         return !ShaderEngine.isInitialized();
     }
 }
