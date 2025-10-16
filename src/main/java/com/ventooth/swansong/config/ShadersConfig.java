@@ -88,6 +88,16 @@ public final class ShadersConfig {
     @Config.DefaultBoolean(false)
     public static boolean LetMeUseDepthOfFieldPlease; // TODO: Desc
 
+    @Config.Name("enableReferenceShaderPack")
+    @Config.Comment({
+            "Enable this if you want to use the built-in shaderpack.",
+            "You should not do this unless FalsePattern/Ven told you to for testing," +
+            "it WILL decrease your FPS if you use that shaderpack"
+    })
+    @Config.LangKey("config.swansong.shaders.EnableReferenceShaderpack")
+    @Config.DefaultBoolean(false)
+    public static boolean enableReferenceShaderPack;
+
     @RequiredArgsConstructor
     @Accessors(fluent = true,
                chain = false)

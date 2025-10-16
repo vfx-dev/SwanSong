@@ -60,7 +60,9 @@ public final class ShaderPackManager {
     private static Path shaderpacksDir;
     private static Path shaderpacksDebugDir;
 
-    private static List<String> detectedShaderpacks = Arrays.asList(DISABLED_SHADER_PACK_NAME, DefaultShaderPack.NAME);
+    private static List<String> detectedShaderpacks = ShadersConfig.enableReferenceShaderPack
+                                                      ? Arrays.asList(DISABLED_SHADER_PACK_NAME, DefaultShaderPack.NAME)
+                                                      : Collections.singletonList(DISABLED_SHADER_PACK_NAME);
 
     public static void init() {
         val minecraftDir = Minecraft.getMinecraft().mcDataDir.toPath();
@@ -193,7 +195,9 @@ public final class ShaderPackManager {
             });
             newShaders.sort(Comparator.naturalOrder());
 
-            newShaders.add(0, DefaultShaderPack.NAME);
+            if (ShadersConfig.enableReferenceShaderPack) {
+                newShaders.add(0, DefaultShaderPack.NAME);
+            }
             newShaders.add(0, DISABLED_SHADER_PACK_NAME);
             detectedShaderpacks = newShaders;
         } catch (IOException e) {
@@ -212,7 +216,11 @@ public final class ShaderPackManager {
             return null;
         }
         if (DefaultShaderPack.NAME.equals(currentShaderPackName)) {
-            return DefaultShaderPack.INSTANCE;
+            if (ShadersConfig.enableReferenceShaderPack) {
+                return DefaultShaderPack.INSTANCE;
+            } else {
+                return null;
+            }
         }
         val builder = new ResolvedShaderPack.Builder(currentShaderPackName);
         boolean successful = false;
@@ -231,7 +239,7 @@ public final class ShaderPackManager {
         }
         log.error("Failed to load shader pack named \"" + currentShaderPackName + "\"");
         setShaderPackByName(DISABLED_SHADER_PACK_NAME);
-        return DefaultShaderPack.INSTANCE;
+        return null;
     }
 
     public static void saveShaderPackConfig(List<String> dataz) {
