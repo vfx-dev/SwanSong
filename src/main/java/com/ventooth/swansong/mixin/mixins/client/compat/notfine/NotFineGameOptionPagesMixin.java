@@ -28,7 +28,9 @@ import net.minecraft.client.settings.GameSettings;
 
 @Mixin(NotFineGameOptionPages.class)
 public abstract class NotFineGameOptionPagesMixin {
-    @Shadow @Final private static MinecraftOptionsStorage vanillaOpts;
+    @Shadow(remap = false)
+    @Final
+    private static MinecraftOptionsStorage vanillaOpts;
 
     @Redirect(method = "other",
               at = @At(value = "INVOKE",

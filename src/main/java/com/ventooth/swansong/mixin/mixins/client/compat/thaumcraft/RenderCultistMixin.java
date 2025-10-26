@@ -31,7 +31,8 @@ public abstract class RenderCultistMixin {
 
     @WrapOperation(method = "doRender",
                    at = @At(value = "INVOKE",
-                                target = "Lthaumcraft/client/renderers/entity/RenderCultist;drawFloatyLine(DDDDDDFILjava/lang/String;FFF)V"),
+                            target = "Lthaumcraft/client/renderers/entity/RenderCultist;drawFloatyLine(DDDDDDFILjava/lang/String;FFF)V",
+                            remap = false),
                    require = 1)
     private void fix_RenderFloatyLinePass1(RenderCultist instance,
                                            double x,

@@ -25,7 +25,7 @@ import net.minecraft.tileentity.TileEntity;
 
 @Mixin(RenderTesseractStarfield.class)
 public abstract class RenderTesseractStarfieldMixin {
-    @Shadow
+    @Shadow(remap = false)
     public abstract void renderTileEntityAt(TileTesseract tileTesseract, double v, double v1, double v2, float v3);
 
     @WrapMethod(method = "renderTileEntityAt(Lcofh/thermalexpansion/block/ender/TileTesseract;DDDF)V",

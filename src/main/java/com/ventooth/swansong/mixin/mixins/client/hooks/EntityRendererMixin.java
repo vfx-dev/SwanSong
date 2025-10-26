@@ -101,7 +101,8 @@ public abstract class EntityRendererMixin {
 
     @Redirect(method = "renderWorld(FJ)V",
               at = @At(value = "INVOKE",
-                       target = "Lorg/lwjgl/opengl/GL11;glColorMask(ZZZZ)V"),
+                       target = "Lorg/lwjgl/opengl/GL11;glColorMask(ZZZZ)V",
+                       remap = false),
               require = 4)
     private void noColorMask(boolean red, boolean green, boolean blue, boolean alpha) {
 
@@ -216,7 +217,8 @@ public abstract class EntityRendererMixin {
 
     @Inject(method = "renderWorld",
             at = @At(value = "INVOKE",
-                     target = "Lnet/minecraft/client/renderer/RenderGlobal;drawBlockDamageTexture(Lnet/minecraft/client/renderer/Tessellator;Lnet/minecraft/entity/EntityLivingBase;F)V"),
+                     target = "Lnet/minecraft/client/renderer/RenderGlobal;drawBlockDamageTexture(Lnet/minecraft/client/renderer/Tessellator;Lnet/minecraft/entity/EntityLivingBase;F)V",
+                     remap = false),
             require = 1)
     private void renderBlockDamage(float partialTicks, long finishTimeNano, CallbackInfo ci) {
         if (ShaderEngine.isInitialized()) {
@@ -298,7 +300,8 @@ public abstract class EntityRendererMixin {
 
     @Inject(method = "renderWorld",
             at = @At(value = "INVOKE",
-                     target = "Lnet/minecraftforge/client/ForgeHooksClient;dispatchRenderLast(Lnet/minecraft/client/renderer/RenderGlobal;F)V"),
+                     target = "Lnet/minecraftforge/client/ForgeHooksClient;dispatchRenderLast(Lnet/minecraft/client/renderer/RenderGlobal;F)V",
+                     remap = false),
             require = 1)
     private void renderLast(float partialTicks, long finishTimeNano, CallbackInfo ci) {
         if (ShaderEngine.isInitialized()) {

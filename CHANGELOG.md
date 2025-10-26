@@ -5,6 +5,7 @@
 ### Fixed
 
 - NullPointerException crash when reloading shaders
+- Crash with NTM: Space
 
 ## [1.2.1] - 2025-09-28
 

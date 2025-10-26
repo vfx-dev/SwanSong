@@ -30,10 +30,10 @@ import java.util.ArrayList;
 
 @Mixin(GuiIngameForge.class)
 public abstract class GuiIngameForgeMixin {
-    @Shadow
+    @Shadow(remap = false)
     private FontRenderer fontrenderer;
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     private static int WHITE;
 

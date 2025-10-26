@@ -38,7 +38,8 @@ public abstract class EntityRendererMixin {
     // TODO: [STATE_MANAGEMENT] Move to hooks
     @Redirect(method = "renderWorld",
               at = @At(value = "INVOKE",
-                       target = "Lorg/lwjgl/opengl/GL11;glViewport(IIII)V"),
+                       target = "Lorg/lwjgl/opengl/GL11;glViewport(IIII)V",
+                       remap = false),
               require = 1)
     private void resizeViewport(int x, int y, int width, int height) {
         if (ShaderEngine.isInitialized()) {

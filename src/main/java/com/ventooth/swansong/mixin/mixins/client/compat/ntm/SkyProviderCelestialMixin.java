@@ -27,10 +27,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.client.IRenderHandler;
 
-@Mixin(value = SkyProviderCelestial.class,
-       remap = false)
+@Mixin(SkyProviderCelestial.class)
 public abstract class SkyProviderCelestialMixin extends IRenderHandler {
-    @Shadow
+    @Shadow(remap = false)
     @Final
     protected static Shader planetShader;
 
@@ -38,6 +37,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
             at = @At(value = "INVOKE",
                      target = "Lorg/lwjgl/opengl/GL11;glRotatef(FFFF)V",
                      ordinal = 2),
+            remap = false,
             require = 1)
     private void preCelestialRotate(CallbackInfo ci) {
         if (ShaderEngine.graph.isManaged()) {
@@ -50,6 +50,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                      target = "Lorg/lwjgl/opengl/GL11;glRotatef(FFFF)V",
                      ordinal = 2,
                      shift = At.Shift.AFTER),
+            remap = false,
             require = 1)
     private void postCelestialRotate(CallbackInfo ci) {
         if (ShaderEngine.graph.isManaged()) {
@@ -65,6 +66,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                       ordinal = 0),
                            to = @At(value = "INVOKE",
                                     target = "Lcom/hbm/render/shader/Shader;stop()V")),
+            remap = false,
             require = 1)
     private void shiftPlanetStop1(CallbackInfo ci) {
         if (ShaderEngine.graph.isManaged()) {
@@ -75,6 +77,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
     @WrapWithCondition(method = "renderCelestials",
                        at = @At(value = "INVOKE",
                        target = "Lcom/hbm/render/shader/Shader;stop()V"),
+                       remap = false,
                        require = 1)
     private boolean shiftPlanetStop2(Shader instance) {
         return !ShaderEngine.graph.isManaged();
@@ -87,8 +90,9 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                                  args = "intValue=3553",
                                                  ordinal = 0),
                              to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;")),
-              require = 2)
+                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                      remap = false)),
+                       require = 2)
     private boolean noDrawSunSquare1(Tessellator instance) {
         return !ShaderEngine.graph.isManaged();
     }
@@ -100,8 +104,9 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                         args = "intValue=3553",
                                         ordinal = 0),
                              to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;")),
-              require = 4)
+                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                      remap = false)),
+                       require = 4)
     private boolean noDrawSunSquare2(Tessellator instance, double x, double y, double z) {
         return !ShaderEngine.graph.isManaged();
     }
@@ -113,7 +118,8 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                         args = "intValue=3553",
                                         ordinal = 0),
                              to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;")),
+                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                      remap = false)),
               require = 4)
     private boolean noDrawSunSquare3(Tessellator instance, double x, double y, double z, double u, double v) {
         return !ShaderEngine.graph.isManaged();
@@ -126,7 +132,8 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                         args = "intValue=3553",
                                         ordinal = 0),
                              to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;")),
+                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                      remap = false)),
               require = 2)
     private int noDrawSunSquare4(Tessellator instance) {
         return ShaderEngine.graph.isManaged() ? 0 : instance.draw();
@@ -134,7 +141,8 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
 
     @WrapWithCondition(method = "render",
               at = @At(value = "INVOKE",
-                       target = "Lorg/lwjgl/opengl/GL11;glCallList(I)V"),
+                       target = "Lorg/lwjgl/opengl/GL11;glCallList(I)V",
+                       remap = false),
               slice = @Slice(from = @At(value = "INVOKE",
                                         target = "Lnet/minecraft/world/WorldProvider;isSkyColored()Z")),
               require = 1)

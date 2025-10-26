@@ -28,13 +28,14 @@ import net.minecraft.tileentity.TileEntity;
 
 @Mixin(TileEldritchObeliskRenderer.class)
 public abstract class TileEldritchObeliskRendererMixin {
-    @Shadow
+    @Shadow(remap = false)
     private boolean inrange;
 
     @Inject(method = "renderTileEntityAt",
             at = @At(value = "INVOKE",
                      target = "Lorg/lwjgl/opengl/GL11;glPushMatrix()V",
-                     ordinal = 0),
+                     ordinal = 0,
+                     remap = false),
             require = 1)
     private void prePortals(TileEntity te,
                             double x,
@@ -70,7 +71,8 @@ public abstract class TileEldritchObeliskRendererMixin {
     @Inject(method = "renderTileEntityAt",
             at = @At(value = "INVOKE",
                      target = "Lorg/lwjgl/opengl/GL11;glPopMatrix()V",
-                     ordinal = 0),
+                     ordinal = 0,
+                     remap = false),
             require = 1)
     private void postPortals(TileEntity te,
                              double x,

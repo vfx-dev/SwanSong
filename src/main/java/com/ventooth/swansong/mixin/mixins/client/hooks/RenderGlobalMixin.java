@@ -63,7 +63,8 @@ public abstract class RenderGlobalMixin {
 
     @Redirect(method = "renderEntities",
               at = @At(value = "INVOKE",
-                       target = "Lorg/lwjgl/opengl/GL11;glCallList(I)V"),
+                       target = "Lorg/lwjgl/opengl/GL11;glCallList(I)V",
+                       remap = false),
               require = 1)
     private void dontCallDisplayListEntities(int list) {
 
@@ -140,7 +141,8 @@ public abstract class RenderGlobalMixin {
 
     @WrapOperation(method = "renderEntities",
                    at = @At(value = "INVOKE",
-                            target = "Lnet/minecraftforge/client/MinecraftForgeClient;getRenderPass()I"),
+                            target = "Lnet/minecraftforge/client/MinecraftForgeClient;getRenderPass()I",
+                            remap = false),
                    require = 1)
     private int captureEntityRenderPass(Operation<Integer> original, @Share("render_pass") LocalIntRef renderPass) {
         renderPass.set(original.call());

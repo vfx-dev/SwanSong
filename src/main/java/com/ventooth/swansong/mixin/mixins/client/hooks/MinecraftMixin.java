@@ -28,7 +28,8 @@ import cpw.mods.fml.common.FMLCommonHandler;
 public abstract class MinecraftMixin {
     @WrapOperation(method = "runGameLoop",
                    at = @At(value = "INVOKE",
-                            target = "Lcpw/mods/fml/common/FMLCommonHandler;onRenderTickStart(F)V"),
+                            target = "Lcpw/mods/fml/common/FMLCommonHandler;onRenderTickStart(F)V",
+                            remap = false),
                    require = 1)
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         ShaderEngine.beginRenderAllPre();
@@ -41,7 +42,8 @@ public abstract class MinecraftMixin {
 
     @WrapOperation(method = "runGameLoop",
                    at = @At(value = "INVOKE",
-                            target = "Lcpw/mods/fml/common/FMLCommonHandler;onRenderTickEnd(F)V"),
+                            target = "Lcpw/mods/fml/common/FMLCommonHandler;onRenderTickEnd(F)V",
+                            remap = false),
                    require = 1)
     private void hook_EndFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         original.call(instance, subTick);
