@@ -451,7 +451,7 @@ public final class ShaderEngine {
         deinit();
         if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(ShaderPackManager.currentShaderPackName)) {
             // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
-            Minecraft.getMinecraft().renderGlobal.loadRenderers();
+            reloadMinecraftRenderersSafe();
             needsShaderPackReload = false;
             return false;
         }
@@ -477,7 +477,7 @@ public final class ShaderEngine {
             ShaderEngine.log.error("Please report this as a bug:", e);
             deinit();
             ShaderPackManager.setShaderPackByName(ShaderPackManager.DISABLED_SHADER_PACK_NAME);
-            Minecraft.getMinecraft().renderGlobal.loadRenderers();
+            reloadMinecraftRenderersSafe();
             needsShaderPackReload = false;
             return false;
         }
@@ -583,7 +583,7 @@ public final class ShaderEngine {
         StatefulBuiltins.reset();
 
         // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
-        Minecraft.getMinecraft().renderGlobal.loadRenderers();
+        reloadMinecraftRenderersSafe();
 
         // TODO [SAMPLER]: Move to a better spot
         {
@@ -1202,6 +1202,14 @@ public final class ShaderEngine {
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
         buffers.gColor.clear(ShaderState.fogColor());
+    }
+
+    private static void reloadMinecraftRenderersSafe() {
+        try {
+            Minecraft.getMinecraft().renderGlobal.loadRenderers();
+        } catch (Throwable t) {
+            log.error("Caught exception while reloading minecraft renderers!", t);
+        }
     }
 
     // region Shader Hooks

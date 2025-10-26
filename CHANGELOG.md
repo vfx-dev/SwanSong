@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- NullPointerException crash when reloading shaders
+
 ## [1.2.1] - 2025-09-28
 
 ### Added
