@@ -11,11 +11,13 @@
 package com.ventooth.swansong.mixin.mixins.client.texture;
 
 import com.google.common.collect.Lists;
+import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.mixin.extensions.TextureAtlasSpriteExt;
 import com.ventooth.swansong.mixin.interfaces.ShadersTextureAtlasSprite;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -116,19 +118,25 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
         if (swan$isBaseSprite()) {
             val s$mipmapLevels = Minecraft.getMinecraft()
                                           .getTextureMapBlocks().mipmapLevels;
+            AnimationMetadataSection animBase = null;
+            try {
+                val locBase = s$getIconResource(this.iconName);
+                val resBase = swan$getResource(locBase);
+                animBase = (AnimationMetadataSection) resBase.getMetadata("animation");
+            } catch (Exception e) {
+                Share.log.warn("Error retrieving base animations for: {}", this.iconName);
+                Share.log.warn("{}: {}", e.getClass().getName(), e.getMessage());
+            }
             if (ShadersConfig.NormalMapping.value) {
                 String nameNormal = this.iconName + "_n";
-                ResourceLocation locNormal = new ResourceLocation(nameNormal);
-                locNormal = Minecraft.getMinecraft()
-                                     .getTextureMapBlocks()
-                                     .completeResourceLocation(locNormal, 0);
+                ResourceLocation locNormal = s$getIconResource(this.iconName + "_n");
                 if (swan$hasResource(locNormal)) {
                     try {
                         val sprite = TextureAtlasSpriteExt.newInstance(nameNormal);
                         @SuppressWarnings("DataFlowIssue") val spriteM = (TextureAtlasSpriteMixin) (Object) sprite;
                         spriteM.s$isShadersSprite = true;
                         sprite.copyFrom((TextureAtlasSprite) (Object) this);
-                        spriteM.s$loadShaderSpriteFrames(locNormal, s$mipmapLevels + 1);
+                        spriteM.s$loadShaderSpriteFrames(animBase, locNormal, s$mipmapLevels + 1);
                         sprite.generateMipmaps(s$mipmapLevels);
                         this.s$spriteNormal = sprite;
                     } catch (IOException e) {
@@ -143,17 +151,14 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
 
             if (ShadersConfig.SpecularMapping.value) {
                 String nameSpecular = this.iconName + "_s";
-                ResourceLocation locSpecular = new ResourceLocation(nameSpecular);
-                locSpecular = Minecraft.getMinecraft()
-                                       .getTextureMapBlocks()
-                                       .completeResourceLocation(locSpecular, 0);
+                ResourceLocation locSpecular = s$getIconResource(this.iconName + "_s");
                 if (swan$hasResource(locSpecular)) {
                     try {
                         val sprite = TextureAtlasSpriteExt.newInstance(nameSpecular);
                         @SuppressWarnings("DataFlowIssue") val spriteM = (TextureAtlasSpriteMixin) (Object) sprite;
                         spriteM.s$isShadersSprite = true;
                         sprite.copyFrom((TextureAtlasSprite) (Object) this);
-                        spriteM.s$loadShaderSpriteFrames(locSpecular, s$mipmapLevels + 1);
+                        spriteM.s$loadShaderSpriteFrames(animBase, locSpecular, s$mipmapLevels + 1);
                         sprite.generateMipmaps(s$mipmapLevels);
                         s$spriteSpecular = sprite;
                     } catch (IOException e) {
@@ -169,7 +174,15 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
     }
 
     @Unique
-    private void s$loadShaderSpriteFrames(ResourceLocation loc, int mipmaplevels) throws IOException {
+    private static ResourceLocation s$getIconResource(String iconName) {
+        val res = new ResourceLocation(iconName);
+        return Minecraft.getMinecraft()
+                        .getTextureMapBlocks()
+                        .completeResourceLocation(res, 0);
+    }
+
+    @Unique
+    private void s$loadShaderSpriteFrames(@Nullable AnimationMetadataSection baseAnim, ResourceLocation loc, int mipmaplevels) throws IOException {
         IResource resource = swan$getResource(loc);
         BufferedImage bufferedimage = swan$readBufferedImage(resource.getInputStream());
         if (this.width != bufferedimage.getWidth()) {
@@ -187,33 +200,54 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
                              0,
                              bufferedimage.getWidth());
         if (animationmetadatasection == null) {
-            this.framesTextureData.add(aint);
-        } else {
-            int i = bufferedimage.getHeight() / this.width;
-            if (animationmetadatasection.getFrameCount() > 0) {
-                for (int j : animationmetadatasection.getFrameIndexSet()) {
-                    if (j >= i) {
-                        throw new RuntimeException("invalid frameindex " + j);
-                    }
-
-                    this.allocateFrameTextureData(j);
-                    this.framesTextureData.set(j, getFrameTextureData(aint, this.width, this.width, j));
-                }
-
-                this.animationMetadata = animationmetadatasection;
+            if (baseAnim == null) {
+                this.framesTextureData.add(aint);
             } else {
-                List<AnimationFrame> list = Lists.newArrayList();
+                try {
+                    s$readAnimations(bufferedimage, baseAnim, aint);
+                } catch (Exception ignored) {
+                    this.framesTextureData.clear();
+                    this.framesTextureData.add(aint);
+                }
+            }
+        } else {
+            s$readAnimations(bufferedimage, animationmetadatasection, aint);
+        }
+    }
 
-                for (int k = 0; k < i; ++k) {
-                    this.framesTextureData.add(getFrameTextureData(aint, this.width, this.width, k));
-                    list.add(new AnimationFrame(k, -1));
+    @Unique
+    private void s$readAnimations(BufferedImage bufferedimage,
+                                  AnimationMetadataSection animationmetadatasection,
+                                  int[][] aint) {
+        int i = bufferedimage.getHeight() / this.width;
+        if (animationmetadatasection.getFrameCount() > 0) {
+            for (int j : animationmetadatasection.getFrameIndexSet()) {
+                if (j >= i) {
+                    throw new RuntimeException("invalid frameindex " + j);
                 }
 
-                this.animationMetadata = new AnimationMetadataSection(list,
-                                                                      this.width,
-                                                                      this.height,
-                                                                      animationmetadatasection.getFrameTime());
+                this.allocateFrameTextureData(j);
+                this.framesTextureData.set(j, getFrameTextureData(aint, this.width, this.width, j));
             }
+
+            this.animationMetadata = animationmetadatasection;
+        } else {
+            if (i == 1) {
+                this.framesTextureData.add(aint);
+                return;
+            }
+
+            List<AnimationFrame> list = Lists.newArrayList();
+
+            for (int k = 0; k < i; ++k) {
+                this.framesTextureData.add(getFrameTextureData(aint, this.width, this.width, k));
+                list.add(new AnimationFrame(k, -1));
+            }
+
+            this.animationMetadata = new AnimationMetadataSection(list,
+                                                                  this.width,
+                                                                  this.height,
+                                                                  animationmetadatasection.getFrameTime());
         }
     }
 
