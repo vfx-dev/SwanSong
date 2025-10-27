@@ -11,6 +11,12 @@
 - NullPointerException crash when reloading shaders
 - Crash with NTM: Space
 
+## [1.2.2] - 2025-10-16
+
+### Changed
+
+- Internal debug shaderpack is now hidden by default
+
 ## [1.2.1] - 2025-09-28
 
 ### Added
