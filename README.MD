@@ -11,10 +11,10 @@ Designed with compatibility-first, around supporting modpacks old and new, teste
 
 Compatible with most other popular client-side optimization and graphics mods, including but not limited to:
 
-- FalseTweaks
-- Beddium
-- Right Proper Lighting Engine
-- Right Proper MCPatcher
+- [FalseTweaks](https://github.com/FalsePattern/FalseTweaks/)
+- [Beddium](https://github.com/vfx-dev/Beddium)
+- [Right Proper Lighting Engine](https://github.com/GTMEGA/RPLE)
+- [Right Proper MCPatcher](https://github.com/vfx-dev/Right-Proper-MCPatcher/)
 - HodgePodge
 - FastCraft
 - CoreTweaks
@@ -26,7 +26,7 @@ With expected incompatibilities with:
 
 - OptiFine (any)
 - Original ShadersMod
-- MCPatcher: Forge
+- MCPatcher: Forge (use Right Proper MCPatcher)
 - Neodymium (use Beddium)
 - Angelica (May work with certain modules)
 - OptimizationsAndTweaks (O&T has very aggressive patches that break with most other graphics mods. Do not use it.)
