@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Updated zn_CN.lang
+
 ## [1.2.5] - 2025-10-27
 
 ### Changed
