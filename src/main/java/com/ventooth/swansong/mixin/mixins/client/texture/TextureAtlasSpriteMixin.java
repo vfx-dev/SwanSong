@@ -15,6 +15,7 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.mixin.extensions.TextureAtlasSpriteExt;
 import com.ventooth.swansong.mixin.interfaces.ShadersTextureAtlasSprite;
+import com.ventooth.swansong.pbr.PBRTextureEngine;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.data.AnimationFrame;
 import net.minecraft.client.resources.data.AnimationMetadataSection;
@@ -116,20 +118,22 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
                                    boolean p_147964_3_,
                                    CallbackInfo ci) {
         if (swan$isBaseSprite()) {
+            val tex = Minecraft.getMinecraft().getTextureManager().getTexture(PBRTextureEngine.currentlyLoadingAtlas);
+            if (!(tex instanceof TextureMap map)) {
+                return;
+            }
             val s$mipmapLevels = Minecraft.getMinecraft()
                                           .getTextureMapBlocks().mipmapLevels;
             AnimationMetadataSection animBase = null;
             try {
-                val locBase = s$getIconResource(this.iconName);
+                val locBase = s$getIconResource(map, this.iconName);
                 val resBase = swan$getResource(locBase);
                 animBase = (AnimationMetadataSection) resBase.getMetadata("animation");
-            } catch (Exception e) {
-                Share.log.warn("Error retrieving base animations for: {}", this.iconName);
-                Share.log.warn("{}: {}", e.getClass().getName(), e.getMessage());
+            } catch (Exception ignored) {
             }
             if (ShadersConfig.NormalMapping.value) {
                 String nameNormal = this.iconName + "_n";
-                ResourceLocation locNormal = s$getIconResource(this.iconName + "_n");
+                ResourceLocation locNormal = s$getIconResource(map, this.iconName + "_n");
                 if (swan$hasResource(locNormal)) {
                     try {
                         val sprite = TextureAtlasSpriteExt.newInstance(nameNormal);
@@ -151,7 +155,7 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
 
             if (ShadersConfig.SpecularMapping.value) {
                 String nameSpecular = this.iconName + "_s";
-                ResourceLocation locSpecular = s$getIconResource(this.iconName + "_s");
+                ResourceLocation locSpecular = s$getIconResource(map, this.iconName + "_s");
                 if (swan$hasResource(locSpecular)) {
                     try {
                         val sprite = TextureAtlasSpriteExt.newInstance(nameSpecular);
@@ -174,11 +178,9 @@ public abstract class TextureAtlasSpriteMixin implements IIcon, ShadersTextureAt
     }
 
     @Unique
-    private static ResourceLocation s$getIconResource(String iconName) {
+    private static ResourceLocation s$getIconResource(TextureMap map, String iconName) {
         val res = new ResourceLocation(iconName);
-        return Minecraft.getMinecraft()
-                        .getTextureMapBlocks()
-                        .completeResourceLocation(res, 0);
+        return map.completeResourceLocation(res, 0);
     }
 
     @Unique

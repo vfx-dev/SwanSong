@@ -6,6 +6,10 @@
 
 - Internal logic changes for FalseTweaks' animated PBR texture fixes
 
+### Fixed
+
+- Animated PBRs on items completely broken
+
 ## [1.2.4] - 2025-10-27
 
 ### Added

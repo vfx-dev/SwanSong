@@ -15,7 +15,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.mixin.interfaces.PBRAtlas;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.mixin.interfaces.ShadersTextureAtlasSprite;
@@ -24,7 +23,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.val;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +35,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.Stitcher;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.util.ReportedException;
@@ -112,6 +110,19 @@ public abstract class TextureMapMixin extends AbstractTexture implements PBRText
         return Math.max(original.call(value), 0);
     }
 
+    @Inject(method = "loadTextureAtlas",
+            at = @At("HEAD"),
+            require = 1)
+    private void preLoad(IResourceManager resourceManager, CallbackInfo ci) {
+        PBRTextureEngine.currentlyLoadingAtlas = swan$mapLoc;
+    }
+
+    @Inject(method = "loadTextureAtlas",
+            at = @At("RETURN"),
+            require = 1)
+    private void postLoad(IResourceManager resourceManager, CallbackInfo ci) {
+        PBRTextureEngine.currentlyLoadingAtlas = null;
+    }
     @WrapOperation(method = "loadTextureAtlas",
                    at = @At(value = "INVOKE",
                             target = "Lnet/minecraft/client/renderer/texture/TextureUtil;allocateTextureImpl(IIIIF)V"),

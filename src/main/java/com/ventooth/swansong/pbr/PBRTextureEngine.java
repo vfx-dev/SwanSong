@@ -70,6 +70,8 @@ public final class PBRTextureEngine {
     private static int @Nullable [] intArray = null;
     private static @Nullable IntBuffer intBuffer = null;
 
+    public static ResourceLocation currentlyLoadingAtlas = null;
+
     public static void init() {
         if (isInitialized) {
             log.warn("Already initialized?");
