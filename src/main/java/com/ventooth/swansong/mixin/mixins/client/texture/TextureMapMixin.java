@@ -13,6 +13,8 @@ package com.ventooth.swansong.mixin.mixins.client.texture;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.mixin.interfaces.PBRAtlas;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
@@ -159,82 +161,34 @@ public abstract class TextureMapMixin extends AbstractTexture implements PBRText
         }
     }
 
+    @Inject(method = "updateAnimations",
+            at = @At("HEAD"),
+            require = 1)
+    private void preUpdateAnim(CallbackInfo ci, @Share("updateNorm") LocalBooleanRef updateNorm, @Share("updateSpec") LocalBooleanRef updateSpec) {
+        updateNorm.set(false);
+        updateSpec.set(false);
+    }
 
-    /**
-     * TODO turn into proper mixins
-     *
-     * @author FalsePattern
-     * @reason Original method is tiny
-     */
-    @Overwrite
-    public void updateAnimations() {
-        var updateNorm = false;
-        var updateSpec = false;
-        TextureUtil.bindTexture(this.getGlTextureId());
-
-        for (val sprite : this.listAnimatedSprites) {
-            val spriteS = (ShadersTextureAtlasSprite) sprite;
-            sprite.updateAnimation();
-            if (spriteS.swan$spriteNorm() != null) {
-                updateNorm = true;
-            }
-
-            if (spriteS.swan$spriteSpec() != null) {
-                updateSpec = true;
-            }
+    @Inject(method = "updateAnimations",
+            at = @At(value = "INVOKE",
+                     target = "Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;updateAnimation()V",
+                     shift = At.Shift.AFTER),
+            require = 1)
+    private void onUpdateAnim(CallbackInfo ci, @Local TextureAtlasSprite sprite, @Share("updateNorm")LocalBooleanRef updateNorm, @Share("updateSpec")LocalBooleanRef updateSpec) {
+        val spriteS = (ShadersTextureAtlasSprite) sprite;
+        if (spriteS.swan$spriteNorm() != null) {
+            updateNorm.set(true);
         }
 
-        if (!swan$isValid()) {
-            return;
+        if (spriteS.swan$spriteSpec() != null) {
+            updateSpec.set(true);
         }
+    }
 
-        updateNorm &= ShadersConfig.NormalMapping.value;
-        updateSpec &= ShadersConfig.SpecularMapping.value;
-        if (!(updateNorm || updateSpec)) {
-            return;
-        }
-
-        val pbrTex = swan$pbrTex();
-        if (pbrTex == null) {
-            return;
-        }
-
-        val norm = updateNorm ? pbrTex.norm() : null;
-        val spec = updateSpec ? pbrTex.spec() : null;
-        if (norm == null && spec == null) {
-            return;
-        }
-
-        if (norm != null) {
-            norm.bind();
-
-            for (val sprite : this.listAnimatedSprites) {
-                val spriteS = (ShadersTextureAtlasSprite) sprite;
-                if (spriteS.swan$spriteNorm() != null) {
-                    // TODO: Sync frame counter for compass and clock
-                    //                    spriteS.swan$spriteNormal().frameCounter = sprite.frameCounter;
-
-                    spriteS.swan$spriteNorm()
-                           .updateAnimation();
-                }
-            }
-        }
-
-        if (spec != null) {
-            spec.bind();
-
-            for (val sprite : this.listAnimatedSprites) {
-                val spriteS = (ShadersTextureAtlasSprite) sprite;
-                if (spriteS.swan$spriteSpec() != null) {
-                    // TODO: Sync frame counter for compass and clock
-                    //                    spriteS.swan$spriteSpecular().frameCounter = sprite.frameCounter;
-
-                    spriteS.swan$spriteSpec()
-                           .updateAnimation();
-                }
-            }
-        }
-
-        TextureUtil.bindTexture(this.getGlTextureId());
+    @Inject(method = "updateAnimations",
+            at = @At("RETURN"),
+            require = 1)
+    private void postUpdateAnim(CallbackInfo ci, @Share("updateNorm")LocalBooleanRef updateNorm, @Share("updateSpec")LocalBooleanRef updateSpec) {
+        PBRTextureEngine.updateAnimations((TextureMap) (Object)this, listAnimatedSprites, updateNorm.get(), updateSpec.get());
     }
 }

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Internal logic changes for FalseTweaks' animated PBR texture fixes
+
 ## [1.2.4] - 2025-10-27
 
 ### Added

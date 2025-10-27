@@ -33,6 +33,7 @@ import org.lwjgl.opengl.GL13;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 // TODO: Missing hooks for: Layered Textures (Horses) & Clocks/Compass in Item Frame
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -231,6 +233,7 @@ public final class PBRTextureEngine {
         return PBRTexture2D.ofWrapped(pbrLoc, width, height, glName);
     }
 
+    //FalseTweaks mixin lands in here. Double check before modifying!
     public static void uploadAtlasSpritesAll(PBRTextureHolder pbrHolder,
                                              int baseGlName,
                                              ObjectList<TextureAtlasSprite> baseSprites,
@@ -284,6 +287,63 @@ public final class PBRTextureEngine {
         log.debug("Uploading: {} sprites to: {}", baseSprites.size(), pbrHolder.swan$base());
         uploadAtlasSpriteLayer(baseGlName, baseSprites, width, height, mipmapLevels, BASE_ATLAS_DEFAULT_COL);
         // Last bound texture will the be base atlas, so the correct state will be preserved
+    }
+
+    //FalseTweaks mixin lands in here. Double check before modifying!
+    public static void updateAnimations(TextureMap map, List<TextureAtlasSprite> listAnimatedSprites, boolean updateNorm, boolean updateSpec) {
+        val holder = (PBRTextureHolder) map;
+        if (!holder.swan$isValid()) {
+            return;
+        }
+
+        updateNorm &= ShadersConfig.NormalMapping.value;
+        updateSpec &= ShadersConfig.SpecularMapping.value;
+        if (!(updateNorm || updateSpec)) {
+            return;
+        }
+
+        val pbrTex = holder.swan$pbrTex();
+        if (pbrTex == null) {
+            return;
+        }
+
+        val norm = updateNorm ? pbrTex.norm() : null;
+        val spec = updateSpec ? pbrTex.spec() : null;
+        if (norm == null && spec == null) {
+            return;
+        }
+
+        if (norm != null) {
+            norm.bind();
+
+            for (val sprite : listAnimatedSprites) {
+                val spriteS = (ShadersTextureAtlasSprite) sprite;
+                if (spriteS.swan$spriteNorm() != null) {
+                    // TODO: Sync frame counter for compass and clock
+                    //                    spriteS.swan$spriteNormal().frameCounter = sprite.frameCounter;
+
+                    spriteS.swan$spriteNorm()
+                           .updateAnimation();
+                }
+            }
+        }
+
+        if (spec != null) {
+            spec.bind();
+
+            for (val sprite : listAnimatedSprites) {
+                val spriteS = (ShadersTextureAtlasSprite) sprite;
+                if (spriteS.swan$spriteSpec() != null) {
+                    // TODO: Sync frame counter for compass and clock
+                    //                    spriteS.swan$spriteSpecular().frameCounter = sprite.frameCounter;
+
+                    spriteS.swan$spriteSpec()
+                           .updateAnimation();
+                }
+            }
+        }
+
+        TextureUtil.bindTexture(map.getGlTextureId());
     }
 
     private static void uploadAtlasSpriteLayer(int glName,
