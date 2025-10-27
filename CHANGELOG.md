@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated zn_CN.lang
+
 ### Fixed
 
 - NullPointerException crash when reloading shaders
