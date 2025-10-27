@@ -29,6 +29,7 @@ With expected incompatibilities with:
 - MCPatcher: Forge
 - Neodymium (use Beddium)
 - Angelica (May work with certain modules)
+- OptimizationsAndTweaks (O&T has very aggressive patches that break with most other graphics mods. Do not use it.)
 
 ## Technical
 
