@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.4] - 2025-10-27
+
 ### Added
 
 - Normals/Speculars can now inherit animations from the base texture
