@@ -27,8 +27,10 @@ import java.util.function.BooleanSupplier;
 
 import static com.falsepattern.lib.mixin.v2.MixinHelper.avoid;
 import static com.falsepattern.lib.mixin.v2.MixinHelper.builder;
+import static com.falsepattern.lib.mixin.v2.MixinHelper.mods;
 import static com.falsepattern.lib.mixin.v2.MixinHelper.require;
 import static com.ventooth.swansong.mixin.TargetMod.Avaritia;
+import static com.ventooth.swansong.mixin.TargetMod.CustomPlayerModels;
 import static com.ventooth.swansong.mixin.TargetMod.DragonAPI;
 import static com.ventooth.swansong.mixin.TargetMod.FoamFix;
 import static com.ventooth.swansong.mixin.TargetMod.JourneyMap;
@@ -95,12 +97,15 @@ public enum Mixin implements IMixins {
                  "hooks.RenderDragonMixin",
                  "hooks.QuadComparatorMixin",
                  "hooks.GuiOptionsRowListMixin")),
-    Hooks_AvoidModernWarfare(Phase.EARLY,
-                             avoid(ModernWarfare),
-                             client("hooks.RendererLivingEntityMixin_AvoidModernWarfare")),
-    Hooks_RequireModernWarfare(Phase.EARLY,
-                               require(ModernWarfare),
-                               client("hooks.RendererLivingEntityMixin_RequireModernWarfare")),
+    Hooks_RendererLivingEntity_Vanilla(Phase.EARLY,
+                                       mods(avoid(ModernWarfare), avoid(CustomPlayerModels)),
+                                       client("hooks.RendererLivingEntityMixin_Vanilla")),
+    Hooks_RendererLivingEntity_ModernWarfare(Phase.EARLY,
+                                             require(ModernWarfare),
+                                             client("hooks.RendererLivingEntityMixin_ModernWarfare")),
+    Hooks_RendererLivingEntity_CustomPlayerModels(Phase.EARLY,
+                                                  require(CustomPlayerModels),
+                                                  client("hooks.RendererLivingEntityMixin_CustomPlayerModels")),
 
     Debug(Phase.EARLY,
           () -> ModuleConfig.Debug,

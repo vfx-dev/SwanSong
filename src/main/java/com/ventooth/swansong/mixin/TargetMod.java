@@ -33,6 +33,7 @@ public enum TargetMod implements ITargetMod {
     NotFine("jss.notfine.mixinplugin.NotFineEarlyMixins"),
     Zume("dev.nolij.zume.api.config.v1.ZumeConfig"),
     ModernWarfare("com.vicmatskiv.weaponlib.core.WeaponlibCorePlugin"),
+    CustomPlayerModels("com.tom.cpmcore.CPMLoadingPlugin"),
     //regular mods,
     Avaritia("fox.spiteful.avaritia.Avaritia"),
     Thaumcraft("thaumcraft.common.Thaumcraft"),

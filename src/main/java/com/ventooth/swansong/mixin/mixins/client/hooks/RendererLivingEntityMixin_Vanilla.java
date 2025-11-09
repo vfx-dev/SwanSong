@@ -20,9 +20,7 @@ import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
@@ -31,17 +29,10 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.Entity;
 
 @Mixin(RendererLivingEntity.class)
-public abstract class RendererLivingEntityMixin_RequireModernWarfare {
-    @Unique
-    private static final String MW_RENDER_MODEL_INTERCEPTOR = "Lcom/vicmatskiv/weaponlib/compatibility/Interceptors;renderArmorLayer(Lnet/minecraft/client/model/ModelBase;Lnet/minecraft/entity/Entity;FFFFFF)V";
-    @Unique
-    private static final String DYNAMIC_COMMENT = "Applied by: [com.vicmatskiv.weaponlib.core.WeaponlibClassTransformer$DoRenderMethodVisitor]";
-
-    @Dynamic(DYNAMIC_COMMENT)
+public abstract class RendererLivingEntityMixin_Vanilla {
     @WrapOperation(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
                    at = @At(value = "INVOKE",
-                            target = MW_RENDER_MODEL_INTERCEPTOR,
-                            remap = false,
+                            target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V",
                             ordinal = 0),
                    require = 1)
     private void hook_WrapSpiderEyes(ModelBase modelBase,
@@ -69,11 +60,9 @@ public abstract class RendererLivingEntityMixin_RequireModernWarfare {
         }
     }
 
-    @Dynamic(DYNAMIC_COMMENT)
     @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
                        at = @At(value = "INVOKE",
-                                target = MW_RENDER_MODEL_INTERCEPTOR,
-                                remap = false),
+                                target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V"),
                        slice = @Slice(from = @At(value = "INVOKE",
                                                  target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
                        require = 1)

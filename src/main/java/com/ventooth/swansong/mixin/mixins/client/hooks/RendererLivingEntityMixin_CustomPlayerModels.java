@@ -20,7 +20,9 @@ import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
@@ -29,10 +31,17 @@ import net.minecraft.client.renderer.entity.RendererLivingEntity;
 import net.minecraft.entity.Entity;
 
 @Mixin(RendererLivingEntity.class)
-public abstract class RendererLivingEntityMixin_AvoidModernWarfare {
+public abstract class RendererLivingEntityMixin_CustomPlayerModels {
+    @Unique
+    private static final String CPM_ASM_HOOK_METHOD = "Lcom/tom/cpmcore/CPMASMClientHooks;renderPass(Lnet/minecraft/client/model/ModelBase;Lnet/minecraft/entity/Entity;FFFFFFLnet/minecraft/client/renderer/entity/RendererLivingEntity;I)V";
+    @Unique
+    private static final String DYNAMIC_COMMENT = "Applied by: [com.tom.cpmcore.CPMTransformerService]";
+
+    @Dynamic(DYNAMIC_COMMENT)
     @WrapOperation(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
                    at = @At(value = "INVOKE",
-                            target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V",
+                            target = CPM_ASM_HOOK_METHOD,
+                            remap = false,
                             ordinal = 0),
                    require = 1)
     private void hook_WrapSpiderEyes(ModelBase modelBase,
@@ -43,6 +52,8 @@ public abstract class RendererLivingEntityMixin_AvoidModernWarfare {
                                      float netHeadYaw,
                                      float headPitch,
                                      float scale,
+                                     RendererLivingEntity renderer,
+                                     int callLoc,
                                      Operation<Void> original,
                                      @Share("pass_ref") LocalIntRef passRef) {
         //separated out here because intellij screams due to the unsafe cast when inlined
@@ -53,16 +64,18 @@ public abstract class RendererLivingEntityMixin_AvoidModernWarfare {
                 return;
             }
             ShaderEngine.graph.push(StateGraph.Stack.SpiderEyes);
-            original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+            original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);
             ShaderEngine.graph.pop(StateGraph.Stack.SpiderEyes);
         } else {
-            original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+            original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);
         }
     }
 
+    @Dynamic(DYNAMIC_COMMENT)
     @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
                        at = @At(value = "INVOKE",
-                                target = "Lnet/minecraft/client/model/ModelBase;render(Lnet/minecraft/entity/Entity;FFFFFF)V"),
+                                target = CPM_ASM_HOOK_METHOD,
+                                remap = false),
                        slice = @Slice(from = @At(value = "INVOKE",
                                                  target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
                        require = 1)
@@ -73,7 +86,9 @@ public abstract class RendererLivingEntityMixin_AvoidModernWarfare {
                                               float ageInTicks,
                                               float netHeadYaw,
                                               float headPitch,
-                                              float scale) {
+                                              float scale,
+                                              RendererLivingEntity renderer,
+                                              int callLoc) {
         return !ShaderEngine.isInitialized();
     }
 }
