@@ -803,16 +803,14 @@ public final class ShaderEngine {
 
     public static @Nullable Frustrum mcFrustrum;
 
-    private static final Frustrum frustrum = new Frustrum();
-    private static final ClippingHelperShadow ch = new ClippingHelperShadow();
-
-    static {
-        frustrum.clippingHelper = ch;
-    }
+    private static @Nullable Frustrum frustrum;
+    private static @Nullable ClippingHelperShadow ch;
 
     private static int shadowFrustumCheckOffset = 0;
 
     private static void clipRenderersByFrustumShadow(WorldRenderer[] wrs) {
+        assert frustrum != null: "frustrum not initialized";
+
         for (int i = 0, wrsLength = wrs.length; i < wrsLength; i++) {
             var wr = wrs[i];
             val wre = (WorldRendererExt) wr;
@@ -838,6 +836,17 @@ public final class ShaderEngine {
         if (state.shadow == null) {
             return;
         }
+
+        if (frustrum == null) {
+            frustrum = new Frustrum();
+        }
+        if (ch == null) {
+            ch = new ClippingHelperShadow();
+        }
+        if (frustrum.clippingHelper == null) {
+            frustrum.clippingHelper = ch;
+        }
+
         GLDebugGroups.RENDER_SHADOW.push();
 
         val partialTicks = ShaderState.getSubTick();
