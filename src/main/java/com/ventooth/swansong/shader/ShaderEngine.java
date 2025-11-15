@@ -64,6 +64,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
@@ -783,8 +784,36 @@ public final class ShaderEngine {
         renderShadowMap();
     }
 
+    /**
+     * Experimental feature that might either be just left in, or put behind a toggle depending on perf overhead.
+     * <p>
+     * What we're doing is handing whatever will render in the {@link RenderWorldLastEvent} depth that excludes translucent geometry.
+     * <p>
+     * This is closer to what vanilla does, but in turn this will cost us an additional 3 full-screen depth blits.
+     */
+    private static final boolean COMBINED_DEPTH = true;
+
+    public static void preRenderLast() {
+        if (COMBINED_DEPTH) {
+            DebugMarker.GENERIC.insert("PRE_SAVE_DEPTH_0");
+            blitDepth(buffers.gDepthTex, buffers.depthTex0);
+            DebugMarker.GENERIC.insert("POST_SAVE_DEPTH_0");
+
+            DebugMarker.GENERIC.insert("PRE_LOAD_DEPTH_1");
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            blitDepth(buffers.depthTex1, buffers.gDepthTex);
+            DebugMarker.GENERIC.insert("POST_LOAD_DEPTH_1");
+        }
+    }
+
     public static void finishRenderFinal() {
         ShaderState.updateRenderStage(MCRenderStage.NONE);
+
+        if (COMBINED_DEPTH) {
+            DebugMarker.GENERIC.insert("PRE_COMBINE_DEPTH");
+            blitDepth(buffers.depthTex0, buffers.gDepthTex, true);
+            DebugMarker.GENERIC.insert("POST_COMBINE_DEPTH");
+        }
 
         captureLastDepth();
         // Composite first
@@ -1156,6 +1185,10 @@ public final class ShaderEngine {
     }
 
     public static void blitDepth(Texture2D srcTex, Texture2D dstTex) {
+        blitDepth(srcTex, dstTex, false);
+    }
+
+    public static void blitDepth(Texture2D srcTex, Texture2D dstTex, boolean combine) {
         if (state == null) {
             Share.log.warn("Tried to blit depth with no state");
             return;
@@ -1183,10 +1216,12 @@ public final class ShaderEngine {
         // Bind Destination Texture
         dstTex.attachToFramebufferDepth();
 
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        if (!combine) {
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        }
 
         // Draw using the regular composite (with depth only)
-        ShadersCompositeMesh.drawWithDepth();
+        ShadersCompositeMesh.drawWithDepth(combine);
 
         if (DebugMarker.isEnabled()) {
             DebugMarker.TEXTURE_DEPTH_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());

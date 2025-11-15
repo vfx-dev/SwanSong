@@ -132,9 +132,12 @@ public abstract class EntityRendererMixin {
                             remap = false),
                    require = 1)
     private void hook_RenderLastAndEndRenderWorld(RenderGlobal rg, float subTick, Operation<Void> original) {
-        original.call(rg, subTick);
         if (ShaderEngine.isInitialized()) {
+            ShaderEngine.preRenderLast();
+            original.call(rg, subTick);
             ShaderEngine.finishRenderFinal();
+        } else {
+            original.call(rg, subTick);
         }
     }
 

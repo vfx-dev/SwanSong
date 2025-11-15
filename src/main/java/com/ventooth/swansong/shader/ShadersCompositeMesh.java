@@ -38,8 +38,8 @@ public final class ShadersCompositeMesh {
         }
     }
 
-    public static void drawWithDepth() {
-        draw(Mask.Depth);
+    public static void drawWithDepth(boolean combine) {
+        draw(combine ? Mask.DepthCombine : Mask.Depth);
     }
 
     public static void draw(Mask mask) {
@@ -60,9 +60,14 @@ public final class ShadersCompositeMesh {
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthFunc(GL11.GL_ALWAYS);
         GL11.glDisable(GL11.GL_LIGHTING);
+
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        if (mask == Mask.DepthCombine) {
+            GL11.glDepthFunc(GL11.GL_LEQUAL);
+        } else {
+            GL11.glDepthFunc(GL11.GL_ALWAYS);
+        }
 
         switch (mask) {
             case Color -> {
@@ -77,7 +82,7 @@ public final class ShadersCompositeMesh {
                 GL11.glDepthMask(false);
                 GL11.glColorMask(false, true, true, false);
             }
-            case Depth -> {
+            case Depth, DepthCombine -> {
                 GL11.glDepthMask(true);
                 GL11.glColorMask(false, false, false, false);
             }
@@ -178,6 +183,7 @@ public final class ShadersCompositeMesh {
         AnaglyphRed,
         AnaglyphCyan,
         Depth,
+        DepthCombine,
         Both
     }
 }
