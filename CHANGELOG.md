@@ -1,10 +1,14 @@
 # Changelog
 
-## [Unreleased]
+## [1.2.6]
 
 ### Changed
 
 - Updated zn_CN.lang
+
+### Fixed
+
+- Rare startup crash with Custom Main Menu
 
 ## [1.2.5] - 2025-10-27
 
