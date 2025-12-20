@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.6]
+## [1.2.7]
 
 ### Changed
 
