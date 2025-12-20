@@ -866,13 +866,9 @@ public final class ShaderEngine {
             return;
         }
 
-        if (frustrum == null) {
+        if (frustrum == null || ch == null) {
             frustrum = new Frustrum();
-        }
-        if (ch == null) {
             ch = new ClippingHelperShadow();
-        }
-        if (frustrum.clippingHelper == null) {
             frustrum.clippingHelper = ch;
         }
 
