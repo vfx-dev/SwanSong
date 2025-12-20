@@ -791,7 +791,7 @@ public final class ShaderEngine {
      * <p>
      * This is closer to what vanilla does, but in turn this will cost us an additional 3 full-screen depth blits.
      */
-    private static final boolean COMBINED_DEPTH = true;
+    private static final boolean COMBINED_DEPTH = false;
 
     public static void preRenderLast() {
         if (COMBINED_DEPTH) {
