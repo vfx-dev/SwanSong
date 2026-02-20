@@ -12,10 +12,12 @@ package com.ventooth.swansong.api;
 
 
 import com.ventooth.swansong.shader.ShaderEngine;
+import org.jetbrains.annotations.ApiStatus;
 
-@SuppressWarnings("unused")
+@ApiStatus.AvailableSince("1.3.0")
 public final class ShaderStateInfo {
     private ShaderStateInfo() {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -44,5 +46,13 @@ public final class ShaderStateInfo {
      */
     public static boolean shadowPassActive() {
         return ShaderEngine.graph.isShadowPass();
+    }
+
+    /**
+     * @return {@code true} if the instanced rendering pass exists
+     */
+    @ApiStatus.Experimental
+    public static boolean instancedPassExists() {
+        return ShaderEngine.hasInstancedShader();
     }
 }

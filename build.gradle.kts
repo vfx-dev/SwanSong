@@ -15,6 +15,10 @@ minecraft_fp {
         rootPkg = "$group.swansong"
     }
 
+    api {
+        packages = listOf("api")
+    }
+
     mixin {
         pkg = "mixin.mixins"
     }

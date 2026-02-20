@@ -17,12 +17,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.Unmodifiable;
 
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.dynamicBrightnessB;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.dynamicBrightnessG;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.dynamicBrightnessR;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.dynamicModelMat;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticColor;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticEdgeTexture;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticEntityData;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticMidTexture;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticNormal;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticPosition;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticTangent;
+import static com.ventooth.swansong.api.SwanSongAttributes.Instanced.staticTexture;
+
 @Deprecated
 public class DanglingWiresTess {
     public static int entityAttrib = 10;
     public static int midTexCoordAttrib = 11;
     public static int tangentAttrib = 12;
     public static int edgeTexCoordAttrib = 13;
+
     public static boolean useEntityAttrib = true;
     public static boolean useMidTexCoordAttrib = true;
     public static boolean useMultiTexCoord3Attrib = false;
@@ -38,6 +52,20 @@ public class DanglingWiresTess {
         tempAttribs.add(new AttribMapping(tangentAttrib, "at_tangent"));
         tempAttribs.add(new AttribMapping(edgeTexCoordAttrib, "rple_edgeTexCoord"));
         tempAttribs.add(new AttribMapping(edgeTexCoordAttrib, "swan_edgeTexCoord"));
+
+        tempAttribs.add(new AttribMapping(staticPosition, "inst_Position"));
+        tempAttribs.add(new AttribMapping(staticTexture, "inst_Texture"));
+        tempAttribs.add(new AttribMapping(staticColor, "inst_Color"));
+        tempAttribs.add(new AttribMapping(staticEntityData, "inst_EntityData"));
+        tempAttribs.add(new AttribMapping(staticNormal, "inst_Normal"));
+        tempAttribs.add(new AttribMapping(staticTangent, "inst_Tangent"));
+        tempAttribs.add(new AttribMapping(staticMidTexture, "inst_MidTexture"));
+        tempAttribs.add(new AttribMapping(staticEdgeTexture, "inst_EdgeTexture"));
+
+        tempAttribs.add(new AttribMapping(dynamicModelMat, "inst_ModelMat"));
+        tempAttribs.add(new AttribMapping(dynamicBrightnessR, "inst_BrightnessR"));
+        tempAttribs.add(new AttribMapping(dynamicBrightnessG, "inst_BrightnessG"));
+        tempAttribs.add(new AttribMapping(dynamicBrightnessB, "inst_BrightnessB"));
 
         attribs = ObjectLists.unmodifiable(tempAttribs);
     }

@@ -68,6 +68,7 @@ public class ShaderBinding {
     public final GBufferShader water;
     public final GBufferShader block;
     public final GBufferShader portal;
+    public final GBufferShader instanced;
 
     public final @Nullable ShadowShader shadow;
 
@@ -102,6 +103,7 @@ public class ShaderBinding {
             b.water(b.gBuffer(shaderPool, ShaderTypes.gbuffers_water));
             b.block(b.gBuffer(shaderPool, ShaderTypes.gbuffers_block));
             b.portal(b.gBuffer(shaderPool, ShaderTypes.gbuffers_portal));
+            b.instanced(b.gBuffer(shaderPool, ShaderTypes.gbuffers_instanced));
 
             b.shadow(b.safeInit(ShadowShader.load(shaderPool, ShaderTypes.shadow, false)));
 
@@ -188,6 +190,15 @@ public class ShaderBinding {
 
         private @NotNull GBufferShader gBuffer(IShaderPool pool, ResourceLocation loc) throws ShaderException {
             val shader = safeInit(GBufferShader.load(pool, loc, true));
+            gBufferList.add(shader);
+            return shader;
+        }
+
+        private @Nullable GBufferShader gBufferOpt(IShaderPool pool, ResourceLocation loc) throws ShaderException {
+            val shader = safeInit(GBufferShader.load(pool, loc, false));
+            if (shader == null) {
+                return null;
+            }
             gBufferList.add(shader);
             return shader;
         }

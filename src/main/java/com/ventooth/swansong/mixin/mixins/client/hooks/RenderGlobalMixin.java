@@ -16,6 +16,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.ventooth.swansong.api.SwanSongRenderEvent;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
@@ -32,12 +33,12 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.shader.Shader;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.IRenderHandler;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.Collections;
 import java.util.List;
@@ -229,6 +230,11 @@ public abstract class RenderGlobalMixin {
                 ShaderEngine.graph.moveToEither(StateGraph.Node.ShadowBlockEntities0,
                                                 StateGraph.Node.ShadowBlockEntities1);
             } else {
+                if (ShaderEngine.hasInstancedShader()) {
+                    ShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntitiesInstanced0,
+                                                    StateGraph.Node.RenderEntitiesInstanced1);
+                    MinecraftForge.EVENT_BUS.post(new SwanSongRenderEvent.InstancedEntities(renderPass.get()));
+                }
                 ShaderEngine.graph.moveToEither(StateGraph.Node.RenderBlockEntities0,
                                                 StateGraph.Node.RenderBlockEntities1);
             }

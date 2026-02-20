@@ -30,6 +30,7 @@ import static com.ventooth.swansong.shader.ShaderEngine.use;
 import static com.ventooth.swansong.shader.ShaderState.popRenderStage;
 import static com.ventooth.swansong.shader.ShaderState.pushRenderStage;
 import static com.ventooth.swansong.shader.ShaderState.updateRenderStage;
+import static com.ventooth.swansong.shader.StateGraph.Node.*;
 import static com.ventooth.swansong.shader.StateGraph.Node.BeginFrame;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBegin;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockDamage;
@@ -188,6 +189,14 @@ public class StateGraph {
             use(state.manager.basic);
         });
         edge(RenderWeatherEntities0, RenderEntities0);
+        edge(RenderEntities0, RenderEntitiesInstanced0, () -> {
+            updateRenderStage(MCRenderStage.ENTITIES);
+            use(state.manager.instanced);
+        });
+        edge(RenderEntitiesInstanced0, RenderBlockEntities0, () -> {
+            ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
+            use(state.manager.block);
+        });
         edge(RenderEntities0, RenderBlockEntities0, () -> {
             ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
@@ -237,6 +246,14 @@ public class StateGraph {
             use(state.manager.textured_lit);
         });
         edge(RenderWeatherEntities1, RenderEntities1);
+        edge(RenderEntities1, RenderEntitiesInstanced1, () -> {
+            updateRenderStage(MCRenderStage.ENTITIES);
+            use(state.manager.instanced);
+        });
+        edge(RenderEntitiesInstanced1, RenderBlockEntities1, () -> {
+            ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
+            use(state.manager.block);
+        });
         edge(RenderEntities1, RenderBlockEntities1, () -> {
             ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
@@ -399,6 +416,7 @@ public class StateGraph {
         RenderChunk0,
         RenderWeatherEntities0,
         RenderEntities0,
+        RenderEntitiesInstanced0,
         RenderBlockEntities0,
         RenderSelectionBox,
         RenderBlockDamage,
@@ -409,6 +427,7 @@ public class StateGraph {
         RenderChunk1,
         RenderWeatherEntities1,
         RenderEntities1,
+        RenderEntitiesInstanced1,
         RenderBlockEntities1,
         RenderLast;
 

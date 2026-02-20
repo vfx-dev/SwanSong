@@ -11,12 +11,12 @@
 package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.Share;
+import com.ventooth.swansong.api.SwanSongLifecycleEvent;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.resources.ShaderPackManager;
-import com.ventooth.swansong.resources.pack.DefaultShaderPack;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
@@ -65,6 +65,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
@@ -115,6 +116,11 @@ public final class ShaderEngine {
     private static int blitSrcSampler;
 
     private static final AbstractObjectList<ManagedShader> shaderStack = new ObjectArrayList<>();
+
+    /**
+     * Currently only valid for Lifecycle events, prefer use of {@link ShaderEngine#isInitialized}
+     */
+    private static boolean shaderPackLoaded = false;
 
     public static boolean needsFramebufferResize;
     public static boolean needsShaderPackReload;
@@ -201,6 +207,13 @@ public final class ShaderEngine {
             return false;
         }
         return !state.manager.portal.isFallback();
+    }
+
+    public static boolean hasInstancedShader() {
+        if (state == null) {
+            return false;
+        }
+        return !state.manager.instanced.isFallback();
     }
 
     public static void beginRenderAllPre() {
@@ -449,6 +462,8 @@ public final class ShaderEngine {
     }
 
     private static boolean doShaderPackReload() {
+        MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackReload());
+
         deinit();
         if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(ShaderPackManager.currentShaderPackName)) {
             // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
@@ -595,6 +610,11 @@ public final class ShaderEngine {
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
             GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
         }
+
+        if (!shaderPackLoaded) {
+            shaderPackLoaded = true;
+            MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackLoaded());
+        }
     }
 
     private static void deinit() {
@@ -632,6 +652,11 @@ public final class ShaderEngine {
         if (blitSrcSampler != 0) {
             GL33.glDeleteSamplers(blitSrcSampler);
             blitSrcSampler = 0;
+        }
+
+        if (shaderPackLoaded) {
+            shaderPackLoaded = false;
+            MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackUnloaded());
         }
     }
 

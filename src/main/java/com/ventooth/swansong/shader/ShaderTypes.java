@@ -53,6 +53,7 @@ public final class ShaderTypes {
     public static final ResourceLocation gbuffers_water;
     public static final ResourceLocation gbuffers_block;
     public static final ResourceLocation gbuffers_portal;
+    public static final ResourceLocation gbuffers_instanced;
 
     public static final ResourceLocation shadow;
 
@@ -90,6 +91,7 @@ public final class ShaderTypes {
         gbuffers_water              = listBuilder.addSingle("gbuffers_water");
         gbuffers_block              = listBuilder.addSingle("gbuffers_block");
         gbuffers_portal             = listBuilder.addSingle("gbuffers_portal");
+        gbuffers_instanced          = listBuilder.addSingle("gbuffers_instanced");
         // Shadows
         shadow                      = listBuilder.addSingle("shadow");
         // Composites
@@ -155,6 +157,7 @@ public final class ShaderTypes {
         registerFallback(gbuffers_water, gbuffers_terrain);
         registerFallback(gbuffers_block, gbuffers_terrain);
         registerFallback(gbuffers_portal, gbuffers_block);
+        registerFallback(gbuffers_instanced, gbuffers_entities);
     }
 
     public static synchronized void registerFallback(@NonNull ResourceLocation shader,
