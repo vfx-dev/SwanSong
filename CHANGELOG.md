@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0] - 2026-3-3
+
+### Added
+
+- Initial API Releases
+- Experimental hooks for instanced rendering
+
 ## [1.2.7] - 2025-12-20
 
 ### Changed
