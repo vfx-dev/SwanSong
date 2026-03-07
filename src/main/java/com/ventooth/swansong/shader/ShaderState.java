@@ -139,7 +139,7 @@ public final class ShaderState {
     private static final Vector3d fogColor = new Vector3d();
     private static final Vector3d skyColor = new Vector3d();
 
-    private static final Vector4d entityColor = new Vector4d();
+    private static final Vector4d entityColor = new Vector4d(0D);
 
     private static final boolean[] portalEye = new boolean[4];
 
@@ -790,8 +790,22 @@ public final class ShaderState {
         updateUniforms();
     }
 
-    public static void updateEntityColor(double r, double g, double b, double a) {
-        entityColor.set(r, g, b, a);
+    /**
+     * Sets the entity color uniform, where the {@code mixFactor} is treated as a weight, see example GLSL:
+     * <p>
+     * <code>
+     * color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
+     * </code>
+     *
+     * @param r         Red
+     * @param g         Green
+     * @param b         Blue
+     * @param mixFactor Mix Factor
+     *
+     * @see <a href="https://shaders.properties/current/reference/uniforms/rendering/#entitycolor">https://shaders.properties/current/reference/uniforms/rendering/#entitycolor</a>
+     */
+    public static void updateEntityColor(double r, double g, double b, double mixFactor) {
+        entityColor.set(r, g, b, mixFactor);
         updateUniforms();
     }
 
