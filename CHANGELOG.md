@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.1] - 2026-3-7
+
+### Fixed
+
+- Default `uniform vec4 entityColor;` being `vec4(0.0, 0.0, 0.0, 1.0)` instead of `vec4(0.0, 0.0, 0.0, 0.0)`
+
 ## [1.3.0] - 2026-3-3
 
 ### Added
