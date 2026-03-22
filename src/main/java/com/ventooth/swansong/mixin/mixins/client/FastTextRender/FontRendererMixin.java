@@ -370,9 +370,10 @@ public abstract class FontRendererMixin implements FastFontRenderer {
     /**
      * @author _
      * @reason _
+     * @implNote public for LLibrary compat
      */
     @Overwrite(remap = false)
-    protected void doDraw(float f) {
+    public void doDraw(float f) {
         if (this.strikethroughStyle) {
             val tessellator = swan$beginDecoration();
             tessellator.addVertex(this.posX, this.posY + (float) (this.FONT_HEIGHT / 2), 0.0F);
@@ -399,9 +400,10 @@ public abstract class FontRendererMixin implements FastFontRenderer {
     /**
      * @author _
      * @reason _
+     * @implNote public for LLibrary compat
      */
     @Overwrite(remap = false)
-    protected void setColor(float r, float g, float b, float a) {
+    public void setColor(float r, float g, float b, float a) {
         if (swan$tessellating) {
             this.swan$textTess.setColorRGBA_F(r, g, b, a);
         } else {
@@ -459,9 +461,10 @@ public abstract class FontRendererMixin implements FastFontRenderer {
     /**
      * @author _
      * @reason _
+     * @implNote public for LLibrary compat
      */
     @Overwrite
-    protected float renderDefaultChar(int ch, boolean italic) {
+    public float renderDefaultChar(int ch, boolean italic) {
         float u = (float) (ch % 16 * 8);
         float v = (float) (ch / 16 * 8);
         float tilt = italic ? 1.0F : 0.0F;
@@ -496,9 +499,10 @@ public abstract class FontRendererMixin implements FastFontRenderer {
     /**
      * @author _
      * @reason _
+     * @implNote public for LLibrary compat
      */
     @Overwrite
-    protected float renderUnicodeChar(char ch, boolean italic) {
+    public float renderUnicodeChar(char ch, boolean italic) {
         if (this.glyphWidth[ch] == 0) {
             return 0.0F;
         } else {
