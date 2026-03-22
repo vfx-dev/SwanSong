@@ -8,13 +8,13 @@
 - Crash with LLibrary
 - Crash with Controlling
 
-## [1.3.1] - 2026-3-7
+## [1.3.1] - 2026-03-07
 
 ### Fixed
 
 - Default `uniform vec4 entityColor;` being `vec4(0.0, 0.0, 0.0, 1.0)` instead of `vec4(0.0, 0.0, 0.0, 0.0)`
 
-## [1.3.0] - 2026-3-3
+## [1.3.0] - 2026-03-03
 
 ### Added
 
