@@ -6,6 +6,7 @@
 
 - Some glyphs cause the font renderer to break (https://bugs.mojang.com/browse/MC/issues/MC-13046)
 - Crash with LLibrary
+- Crash with Controlling
 
 ## [1.3.1] - 2026-3-7
 

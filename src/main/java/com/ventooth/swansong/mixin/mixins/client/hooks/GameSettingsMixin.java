@@ -10,6 +10,8 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import lombok.val;
 import org.objectweb.asm.Opcodes;
@@ -90,15 +92,15 @@ public abstract class GameSettingsMixin implements ShaderGameSettings {
 
     }
 
-    @Redirect(method = "saveOptions",
-              at = @At(value = "INVOKE",
+    @WrapOperation(method = "saveOptions",
+                   at = @At(value = "INVOKE",
                        target = "Ljava/io/PrintWriter;println(Ljava/lang/String;)V",
                        ordinal = 0),
-              slice = @Slice(from = @At(value = "CONSTANT",
+                   slice = @Slice(from = @At(value = "CONSTANT",
                                         args = "stringValue=anaglyph3d:")),
-              require = 1)
-    private void swanSaveAnaglyph(PrintWriter instance, String s) {
-        instance.println("anaglyph3d:" + swan$anaglyph);
+                   require = 1)
+    private void swanSaveAnaglyph(PrintWriter instance, String x, Operation<Void> original) {
+        original.call(instance, "anaglyph3d:" + swan$anaglyph);
     }
 
     @Inject(method = "setOptionFloatValue",
