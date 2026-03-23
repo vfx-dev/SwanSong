@@ -519,7 +519,8 @@ public final class ShaderState {
 
     public static void nextEntity(Entity entity) {
         entityId = ShaderEngine.getEntityID(entity);
-        updateUniforms();
+        resetEntityColor();
+        // resetEntityColor() implicitly calls updateUniforms();
     }
 
     public static void setHeldItem(@Nullable ItemStack itemStack) {
@@ -788,6 +789,10 @@ public final class ShaderState {
             throw new AssertionError();
         }
         updateUniforms();
+    }
+
+    public static void resetEntityColor() {
+        updateEntityColor(0D, 0D, 0D, 0D);
     }
 
     /**

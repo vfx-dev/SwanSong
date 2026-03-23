@@ -46,7 +46,7 @@ public abstract class RenderMixin {
             }
 
             // Might render right after the entity was hit
-            ShaderState.updateEntityColor(0F, 0F, 0F, 0F);
+            ShaderState.resetEntityColor();
             // Just in case, ensure lighting is full bright
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
         }
@@ -68,7 +68,7 @@ public abstract class RenderMixin {
             }
 
             // Might render right after the entity was hit
-            ShaderState.updateEntityColor(0F, 0F, 0F, 0F);
+            ShaderState.resetEntityColor();
             // No texture for the initial box
             RenderUtil.bindEmptyTexture();
         }

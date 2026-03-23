@@ -76,7 +76,7 @@ public abstract class RendererLivingEntityMixin {
                 ShaderState.updateEntityColor(r, g, b, 1F - a);
             } else {
                 // Otherwise ensure the color is reset (entity color is additive)
-                ShaderState.updateEntityColor(0F, 0F, 0F, 0F);
+                ShaderState.resetEntityColor();
             }
         }
     }

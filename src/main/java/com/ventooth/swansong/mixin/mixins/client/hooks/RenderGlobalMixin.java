@@ -233,6 +233,9 @@ public abstract class RenderGlobalMixin {
                 if (ShaderEngine.hasInstancedShader()) {
                     ShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntitiesInstanced0,
                                                     StateGraph.Node.RenderEntitiesInstanced1);
+
+                    // Reset Entity Colors to avoid pollution
+                    ShaderState.resetEntityColor();
                     MinecraftForge.EVENT_BUS.post(new SwanSongRenderEvent.InstancedEntities(renderPass.get()));
                 }
                 ShaderEngine.graph.moveToEither(StateGraph.Node.RenderBlockEntities0,
