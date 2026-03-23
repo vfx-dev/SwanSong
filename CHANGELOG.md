@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.3] - 2026-03-23
+
+### Fixed
+
+- Proper resets of `uniform vec4 entityColor;`
+
 ## [1.3.2] - 2026-03-22
 
 ### Fixed
