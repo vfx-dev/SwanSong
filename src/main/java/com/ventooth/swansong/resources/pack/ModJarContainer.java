@@ -68,7 +68,7 @@ public final class ModJarContainer {
         }
         log.debug("Base path: {}", jarPath);
 
-        val exclIndex = jarPath.indexOf('!');
+        val exclIndex = jarPath.lastIndexOf('!');
         if (exclIndex >= 0) {
             jarPath = jarPath.substring(0, exclIndex);
         }
