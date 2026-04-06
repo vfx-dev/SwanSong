@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.3.4] - 2026-04-06
+
 ### Fixed
 
 - Crash when the path to the minecraft directory contains a `!` symbol
