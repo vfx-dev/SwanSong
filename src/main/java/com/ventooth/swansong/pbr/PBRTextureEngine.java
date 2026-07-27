@@ -57,7 +57,7 @@ public final class PBRTextureEngine {
     private static final int BASE_ATLAS_DEFAULT_COL = 0x00000000;
 
     private static final int BASE_DEFAULT_COL = 0xFFFFFFFF;
-    private static final int NORM_DEFAULT_COL = 0xFF7F7FFF;
+    private static final int NORM_DEFAULT_COL = 0xFFFF7F7F;
     private static final int SPEC_DEFAULT_COL = 0x00000000;
 
     private static boolean isInitialized = false;
