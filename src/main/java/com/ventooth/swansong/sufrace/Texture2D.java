@@ -213,7 +213,7 @@ public class Texture2D {
                           1,
                           1,
                           0,
-                          GL11.GL_RGBA,
+                          GL12.GL_BGRA,
                           GL12.GL_UNSIGNED_INT_8_8_8_8_REV,
                           pixel);
 
