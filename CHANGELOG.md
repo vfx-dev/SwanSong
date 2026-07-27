@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.5] - 2026-07-27
+
+### Fixed
+
+- Entities not rebaking if shaders are enabled or disabled
+- Incorrect default entity normal textures
+
+- Crash when the path to the minecraft directory contains a `!` symbol
+
 ## [1.3.4] - 2026-04-06
 
 ### Fixed
