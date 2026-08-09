@@ -1,12 +1,12 @@
 plugins {
-    id("com.falsepattern.fpgradle-mc") version "2.1.0"
+    id("com.falsepattern.fpgradle-mc") version "4.1.0"
 }
 
 group = "com.ventooth"
 
 minecraft_fp {
     java {
-        compatibility = jabel
+        compatibility = jvmDowngrader
     }
 
     mod {
@@ -39,6 +39,7 @@ minecraft_fp {
         }
         curseforge {
             projectId = "1349982"
+            side = Client
             dependencies {
                 required("fplib")
                 optional("mcpatcher")
