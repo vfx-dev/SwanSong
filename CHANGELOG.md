@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.6] - 2026-08-09
+
+### Fixed
+
+- Made shader entity data processing more resilient against broken block renderers
+
 ## [1.3.5] - 2026-07-27
 
 ### Fixed
