@@ -304,8 +304,9 @@ public class ShaderTess {
         vertex.textureV = (float) tess.textureV;
         vertex.colorARGB = tess.color;
         vertex.lightMapUV = tess.brightness;
-        vertex.entityData = entityData.getEntityData();
-        vertex.entityData2 = entityData.getEntityData2();
+        long packedEntityData = entityData.getPackedEntityData();
+        vertex.entityData = ShaderEntityData.unpackEntityData(packedEntityData);
+        vertex.entityData2 = ShaderEntityData.unpackEntityData2(packedEntityData);
 
         tess.addedVertices++;
         tess.vertexCount++;
