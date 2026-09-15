@@ -39,11 +39,10 @@ public enum CompositeTextureData {
     shadowcolor0(13, "shadowcolor0", "shadowcolor"),
     shadowcolor1(14, "shadowcolor1"),
     noisetex    (15, "noisetex"),
-    blitsrc     (EnvInfo.get().maxTextureUnits > 30 ? 30 : 0, "blitsrc"),
+    blitsrc     ( 0, "blitsrc"),
     // @formatter:on
     ;
 
-    @Getter
     private final int gpuIndex;
     @Getter
     private final String[] names;
@@ -51,5 +50,14 @@ public enum CompositeTextureData {
     CompositeTextureData(int gpuIndex, String... names) {
         this.gpuIndex = gpuIndex;
         this.names = names;
+    }
+
+    /// TODO: This is a BAD workaround, but kept for now.
+    ///  Indices past 15 won't work with MacOS and this should be an explicit error!
+    public int gpuIndex() {
+        if (this == blitsrc && gpuIndex >= EnvInfo.get().maxTextureUnits) {
+            return 0;
+        }
+        return gpuIndex;
     }
 }

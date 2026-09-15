@@ -620,7 +620,6 @@ public final class ShaderEngine {
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
         }
 
         if (!shaderPackLoaded) {
@@ -662,8 +661,6 @@ public final class ShaderEngine {
 
         // TODO [SAMPLER]: Move to a better spot
         if (blitSrcSampler != 0) {
-            // Unbound here pre-delete, but doesn't actually matter
-            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
             GL33.glDeleteSamplers(blitSrcSampler);
             blitSrcSampler = 0;
         }
@@ -1217,6 +1214,12 @@ public final class ShaderEngine {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+        // TODO [SAMPLER]: Move to a better spot
+        if (blitSrcSampler != 0) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
+        }
+
         use(lastShader);
     }
 
@@ -1261,6 +1264,11 @@ public final class ShaderEngine {
 
         if (DebugMarker.isEnabled()) {
             DebugMarker.TEXTURE_DEPTH_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());
+        }
+
+        // TODO [SAMPLER]: Move to a better spot
+        if (blitSrcSampler != 0) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
         }
 
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
