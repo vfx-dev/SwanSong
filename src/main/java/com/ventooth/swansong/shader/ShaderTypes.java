@@ -158,6 +158,12 @@ public final class ShaderTypes {
         registerFallback(gbuffers_block, gbuffers_terrain);
         registerFallback(gbuffers_portal, gbuffers_block);
         registerFallback(gbuffers_instanced, gbuffers_entities);
+
+        registerFallback(blit_color_mismatched, null);
+        registerFallback(blit_depth_mismatched, null);
+        // Relevant for MacOS as the identical ones need GLSL 130
+        registerFallback(blit_color_identical, blit_color_mismatched);
+        registerFallback(blit_depth_identical, blit_depth_mismatched);
     }
 
     public static synchronized void registerFallback(@NonNull ResourceLocation shader,
