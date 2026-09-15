@@ -107,7 +107,7 @@ public abstract class AbstractParser<Node> {
         int index = -1;
         for (int i = 0; i < opSize; i++) {
             val op = operators.get(i);
-            if (op.precedence > current) {
+            if (op.precedence >= current) {
                 index = i;
                 current = op.precedence;
             }
