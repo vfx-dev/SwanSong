@@ -10,11 +10,13 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.debug.DebugMarker;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.APPLEVertexArrayObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
@@ -93,9 +95,9 @@ public final class ShadersCompositeMesh {
         }
 
         {
-            GL30.glBindVertexArray(vao);
+            compat$glBindVertexArray(vao);
             GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, 4);
-            GL30.glBindVertexArray(GL11.GL_ZERO);
+            compat$glBindVertexArray(GL11.GL_ZERO);
         }
 
         if (DebugMarker.isEnabled()) {
@@ -116,9 +118,9 @@ public final class ShadersCompositeMesh {
         }
 
         vbo = GL15.glGenBuffers();
-        vao = GL30.glGenVertexArrays();
+        vao = compat$glGenVertexArrays();
 
-        GL30.glBindVertexArray(vao);
+        compat$glBindVertexArray(vao);
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
 
         // Arranged as XY-UV, used as a triangle-strip based quad.
@@ -160,7 +162,7 @@ public final class ShadersCompositeMesh {
         GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-        GL30.glBindVertexArray(0);
+        compat$glBindVertexArray(0);
 
         isInitialized = true;
     }
@@ -170,7 +172,7 @@ public final class ShadersCompositeMesh {
             return;
         }
 
-        GL30.glDeleteVertexArrays(vao);
+        compat$glDeleteVertexArrays(vao);
         vao = 0;
         GL15.glDeleteBuffers(vbo);
         vbo = 0;
@@ -185,5 +187,29 @@ public final class ShadersCompositeMesh {
         Depth,
         DepthCombine,
         Both
+    }
+
+    private static int compat$glGenVertexArrays() {
+        if (EnvInfo.isMacOS()) {
+            return APPLEVertexArrayObject.glGenVertexArraysAPPLE();
+        } else {
+            return GL30.glGenVertexArrays();
+        }
+    }
+
+    private static void compat$glDeleteVertexArrays(int array) {
+        if (EnvInfo.isMacOS()) {
+            APPLEVertexArrayObject.glDeleteVertexArraysAPPLE(array);
+        } else {
+            GL30.glDeleteVertexArrays(array);
+        }
+    }
+
+    private static void compat$glBindVertexArray(int array) {
+        if (EnvInfo.isMacOS()) {
+            APPLEVertexArrayObject.glBindVertexArrayAPPLE(array);
+        } else {
+            GL30.glBindVertexArray(array);
+        }
     }
 }
