@@ -15,6 +15,7 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.api.SwanSongLifecycleEvent;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.debug.GLDebugGroups;
+import com.ventooth.swansong.debug.GLSimpleDebug;
 import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.resources.ShaderPackManager;
@@ -509,11 +510,18 @@ public final class ShaderEngine {
     }
 
     private static void init(Report report) {
+        GLSimpleDebug.flushError();
+
         report.startTime = System.nanoTime();
         state = FixedEngineState.init(mcDimensionID(), report);
         use(null);
 
+        GLSimpleDebug.checkError();
+
         ShadersCompositeMesh.init();
+
+        // TODO: rdh, just use this to look for errors :)
+        GLSimpleDebug.checkError();
 
         gbuffersCustomTex = new EnumMap<>(CompositeTextureData.class);
         compositeCustomTex = new EnumMap<>(CompositeTextureData.class);
