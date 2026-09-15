@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.EnvInfo;
 import lombok.Getter;
 
 public enum CompositeTextureData {
@@ -42,7 +43,6 @@ public enum CompositeTextureData {
     // @formatter:on
     ;
 
-    @Getter
     private final int gpuIndex;
     @Getter
     private final String[] names;
@@ -50,5 +50,12 @@ public enum CompositeTextureData {
     CompositeTextureData(int gpuIndex, String... names) {
         this.gpuIndex = gpuIndex;
         this.names = names;
+    }
+
+    public int gpuIndex() {
+        if (this == blitsrc && gpuIndex >= EnvInfo.get().maxTextureUnits) {
+            return 0;
+        }
+        return gpuIndex;
     }
 }

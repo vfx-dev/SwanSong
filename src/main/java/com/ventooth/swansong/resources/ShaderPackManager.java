@@ -27,10 +27,10 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.lwjgl.Sys;
 
 import net.minecraft.client.Minecraft;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -136,12 +136,7 @@ public final class ShaderPackManager {
     }
 
     public static void openShaderPacksDir() {
-        try {
-            Desktop.getDesktop()
-                   .open(shaderpacksDir.toFile());
-        } catch (IOException e) {
-            Share.log.error("Failed to open shaderpacks directory", e);
-        }
+        Sys.openURL("file://" + shaderpacksDir.toFile().getAbsolutePath());
     }
 
     public static String getCurrentShaderPackName() {

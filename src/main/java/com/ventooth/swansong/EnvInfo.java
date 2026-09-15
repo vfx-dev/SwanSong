@@ -47,6 +47,7 @@ public final class EnvInfo {
     public final String glslVersionStr;
 
     public final int maxTextureSize;
+    public final int maxTextureUnits;
 
     public final OS osPlatform;
     public final GLVendor glVendor;
@@ -68,6 +69,7 @@ public final class EnvInfo {
         this.glslVersionStr = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
 
         this.maxTextureSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
+        this.maxTextureUnits = GL11.glGetInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 
         this.osPlatform = OS.of(this.osName);
         this.glVendor = GLVendor.of(this.glVendorStr);

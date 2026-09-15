@@ -389,10 +389,10 @@ public final class ShaderEngine {
             val src = buffers.gColor.get(CompositeTextureData.colortex0);
             val dst = mcTexture;
 
-            if (state.manager.blit_color_identical == null || Texture2D.sizeEquals(src, dst)) {
-                use(state.manager.blit_color_mismatched);
-            } else {
+            if (Texture2D.sizeEquals(src, dst)) {
                 use(state.manager.blit_color_identical);
+            } else {
+                use(state.manager.blit_color_mismatched);
             }
             // I'm paranoid.
             Minecraft.getMinecraft()
@@ -1174,24 +1174,18 @@ public final class ShaderEngine {
 
         val lastShader = state.manager.current();
 
-        final boolean useIdentical;
-        if (state.manager.blit_color_mismatched != null) {
-            var sizeEq = true;
-            for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
-                val i = srcEntry.getIntKey();
-                val srcTex = srcEntry.getValue();
-                val dstTex = dst.get(i);
-                if (!Texture2D.sizeEquals(srcTex, dstTex)) {
-                    sizeEq = false;
-                    break;
-                }
+        var sizeEq = true;
+        for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
+            val i = srcEntry.getIntKey();
+            val srcTex = srcEntry.getValue();
+            val dstTex = dst.get(i);
+            if (!Texture2D.sizeEquals(srcTex, dstTex)) {
+                sizeEq = false;
+                break;
             }
-            useIdentical = sizeEq;
-        } else {
-            useIdentical = false;
         }
 
-        if (useIdentical) {
+        if (sizeEq) {
             use(state.manager.blit_color_identical);
         } else {
             use(state.manager.blit_color_mismatched);
@@ -1276,7 +1270,7 @@ public final class ShaderEngine {
     }
 
     public static void clearColorBufs() {
-        buffers.tempColor.bind();
+        buffers.tempDepth.bind();
 
         buffers.gDepthTex.attachToFramebufferDepth();
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -1287,6 +1281,7 @@ public final class ShaderEngine {
         buffers.depthTex2.attachToFramebufferDepth();
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
+        buffers.tempColor.bind();
         buffers.gColor.clear(ShaderState.fogColor());
     }
 
