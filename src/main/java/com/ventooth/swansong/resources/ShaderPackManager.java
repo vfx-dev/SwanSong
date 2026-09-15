@@ -31,6 +31,7 @@ import org.lwjgl.Sys;
 
 import net.minecraft.client.Minecraft;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -136,7 +137,24 @@ public final class ShaderPackManager {
     }
 
     public static void openShaderPacksDir() {
-        Sys.openURL("file://" + shaderpacksDir.toFile().getAbsolutePath());
+        try {
+            // Works on Windows/Linux
+            // TODO: Doesn't work on my machine without LWJGL3ify? Wayland+KDE, should open Dolphin :(
+            Desktop.getDesktop()
+                   .open(shaderpacksDir.toFile());
+        } catch (Exception e) {
+            var failed = false;
+            try {
+                // Works on MacOS
+                failed = !Sys.openURL("file://" + shaderpacksDir.toFile().getAbsolutePath());
+            } catch (Exception e2) {
+                e.addSuppressed(e2);
+            }
+
+            if (failed) {
+                Share.log.error("Failed to open shaderpacks directory", e);
+            }
+        }
     }
 
     public static String getCurrentShaderPackName() {
