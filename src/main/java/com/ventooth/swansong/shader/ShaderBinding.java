@@ -123,12 +123,20 @@ public class ShaderBinding {
 
                 internalLoader.load(null);
                 @Cleanup val internalPool = internalLoader.borrowOutShaderPool();
-                b.blit_color_identical(b.safeInit(BlitShader.load(internalPool,
-                                                                  ShaderTypes.blit_color_identical,
-                                                                  true)));
-                b.blit_depth_identical(b.safeInit(BlitShader.load(internalPool,
-                                                                  ShaderTypes.blit_depth_identical,
-                                                                  true)));
+
+                // Hate the way this is handled.
+                if (EnvInfo.isMacOS()) {
+                    b.blit_color_identical(null);
+                    b.blit_depth_identical(null);
+                } else {
+                    b.blit_color_identical(b.safeInit(BlitShader.load(internalPool,
+                                                                      ShaderTypes.blit_color_identical,
+                                                                      false)));
+                    b.blit_depth_identical(b.safeInit(BlitShader.load(internalPool,
+                                                                      ShaderTypes.blit_depth_identical,
+                                                                      false)));
+                }
+
                 b.blit_color_mismatched(b.safeInit(BlitShader.load(internalPool,
                                                                    ShaderTypes.blit_color_mismatched,
                                                                    true)));

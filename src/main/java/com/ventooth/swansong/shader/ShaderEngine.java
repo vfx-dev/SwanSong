@@ -388,10 +388,10 @@ public final class ShaderEngine {
             val src = buffers.gColor.get(CompositeTextureData.colortex0);
             val dst = mcTexture;
 
-            if (Texture2D.sizeEquals(src, dst)) {
-                use(state.manager.blit_color_identical);
-            } else {
+            if (state.manager.blit_color_identical == null || Texture2D.sizeEquals(src, dst)) {
                 use(state.manager.blit_color_mismatched);
+            } else {
+                use(state.manager.blit_color_identical);
             }
             // I'm paranoid.
             Minecraft.getMinecraft()
@@ -1166,17 +1166,24 @@ public final class ShaderEngine {
 
         val lastShader = state.manager.current();
 
-        boolean sizeEq = true;
-        for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
-            val i = srcEntry.getIntKey();
-            val srcTex = srcEntry.getValue();
-            val dstTex = dst.get(i);
-            if (!Texture2D.sizeEquals(srcTex, dstTex)) {
-                sizeEq = false;
-                break;
+        final boolean useIdentical;
+        if (state.manager.blit_color_mismatched != null) {
+            var sizeEq = true;
+            for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
+                val i = srcEntry.getIntKey();
+                val srcTex = srcEntry.getValue();
+                val dstTex = dst.get(i);
+                if (!Texture2D.sizeEquals(srcTex, dstTex)) {
+                    sizeEq = false;
+                    break;
+                }
             }
+            useIdentical = sizeEq;
+        } else {
+            useIdentical = false;
         }
-        if (sizeEq) {
+
+        if (useIdentical) {
             use(state.manager.blit_color_identical);
         } else {
             use(state.manager.blit_color_mismatched);
