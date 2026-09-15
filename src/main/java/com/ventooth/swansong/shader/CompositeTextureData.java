@@ -39,10 +39,11 @@ public enum CompositeTextureData {
     shadowcolor0(13, "shadowcolor0", "shadowcolor"),
     shadowcolor1(14, "shadowcolor1"),
     noisetex    (15, "noisetex"),
-    blitsrc     (30, "blitsrc"),
+    blitsrc     (EnvInfo.get().maxTextureUnits > 30 ? 30 : 0, "blitsrc"),
     // @formatter:on
     ;
 
+    @Getter
     private final int gpuIndex;
     @Getter
     private final String[] names;
@@ -50,12 +51,5 @@ public enum CompositeTextureData {
     CompositeTextureData(int gpuIndex, String... names) {
         this.gpuIndex = gpuIndex;
         this.names = names;
-    }
-
-    public int gpuIndex() {
-        if (this == blitsrc && gpuIndex >= EnvInfo.get().maxTextureUnits) {
-            return 0;
-        }
-        return gpuIndex;
     }
 }

@@ -64,7 +64,11 @@ minecraft_fp {
 }
 
 tasks.withType<RunMinecraftTask> {
-    jvmArgs("-ea:com.ventooth.swansong...", "-XstartOnFirstThread")
+    jvmArgs("-ea:com.ventooth.swansong...")
+
+    if (System.getProperty("os.name").lowercase().contains("mac")) {
+        jvmArgs("-XstartOnFirstThread")
+    }
 }
 
 val venterceptorVersion = "2.0.0-rc4"
@@ -101,7 +105,10 @@ dependencies {
     apiSplit("com.falsepattern:falsepatternlib-mc1.7.10:1.9.0")
 
     compileOnly("com.ventooth:venterceptor-service-api:${venterceptorVersion}")
-    //runtimeOnlyNonPublishable("com.ventooth:venterceptor-mc1.7.10:${venterceptorVersion}")
+
+    if (!System.getProperty("os.name").lowercase().contains("mac")) {
+        runtimeOnlyNonPublishable("com.ventooth:venterceptor-mc1.7.10:${venterceptorVersion}")
+    }
 
     compileOnly("org.joml:joml:1.10.8")
     compileOnly("it.unimi.dsi:fastutil:8.5.16")
