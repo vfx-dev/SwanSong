@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.api.SwanSongLifecycleEvent;
 import com.ventooth.swansong.debug.DebugMarker;
@@ -602,7 +603,10 @@ public final class ShaderEngine {
         reloadMinecraftRenderersSafe();
 
         // TODO [SAMPLER]: Move to a better spot
-        {
+        if (!EnvInfo.isMacOS()) {
+            // This whole thing was a workaround for Nvidia screaming over the debug port
+            // TL;DR the blit source is sometimes the shadow texture with hardware filtering enabled
+            // Which technically breaks the spec, so the sampler gets overridden here
             blitSrcSampler = GL33.glGenSamplers();
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
@@ -650,6 +654,8 @@ public final class ShaderEngine {
 
         // TODO [SAMPLER]: Move to a better spot
         if (blitSrcSampler != 0) {
+            // Unbound here pre-delete, but doesn't actually matter
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
             GL33.glDeleteSamplers(blitSrcSampler);
             blitSrcSampler = 0;
         }
@@ -1152,7 +1158,7 @@ public final class ShaderEngine {
         }
 
         // TODO [SAMPLER]: Move to a better spot
-        {
+        if (blitSrcSampler != 0) {
             GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
         }
 
@@ -1216,7 +1222,7 @@ public final class ShaderEngine {
         }
 
         // TODO [SAMPLER]: Move to a better spot
-        {
+        if (blitSrcSampler != 0) {
             GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
         }
 
