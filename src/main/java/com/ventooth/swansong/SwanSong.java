@@ -79,6 +79,10 @@ public final class SwanSong {
             ModJarContainer.init();
             EnvInfo.init();
 
+            if (EnvInfo.isMacOS()) {
+                Share.log.warn("Current MacOS support not great :(");
+            }
+
             ShaderTypes.registerInternalFallbacks();
             MinecraftForge.EVENT_BUS.register(this);
             FMLCommonHandler.instance()

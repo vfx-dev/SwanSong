@@ -39,7 +39,9 @@ public final class EnvInfo {
     public final String glRendererStr;
     public final String glVersionStr;
 
+    @ToString.Include(rank = -1)
     public final @Unmodifiable List<String> glExtList;
+    @ToString.Exclude
     public final @Unmodifiable Set<String> glExtSet;
 
     public final String glslVersionStr;
@@ -86,6 +88,11 @@ public final class EnvInfo {
             throw new IllegalStateException("Not Initialized");
         }
         return instance;
+    }
+
+    // TODO: Do we really want this in here?
+    public static boolean isMacOS() {
+        return get().osPlatform == OS.OSX;
     }
 
     public enum OS {
