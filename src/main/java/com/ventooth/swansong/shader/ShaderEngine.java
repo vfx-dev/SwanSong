@@ -15,6 +15,7 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.api.SwanSongLifecycleEvent;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.debug.GLDebugGroups;
+import com.ventooth.swansong.debug.GLSimpleDebug;
 import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.resources.ShaderPackManager;
@@ -388,10 +389,10 @@ public final class ShaderEngine {
             val src = buffers.gColor.get(CompositeTextureData.colortex0);
             val dst = mcTexture;
 
-            if (state.manager.blit_color_identical == null || Texture2D.sizeEquals(src, dst)) {
-                use(state.manager.blit_color_mismatched);
-            } else {
+            if (Texture2D.sizeEquals(src, dst)) {
                 use(state.manager.blit_color_identical);
+            } else {
+                use(state.manager.blit_color_mismatched);
             }
             // I'm paranoid.
             Minecraft.getMinecraft()
@@ -509,6 +510,8 @@ public final class ShaderEngine {
     }
 
     private static void init(Report report) {
+        GLSimpleDebug.flushError();
+
         report.startTime = System.nanoTime();
         state = FixedEngineState.init(mcDimensionID(), report);
         use(null);
@@ -612,13 +615,14 @@ public final class ShaderEngine {
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
             GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
         }
 
         if (!shaderPackLoaded) {
             shaderPackLoaded = true;
             MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackLoaded());
         }
+
+        GLSimpleDebug.checkError();
     }
 
     private static void deinit() {
@@ -654,8 +658,6 @@ public final class ShaderEngine {
 
         // TODO [SAMPLER]: Move to a better spot
         if (blitSrcSampler != 0) {
-            // Unbound here pre-delete, but doesn't actually matter
-            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
             GL33.glDeleteSamplers(blitSrcSampler);
             blitSrcSampler = 0;
         }
@@ -1166,24 +1168,18 @@ public final class ShaderEngine {
 
         val lastShader = state.manager.current();
 
-        final boolean useIdentical;
-        if (state.manager.blit_color_mismatched != null) {
-            var sizeEq = true;
-            for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
-                val i = srcEntry.getIntKey();
-                val srcTex = srcEntry.getValue();
-                val dstTex = dst.get(i);
-                if (!Texture2D.sizeEquals(srcTex, dstTex)) {
-                    sizeEq = false;
-                    break;
-                }
+        var sizeEq = true;
+        for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
+            val i = srcEntry.getIntKey();
+            val srcTex = srcEntry.getValue();
+            val dstTex = dst.get(i);
+            if (!Texture2D.sizeEquals(srcTex, dstTex)) {
+                sizeEq = false;
+                break;
             }
-            useIdentical = sizeEq;
-        } else {
-            useIdentical = false;
         }
 
-        if (useIdentical) {
+        if (sizeEq) {
             use(state.manager.blit_color_identical);
         } else {
             use(state.manager.blit_color_mismatched);
@@ -1215,6 +1211,12 @@ public final class ShaderEngine {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+        // TODO [SAMPLER]: Move to a better spot
+        if (blitSrcSampler != 0) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
+        }
+
         use(lastShader);
     }
 
@@ -1261,6 +1263,11 @@ public final class ShaderEngine {
             DebugMarker.TEXTURE_DEPTH_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());
         }
 
+        // TODO [SAMPLER]: Move to a better spot
+        if (blitSrcSampler != 0) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
+        }
+
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -1268,7 +1275,7 @@ public final class ShaderEngine {
     }
 
     public static void clearColorBufs() {
-        buffers.tempColor.bind();
+        buffers.tempDepth.bind();
 
         buffers.gDepthTex.attachToFramebufferDepth();
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -1279,6 +1286,7 @@ public final class ShaderEngine {
         buffers.depthTex2.attachToFramebufferDepth();
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
+        buffers.tempColor.bind();
         buffers.gColor.clear(ShaderState.fogColor());
     }
 

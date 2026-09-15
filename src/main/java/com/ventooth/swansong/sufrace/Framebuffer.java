@@ -60,6 +60,7 @@ public class Framebuffer {
 
         if (depthOnly) {
             GL20.glDrawBuffers(GL11.GL_NONE);
+            GL11.glReadBuffer(GL11.GL_NONE);
         } else {
             GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
         }
