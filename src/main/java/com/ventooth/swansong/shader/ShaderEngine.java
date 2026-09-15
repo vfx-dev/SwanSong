@@ -516,12 +516,7 @@ public final class ShaderEngine {
         state = FixedEngineState.init(mcDimensionID(), report);
         use(null);
 
-        GLSimpleDebug.checkError();
-
         ShadersCompositeMesh.init();
-
-        // TODO: rdh, just use this to look for errors :)
-        GLSimpleDebug.checkError();
 
         gbuffersCustomTex = new EnumMap<>(CompositeTextureData.class);
         compositeCustomTex = new EnumMap<>(CompositeTextureData.class);
@@ -626,6 +621,8 @@ public final class ShaderEngine {
             shaderPackLoaded = true;
             MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackLoaded());
         }
+
+        GLSimpleDebug.checkError();
     }
 
     private static void deinit() {
