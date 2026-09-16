@@ -14,13 +14,14 @@ import lombok.val;
 import org.intellij.lang.annotations.MagicConstant;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
 
 import java.nio.ByteBuffer;
 
 public class GLShader {
     public int glName;
 
-    public void glCreateShader(@MagicConstant(intValues = {GL20.GL_VERTEX_SHADER, GL20.GL_FRAGMENT_SHADER}) int type) {
+    public void glCreateShader(@MagicConstant(intValues = {GL20.GL_VERTEX_SHADER, GL32.GL_GEOMETRY_SHADER, GL20.GL_FRAGMENT_SHADER}) int type) {
         glName = GL20.glCreateShader(type);
     }
 

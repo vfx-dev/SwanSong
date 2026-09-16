@@ -333,6 +333,8 @@ public class ShaderLoader {
         while (true) {
             val vert = runStage1(path + ".vsh");
             val frag = runStage1(path + ".fsh");
+            // Geom can be null just fine
+            val geom = runStage1(path + ".gsh");
             if (vert == null && frag == null) {
                 //This is correct if the shader doesn't exist at all
                 loc = ShaderTypes.getFallback(loc);
@@ -360,7 +362,7 @@ public class ShaderLoader {
             if (report != null && !Objects.equals(inPath, path)) {
                 report.shadersFallback.put(inPath, path);
             }
-            return new ProgramStage1(inLoc, loc, inPath, vert, frag);
+            return new ProgramStage1(inLoc, loc, inPath, vert, geom, frag);
         }
     }
 
@@ -425,17 +427,20 @@ public class ShaderLoader {
         private final ShaderId actualLoc;
         private final String path;
         private final ShaderPreprocessor.PreprocessorStage1Suspend vert;
+        private final @Nullable ShaderPreprocessor.PreprocessorStage1Suspend geom;
         private final ShaderPreprocessor.PreprocessorStage1Suspend frag;
 
         private ProgramStage1(ShaderId loc,
                               ShaderId actualLoc,
                               String path,
                               ShaderPreprocessor.PreprocessorStage1Suspend vert,
+                              @Nullable ShaderPreprocessor.PreprocessorStage1Suspend geom,
                               ShaderPreprocessor.PreprocessorStage1Suspend frag) {
             this.loc = loc;
             this.actualLoc = actualLoc;
             this.path = path;
             this.vert = vert;
+            this.geom = geom;
             this.frag = frag;
         }
 
@@ -453,6 +458,10 @@ public class ShaderLoader {
 
         public ShaderPreprocessor.PreprocessorStage1Suspend vert() {
             return vert;
+        }
+
+        public @Nullable ShaderPreprocessor.PreprocessorStage1Suspend geom() {
+            return geom;
         }
 
         public ShaderPreprocessor.PreprocessorStage1Suspend frag() {
@@ -859,6 +868,14 @@ public class ShaderLoader {
         val vert = stage1.vert.runStage2(stage2 -> {
             fetchStage2Data(stage2, mipmapEnabled);
         });
+        final ShaderPreprocessor.PreprocessorStage2Suspend geom;
+        if (stage1.geom != null) {
+            geom = stage1.geom.runStage2(stage2 -> {
+                fetchStage2Data(stage2, mipmapEnabled);
+            });
+        } else {
+            geom = null;
+        }
         val frag = stage1.frag.runStage2(stage2 -> {
             fetchStage2Data(stage2, mipmapEnabled);
             pRenderTargets[0] = stage2.renderTargets;
@@ -867,6 +884,7 @@ public class ShaderLoader {
                                  stage1.actualLoc,
                                  stage1.path,
                                  vert,
+                                 geom,
                                  frag,
                                  new ObjectArrayList<>(mipmapEnabled),
                                  pRenderTargets[0]);

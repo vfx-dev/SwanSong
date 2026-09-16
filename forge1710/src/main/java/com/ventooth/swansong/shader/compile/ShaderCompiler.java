@@ -26,6 +26,7 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL32;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -58,6 +59,7 @@ public final class ShaderCompiler {
                                                             List<AttribMapping> attribs,
                                                             @Nullable Report report) {
         GLShader vert = null;
+        GLShader geom = null;
         GLShader frag = null;
 
         try {
@@ -65,11 +67,17 @@ public final class ShaderCompiler {
                                 program.path() + ".vsh",
                                 program.vert()
                                        .getNativeBuffer(true));
+            if (program.geom() != null) {
+                geom = createShader(GL32.GL_GEOMETRY_SHADER,
+                                    program.path() + ".gsh",
+                                    program.geom()
+                                           .getNativeBuffer(true));
+            }
             frag = createShader(GL20.GL_FRAGMENT_SHADER,
                                 program.path() + ".fsh",
                                 program.frag()
                                        .getNativeBuffer(true));
-            val prog = createProgram(program.path(), vert, frag, attribs);
+            val prog = createProgram(program.path(), vert, geom, frag, attribs);
             return new CompiledProgram(program.path(),
                                        prog,
                                        program.mipmapEnabled(),
@@ -86,6 +94,9 @@ public final class ShaderCompiler {
             if (vert != null) {
                 vert.glDeleteShader();
             }
+            if (geom != null) {
+                geom.glDeleteShader();
+            }
             if (frag != null) {
                 frag.glDeleteShader();
             }
@@ -96,6 +107,7 @@ public final class ShaderCompiler {
      * src MUST be null terminated!
      */
     public static @NotNull GLShader createShader(@MagicConstant(intValues = {GL20.GL_VERTEX_SHADER,
+                                                                             GL32.GL_GEOMETRY_SHADER,
                                                                              GL20.GL_FRAGMENT_SHADER}) int type,
                                                  String name,
                                                  ByteBuffer src) throws ShaderException {
@@ -120,11 +132,15 @@ public final class ShaderCompiler {
 
     public static @NotNull GLProgram createProgram(@NotNull String name,
                                                    @NotNull GLShader vertShader,
+                                                   @Nullable GLShader geomShader,
                                                    @NotNull GLShader fragShader,
                                                    @NotNull List<AttribMapping> attribs) throws ShaderException {
         val program = new GLProgram();
         program.glCreateProgram();
         program.glAttachShader(vertShader);
+        if (geomShader != null) {
+            program.glAttachShader(geomShader);
+        }
         program.glAttachShader(fragShader);
 
         for (val attrib : attribs) {

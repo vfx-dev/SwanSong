@@ -15,10 +15,13 @@ import com.ventooth.swansong.shader.preprocessor.ShaderPreprocessor;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import org.jetbrains.annotations.Nullable;
+
 public record PreprocessedProgram(ShaderId loc,
                                   ShaderId actualLoc,
                                   String path,
                                   ShaderPreprocessor.PreprocessorStage2Suspend vert,
+                                  @Nullable ShaderPreprocessor.PreprocessorStage2Suspend geom,
                                   ShaderPreprocessor.PreprocessorStage2Suspend frag,
                                   ObjectList<String> mipmapEnabled,
                                   IntList renderTargets) {}
