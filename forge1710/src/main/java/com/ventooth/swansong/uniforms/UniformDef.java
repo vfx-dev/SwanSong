@@ -8,13 +8,6 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader.loader;
+package com.ventooth.swansong.uniforms;
 
-import net.minecraft.util.ResourceLocation;
-
-public interface IShaderPool extends AutoCloseable {
-    CompiledProgram borrowShader(ResourceLocation loc, boolean essential);
-
-    @Override
-    void close();
-}
+public record UniformDef(String name, Type type, String expression, boolean exposed) {}

@@ -8,7 +8,7 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader.uniform;
+package com.ventooth.swansong.uniforms;
 
 import org.joml.Vector2dc;
 import org.joml.Vector3dc;

@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.sufrace;
 
-
 import com.ventooth.swansong.debug.GLObjectLabel;
 import com.ventooth.swansong.gl.GLTexture;
 import com.ventooth.swansong.image.ImageUtils;
@@ -27,7 +26,6 @@ import org.lwjgl.opengl.GL30;
 import java.awt.image.BufferedImage;
 import java.lang.management.RuntimeMXBean;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.List;
 
 @Accessors(fluent = true,

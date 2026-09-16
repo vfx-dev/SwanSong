@@ -15,8 +15,6 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.world.WorldProvider;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +51,7 @@ public final class InternalShaderPack extends ShaderPack {
     }
 
     @Override
-    public @Nullable String getWorldSpecialization(@Nullable WorldProvider dimension) {
+    public @Nullable String getWorldSpecialization(@Nullable DimensionInfo dimension) {
         return null;
     }
 }

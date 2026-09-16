@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.shader.loader.config;
 
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -19,10 +18,6 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.Locale;
 
 import java.util.Objects;
 
@@ -38,11 +33,11 @@ public final class Localization {
         this.options = options;
     }
 
-    public static String localize(Locale locale, String key) {
-        return locale.formatMessage(key, new Object[0]);
+    public static String localize(PackLocalizer locale, String key) {
+        return locale.packText(key);
     }
 
-    public static Localization create(Locale locale,
+    public static Localization create(PackLocalizer locale,
                                       boolean isScreen,
                                       String nameKey,
                                       @Nullable String description,
@@ -55,13 +50,18 @@ public final class Localization {
                          optionsUnlocalized);
     }
 
-    public static Localization createProfile(Locale locale, ObjectList<String> options) {
-        return createRaw(locale, I18n.format("gui.swansong.shaders.profile.key"), "profile", "profile.", null, options);
+    public static Localization createProfile(PackLocalizer locale, ObjectList<String> options) {
+        return createRaw(locale,
+                         locale.modText("gui.swansong.shaders.profile.key"),
+                         "profile",
+                         "profile.",
+                         null,
+                         options);
     }
 
-    public static Localization createScreen(Locale locale, @Nullable String screenName) {
+    public static Localization createScreen(PackLocalizer locale, @Nullable String screenName) {
         return createRaw(locale,
-                         screenName == null ? I18n.format("gui.swansong.shaders.root.title") : screenName,
+                         screenName == null ? locale.modText("gui.swansong.shaders.root.title") : screenName,
                          screenName == null ? "screen" : "screen." + screenName,
                          null,
                          null,
@@ -70,12 +70,11 @@ public final class Localization {
 
     private static final int maxDescLineWidthPx = 250;
 
-    private static void subdivideLine(String line, ObjectList<String> output) {
-        val fr = Minecraft.getMinecraft().fontRenderer;
-        output.addAll(fr.listFormattedStringToWidth("- " + line, maxDescLineWidthPx));
+    private static void subdivideLine(PackLocalizer locale, String line, ObjectList<String> output) {
+        output.addAll(locale.wrapToWidth("- " + line, maxDescLineWidthPx));
     }
 
-    private static Localization createRaw(Locale locale,
+    private static Localization createRaw(PackLocalizer locale,
                                           String name,
                                           String nameBase,
                                           @Nullable String optionBase,
@@ -103,7 +102,7 @@ public final class Localization {
             val lines = new ObjectArrayList<>(localizedComment.split("\\. "));
             val finalLines = new ObjectArrayList<String>();
             for (val line : lines) {
-                subdivideLine(line, finalLines);
+                subdivideLine(locale, line, finalLines);
             }
             commentLines = ObjectLists.unmodifiable(finalLines);
         }

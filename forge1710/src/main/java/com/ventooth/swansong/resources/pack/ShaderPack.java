@@ -17,8 +17,6 @@ import lombok.experimental.Accessors;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.world.WorldProvider;
-
 @RequiredArgsConstructor
 @Accessors(fluent = true,
            chain = false)
@@ -38,5 +36,5 @@ public abstract class ShaderPack implements FSProvider {
         return "/shaders" + thePath;
     }
 
-    public abstract @Nullable String getWorldSpecialization(@Nullable WorldProvider dimension);
+    public abstract @Nullable String getWorldSpecialization(@Nullable DimensionInfo dimension);
 }

@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.uniforms;
 
-import com.falsepattern.lib.util.MathUtil;
+import com.ventooth.swansong.util.MathUtils;
 import lombok.SneakyThrows;
 import lombok.val;
 
@@ -61,7 +61,7 @@ public class StatefulBuiltins {
         randDB.set(index);
         double value = rng.nextDouble();
         if (randDD.length <= index) {
-            randDD = Arrays.copyOf(randDD, MathUtil.smallestEncompassingPowerOfTwo(index + 1));
+            randDD = Arrays.copyOf(randDD, MathUtils.smallestEncompassingPowerOfTwo(index + 1));
         }
         randDD[index] = value;
         return value;
@@ -74,7 +74,7 @@ public class StatefulBuiltins {
         randDB.set(index);
         double value = min + (max - min) * rng.nextDouble();
         if (randDD.length <= index) {
-            randDD = Arrays.copyOf(randDD, MathUtil.smallestEncompassingPowerOfTwo(index + 1));
+            randDD = Arrays.copyOf(randDD, MathUtils.smallestEncompassingPowerOfTwo(index + 1));
         }
         randDD[index] = value;
         return value;
@@ -87,7 +87,7 @@ public class StatefulBuiltins {
         randIB.set(index);
         int value = rng.nextInt();
         if (randID.length <= index) {
-            randID = Arrays.copyOf(randID, MathUtil.smallestEncompassingPowerOfTwo(index + 1));
+            randID = Arrays.copyOf(randID, MathUtils.smallestEncompassingPowerOfTwo(index + 1));
         }
         randID[index] = value;
         return value;
@@ -100,7 +100,7 @@ public class StatefulBuiltins {
         randIB.set(index);
         int value = min + rng.nextInt(max - min);
         if (randID.length <= index) {
-            randID = Arrays.copyOf(randID, MathUtil.smallestEncompassingPowerOfTwo(index + 1));
+            randID = Arrays.copyOf(randID, MathUtils.smallestEncompassingPowerOfTwo(index + 1));
         }
         randID[index] = value;
         return value;
@@ -116,10 +116,10 @@ public class StatefulBuiltins {
         } else {
             smoothB.set(index);
             if (smoothNs.length <= index) {
-                smoothNs = Arrays.copyOf(smoothNs, MathUtil.smallestEncompassingPowerOfTwo(index + 1));
+                smoothNs = Arrays.copyOf(smoothNs, MathUtils.smallestEncompassingPowerOfTwo(index + 1));
             }
             if (smoothVal.length <= index) {
-                smoothVal = Arrays.copyOf(smoothVal, MathUtil.smallestEncompassingPowerOfTwo(index + 1));
+                smoothVal = Arrays.copyOf(smoothVal, MathUtils.smallestEncompassingPowerOfTwo(index + 1));
             }
             timePrev = time;
             valPrev = value;
@@ -151,7 +151,7 @@ public class StatefulBuiltins {
                 double k3 = 10.0;
                 double kCorr = k1 - 1.0 / (k2 + countUpdates / k3);
                 double kTime = timeDeltaSec / timeFadeSec * kCorr;
-                kTime = MathUtil.clamp(kTime, 0.0, 1.0);
+                kTime = MathUtils.clamp(kTime, 0.0, 1.0);
                 valSmooth = valPrev + valDelta * kTime;
             } else {
                 valSmooth = value;

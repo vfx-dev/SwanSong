@@ -8,9 +8,11 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.image;
+package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.debug.DebugMarker;
+import com.ventooth.swansong.image.ImageUtils;
+import com.ventooth.swansong.image.RawImage;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -58,7 +60,7 @@ public final class ThreadedScreenshot {
         final RawImage rawImage;
         try {
             imageFile = ScreenShotHelper.getTimestampedPNGFileForDirectory(new File(gameDirectory, "screenshots"));
-            rawImage = ImageUtils.downloadGLTextureAsBGRA(frameBuffer);
+            rawImage = ImageUtils.downloadGLTextureAsBGRA(frameBuffer.framebufferTexture);
             if (rawImage == null) {
                 throw new IllegalStateException("Failed to copy from GPU");
             }

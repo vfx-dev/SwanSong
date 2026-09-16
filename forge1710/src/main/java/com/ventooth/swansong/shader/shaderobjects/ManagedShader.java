@@ -12,7 +12,8 @@ package com.ventooth.swansong.shader.shaderobjects;
 
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.gl.GLProgram;
-import com.ventooth.swansong.shader.loader.CompiledProgram;
+import com.ventooth.swansong.shader.ShaderId;
+import com.ventooth.swansong.shader.compile.CompiledProgram;
 import com.ventooth.swansong.shader.uniform.Uniform;
 import com.ventooth.swansong.shader.uniform.UniformGetterDanglingWires;
 import com.ventooth.swansong.sufrace.Framebuffer;
@@ -30,8 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import org.lwjgl.opengl.GL20;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -43,8 +42,8 @@ public abstract class ManagedShader {
     private static final IntList DEFAULT_RENDER_TARGETS = IntLists.singleton(0);
 
     @Getter
-    protected final ResourceLocation loc;
-    protected final ResourceLocation actualLoc;
+    protected final ShaderId loc;
+    protected final ShaderId actualLoc;
     @Getter
     protected final String srcPath;
 
@@ -58,7 +57,7 @@ public abstract class ManagedShader {
     private @Unmodifiable Int2ObjectMap<@NotNull Uniform<?>> uniforms;
     private Int2ObjectArrayMap<@NotNull Uniform<?>> uniformsDirect;
 
-    public ManagedShader(ResourceLocation loc, CompiledProgram prog) {
+    public ManagedShader(ShaderId loc, CompiledProgram prog) {
         this.loc = loc;
         this.actualLoc = prog.actualShaderType();
         this.srcPath = prog.path();

@@ -11,13 +11,10 @@
 package com.ventooth.swansong.resources;
 
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.config.Configs;
-import com.ventooth.swansong.config.ShadersConfig;
-import com.ventooth.swansong.resources.pack.DefaultShaderPack;
 import com.ventooth.swansong.resources.pack.ResolvedShaderPack;
 import com.ventooth.swansong.resources.pack.ResolvedShaderPack.WorldSpecializationPredicate;
 import com.ventooth.swansong.resources.pack.ShaderPack;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.NoArgsConstructor;
@@ -27,11 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.lwjgl.Sys;
 
-import net.minecraft.client.Minecraft;
-
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,6 +41,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import java.util.zip.ZipFile;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -58,22 +53,36 @@ public final class ShaderPackManager {
 
     public static String currentShaderPackName = DISABLED_SHADER_PACK_NAME;
 
+    public static Runnable settingsChangedHook = () -> {};
+
+    public static BooleanSupplier referencePackEnabled = () -> false;
+
+    public static Function<ShaderPack, PackLocalizer> localizerFactory = pack -> PackLocalizer.NONE;
+
+    public static @Nullable ShaderPack referencePack;
+
+    public static @Nullable String referencePackName() {
+        val pack = referencePack;
+        return pack == null ? null : pack.name();
+    }
+
+    public static boolean isReferencePack(String name) {
+        return name != null && name.equals(referencePackName());
+    }
+
     private static Path shaderpacksDir;
     private static Path shaderpacksDebugDir;
 
-    private static List<String> detectedShaderpacks = ShadersConfig.enableReferenceShaderPack
-                                                      ? Arrays.asList(DISABLED_SHADER_PACK_NAME, DefaultShaderPack.NAME)
-                                                      : Collections.singletonList(DISABLED_SHADER_PACK_NAME);
+    private static List<String> detectedShaderpacks = Collections.singletonList(DISABLED_SHADER_PACK_NAME);
 
-    public static void init() {
-        val minecraftDir = Minecraft.getMinecraft().mcDataDir.toPath();
+    public static void init(Path minecraftDir, String initialPackName) {
         shaderpacksDir = minecraftDir.resolve("shaderpacks");
         shaderpacksDebugDir = shaderpacksDir.resolve("debug");
 
         ensureDirExists("Shader Pack", shaderpacksDir);
 
         refreshShaderPackNames();
-        setShaderPackByName(ShadersConfig.CurrentShaderPack);
+        setShaderPackByName(initialPackName);
     }
 
     public static File resolveFile(String name) {
@@ -132,29 +141,11 @@ public final class ShaderPackManager {
     }
 
     public static void saveShaderSettings() {
-        ShaderEngine.scheduleShaderPackReload();
-        Configs.syncConfigFile();
+        settingsChangedHook.run();
     }
 
-    public static void openShaderPacksDir() {
-        try {
-            // Works on Windows/Linux
-            // TODO: Doesn't work on my machine without LWJGL3ify? Wayland+KDE, should open Dolphin :(
-            Desktop.getDesktop()
-                   .open(shaderpacksDir.toFile());
-        } catch (Exception e) {
-            var failed = false;
-            try {
-                // Works on MacOS
-                failed = !Sys.openURL("file://" + shaderpacksDir.toFile().getAbsolutePath());
-            } catch (Exception e2) {
-                e.addSuppressed(e2);
-            }
-
-            if (failed) {
-                Share.log.error("Failed to open shaderpacks directory", e);
-            }
-        }
+    public static Path getShaderPacksDir() {
+        return shaderpacksDir;
     }
 
     public static String getCurrentShaderPackName() {
@@ -167,7 +158,6 @@ public final class ShaderPackManager {
         } else {
             currentShaderPackName = DISABLED_SHADER_PACK_NAME;
         }
-        ShadersConfig.CurrentShaderPack = currentShaderPackName;
         saveShaderSettings();
     }
 
@@ -208,14 +198,18 @@ public final class ShaderPackManager {
             });
             newShaders.sort(Comparator.naturalOrder());
 
-            if (ShadersConfig.enableReferenceShaderPack) {
-                newShaders.add(0, DefaultShaderPack.NAME);
+            val referenceName = referencePackName();
+            if (referenceName != null && referencePackEnabled.getAsBoolean()) {
+                newShaders.add(0, referenceName);
             }
             newShaders.add(0, DISABLED_SHADER_PACK_NAME);
             detectedShaderpacks = newShaders;
         } catch (IOException e) {
             Share.log.error("Error while detecting shaderpacks. Using fallback.", e);
-            detectedShaderpacks = Arrays.asList(DISABLED_SHADER_PACK_NAME, DefaultShaderPack.NAME);
+            val referenceName = referencePackName();
+            detectedShaderpacks = referenceName == null
+                                  ? Collections.singletonList(DISABLED_SHADER_PACK_NAME)
+                                  : Arrays.asList(DISABLED_SHADER_PACK_NAME, referenceName);
         }
     }
 
@@ -228,9 +222,9 @@ public final class ShaderPackManager {
         if (DISABLED_SHADER_PACK_NAME.equals(currentShaderPackName)) {
             return null;
         }
-        if (DefaultShaderPack.NAME.equals(currentShaderPackName)) {
-            if (ShadersConfig.enableReferenceShaderPack) {
-                return DefaultShaderPack.INSTANCE;
+        if (isReferencePack(currentShaderPackName)) {
+            if (referencePackEnabled.getAsBoolean()) {
+                return referencePack;
             } else {
                 return null;
             }

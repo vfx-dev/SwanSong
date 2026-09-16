@@ -23,16 +23,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
-import cpw.mods.fml.common.registry.GameRegistry;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class BlockIDRemapper {
     private static final String PROP_FILE_NAME = "block.properties";
+
+    public static BiFunction<String, String, Integer> blockIdLookup = (modId, blockName) -> null;
 
     private final @NotNull List<List<MetaMapping>> patterns;
 
@@ -158,12 +158,8 @@ public class BlockIDRemapper {
 
     private static @Nullable IntList resolveBlocksIDs(@NotNull String modId, @NotNull String blockName) {
         if (!Character.isDigit(blockName.charAt(0))) {
-            val block = GameRegistry.findBlock(modId, blockName);
-            if (block == null) {
-                return null;
-            } else {
-                return IntList.of(Block.getIdFromBlock(block));
-            }
+            val blockId = blockIdLookup.apply(modId, blockName);
+            return blockId == null ? null : IntList.of(blockId.intValue());
         }
 
         return IntParsingUtils.parseUnsignedIntMulti(blockName);

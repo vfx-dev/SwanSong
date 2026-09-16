@@ -209,7 +209,7 @@ public final class PBRTextureEngine {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
         val baseLoc = pbrHolder.swan$base();
-        val pbrTex = new PBRTexture2D.Bundle(baseLoc, norm, spec);
+        val pbrTex = new PBRTexture2D.Bundle(baseLoc.toString(), norm, spec);
         pbrHolder.swan$pbrTex(pbrTex);
         log.debug("Initialized PBR for atlas: {}", baseLoc);
     }
@@ -232,7 +232,7 @@ public final class PBRTextureEngine {
         val glName = GL11.glGenTextures();
         TextureUtil.allocateTextureImpl(glName, mipLevels, width, height, anisotropy);
 
-        return PBRTexture2D.ofWrapped(pbrLoc, width, height, glName);
+        return PBRTexture2D.ofWrapped(pbrLoc.toString(), width, height, glName);
     }
 
     //FalseTweaks mixin lands in here. Double check before modifying!
@@ -393,7 +393,7 @@ public final class PBRTextureEngine {
 
     public static void deinitPbrTex(PBRTexture2D.Bundle pbrTex, String reason) {
         val norm = pbrTex.norm();
-        final ResourceLocation normLoc;
+        final String normLoc;
         if (norm == null) {
             normLoc = null;
         } else {
@@ -402,7 +402,7 @@ public final class PBRTextureEngine {
         }
 
         val spec = pbrTex.spec();
-        final ResourceLocation specLoc;
+        final String specLoc;
         if (spec == null) {
             specLoc = null;
         } else {
@@ -424,7 +424,8 @@ public final class PBRTextureEngine {
         // Avoid state pollution
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 
-        pbrTex = new PBRTexture2D.Bundle(pbrHolder.swan$base(), norm, spec);
+        pbrTex = new PBRTexture2D.Bundle(pbrHolder.swan$base()
+                                                 .toString(), norm, spec);
         pbrHolder.swan$pbrTex(pbrTex);
         log.debug("Initialized PBR Tex for: ({})->[norm={},spec={}]", pbrTex.base(), norm != null, spec != null);
 
@@ -491,7 +492,7 @@ public final class PBRTextureEngine {
             val clamp = meta.clamp();
             val blur = meta.blur();
 
-            val tex = PBRTexture2D.ofIntBuffer(pbrLoc, width, height, clamp, blur, buf);
+            val tex = PBRTexture2D.ofIntBuffer(pbrLoc.toString(), width, height, clamp, blur, buf);
             log.debug("Loaded PBR Texture: {}", pbrLoc);
             return tex;
         } catch (Exception e) {

@@ -10,26 +10,25 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
+import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderSamplers;
-import com.ventooth.swansong.shader.loader.CompiledProgram;
-import com.ventooth.swansong.shader.loader.IShaderPool;
+import com.ventooth.swansong.shader.compile.CompiledProgram;
+import com.ventooth.swansong.shader.compile.IShaderPool;
 import com.ventooth.swansong.shader.uniform.Uniform;
 import lombok.val;
 import org.jetbrains.annotations.Contract;
-
-import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 
 public class BlitShader extends ManagedShader {
     private static final List<Uniform<?>> RELEVANT_UNIFORMS = ShaderSamplers.Composite.uniforms();
 
-    public BlitShader(ResourceLocation loc, CompiledProgram prog) {
+    public BlitShader(ShaderId loc, CompiledProgram prog) {
         super(loc, prog);
     }
 
     @Contract("_,_,true->!null")
-    public static BlitShader load(IShaderPool pool, ResourceLocation loc, boolean essential) {
+    public static BlitShader load(IShaderPool pool, ShaderId loc, boolean essential) {
         val shader = pool.borrowShader(loc, essential);
         if (shader == null) {
             if (essential) {

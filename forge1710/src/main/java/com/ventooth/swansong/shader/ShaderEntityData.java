@@ -13,8 +13,6 @@ package com.ventooth.swansong.shader;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import net.minecraft.block.Block;
-
 import java.util.Arrays;
 
 /**
@@ -83,12 +81,8 @@ public final class ShaderEntityData {
         pushRaw((data0 & 0xFFFF) | ((data1 & 0xFFFF) << 16), 0);
     }
 
-    public void pushEntity(Block block) {
-        pushEntity(block, 0);
-    }
-
-    public void pushEntity(Block block, int meta) {
-        pushRaw((ShaderEngine.getBlockID(block, meta) & 0xFFFF) | ((block.getRenderType() & 0xFFFF) << 16), meta);
+    public void pushEntityBlock(int blockID, int renderType, int meta) {
+        pushRaw((ShaderEngine.remapBlockID(blockID, meta) & 0xFFFF) | ((renderType & 0xFFFF) << 16), meta);
     }
 
     public long getPackedEntityData() {

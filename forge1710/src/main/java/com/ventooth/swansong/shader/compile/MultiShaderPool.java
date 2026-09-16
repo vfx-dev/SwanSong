@@ -8,13 +8,12 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader.loader;
+package com.ventooth.swansong.shader.compile;
 
 import com.ventooth.swansong.shader.Report;
+import com.ventooth.swansong.shader.ShaderId;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -27,20 +26,17 @@ public class MultiShaderPool implements IShaderPool {
     private final List<IShaderPool> initialized = new ArrayList<>();
     private final @Nullable Report report;
 
-    public MultiShaderPool(IShaderPool primary, Iterable<ShaderLoader> loaders, @Nullable Report report) {
+    public MultiShaderPool(IShaderPool primary,
+                           Iterable<Supplier<IShaderPool>> fallbacks,
+                           @Nullable Report report) {
         this.primary = primary;
         unInitialized = new LinkedList<>();
-        for (val loader : loaders) {
-            unInitialized.add(() -> {
-                loader.lazyLoad(null);
-                return loader.borrowOutShaderPool();
-            });
-        }
+        fallbacks.forEach(unInitialized::add);
         this.report = report;
     }
 
     @Override
-    public CompiledProgram borrowShader(ResourceLocation loc, boolean essential) {
+    public CompiledProgram borrowShader(ShaderId loc, boolean essential) {
         {
             val prog = primary.borrowShader(loc, essential);
             if (prog != null) {

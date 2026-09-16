@@ -21,8 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.world.WorldProvider;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -69,7 +67,7 @@ public class ResolvedShaderPack extends ShaderPack {
     }
 
     @Override
-    public @Nullable String getWorldSpecialization(@Nullable WorldProvider dimension) {
+    public @Nullable String getWorldSpecialization(@Nullable DimensionInfo dimension) {
         if (dimension != null) {
             for (val specialization : specializations) {
                 if (specialization.matches(dimension)) {
@@ -213,7 +211,7 @@ public class ResolvedShaderPack extends ShaderPack {
     }
 
     public interface WorldSpecializationPredicate {
-        boolean matches(@NotNull WorldProvider dimension);
+        boolean matches(@NotNull DimensionInfo dimension);
 
         String dirName();
 
@@ -224,8 +222,8 @@ public class ResolvedShaderPack extends ShaderPack {
             private final String dirName;
 
             @Override
-            public boolean matches(@NotNull WorldProvider dimension) {
-                return dimension.dimensionId == id;
+            public boolean matches(@NotNull DimensionInfo dimension) {
+                return dimension.id() == id;
             }
         }
 
@@ -236,8 +234,8 @@ public class ResolvedShaderPack extends ShaderPack {
             private final String dirName;
 
             @Override
-            public boolean matches(@NotNull WorldProvider dimension) {
-                return matchesClass(dimension.getClass());
+            public boolean matches(@NotNull DimensionInfo dimension) {
+                return matchesClass(dimension.providerClass());
             }
 
             private boolean matchesClass(Class<?> klass) {
@@ -265,8 +263,8 @@ public class ResolvedShaderPack extends ShaderPack {
             private final String dirName;
 
             @Override
-            public boolean matches(@NotNull WorldProvider dimension) {
-                return dimName.equals(dimension.getDimensionName());
+            public boolean matches(@NotNull DimensionInfo dimension) {
+                return dimName.equals(dimension.name());
             }
         }
 
@@ -276,7 +274,7 @@ public class ResolvedShaderPack extends ShaderPack {
             private final String dirName;
 
             @Override
-            public boolean matches(@NotNull WorldProvider dimension) {
+            public boolean matches(@NotNull DimensionInfo dimension) {
                 return true;
             }
         }

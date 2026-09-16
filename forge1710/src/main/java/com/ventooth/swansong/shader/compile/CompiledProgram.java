@@ -8,15 +8,14 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader.loader;
+package com.ventooth.swansong.shader.compile;
 
 import com.ventooth.swansong.gl.GLProgram;
+import com.ventooth.swansong.shader.ShaderId;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
 
@@ -26,13 +25,13 @@ public final class CompiledProgram {
     private final @NotNull GLProgram program;
     private final @NotNull ObjectList<String> mipmapEnabled;
     private final @Nullable IntList renderTargets;
-    private final @NotNull ResourceLocation actualShaderType;
+    private final @NotNull ShaderId actualShaderType;
 
     public CompiledProgram(@NotNull String path,
                            @NotNull GLProgram program,
                            @NotNull ObjectList<String> mipmapEnabled,
                            @Nullable IntList renderTargets,
-                           @NotNull ResourceLocation actualShaderType) {
+                           @NotNull ShaderId actualShaderType) {
         this.path = path;
         this.program = program;
         this.mipmapEnabled = mipmapEnabled;
@@ -56,7 +55,7 @@ public final class CompiledProgram {
         return renderTargets;
     }
 
-    public @NotNull ResourceLocation actualShaderType() {
+    public @NotNull ShaderId actualShaderType() {
         return actualShaderType;
     }
 

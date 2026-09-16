@@ -57,7 +57,7 @@ public class UniformCompiler {
         this.optimizer = new Optimizer(flags.optimizer);
     }
 
-    public MethodNode compile(Type returnType, String expressionSource, MethodBuilder builder) {
+    MethodNode compile(Type returnType, String expressionSource, MethodBuilder builder) {
         val untypedExpr = parse(expressionSource);
         val typedExpr = resolveTypes(returnType, untypedExpr);
         val optimizedExpr = optimizer.transform(typedExpr);
@@ -66,7 +66,7 @@ public class UniformCompiler {
         return method;
     }
 
-    public void compile(Type returnType, String expressionSource, InsnList instructions, boolean isStatic) {
+    void compile(Type returnType, String expressionSource, InsnList instructions, boolean isStatic) {
         val untypedExpr = parse(expressionSource);
         val typedExpr = resolveTypes(returnType, untypedExpr);
         val optimizedExpr = optimizer.transform(typedExpr);
@@ -179,7 +179,7 @@ public class UniformCompiler {
     }
 
     @FunctionalInterface
-    public interface MethodBuilder {
+    interface MethodBuilder {
         MethodNode createEmptyMethod(String descriptor);
     }
 }

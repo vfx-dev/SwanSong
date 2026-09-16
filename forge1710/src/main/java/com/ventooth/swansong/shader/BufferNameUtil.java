@@ -17,7 +17,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
-import java.util.Arrays;
 
 public final class BufferNameUtil {
     private BufferNameUtil() {

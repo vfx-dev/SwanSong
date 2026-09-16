@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.shader.preprocessor;
 
-import com.falsepattern.lib.util.MathUtil;
+import com.ventooth.swansong.util.MathUtils;
 import com.ventooth.swansong.MicroCache;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -504,7 +504,7 @@ public abstract class Option {
             if (v == null) {
                 return;
             }
-            val clamped = MathUtil.clamp(v, min, max);
+            val clamped = MathUtils.clamp(v, min, max);
             out.accept(clamped);
         }
 

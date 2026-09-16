@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong;
 
+import com.ventooth.swansong.platform.SkyBoxRenderer;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
@@ -37,7 +38,7 @@ public class ASMHooks {
         if (ShaderEngine.isInitialized()) {
             val rg = Minecraft.getMinecraft().renderGlobal;
             if (list == rg.glSkyList) {
-                ShaderEngine.preSkyList();
+                SkyBoxRenderer.preSkyList();
             }
         }
         GL11.glCallList(list);

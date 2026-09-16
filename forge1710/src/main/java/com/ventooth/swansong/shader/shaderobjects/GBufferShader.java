@@ -11,27 +11,26 @@
 package com.ventooth.swansong.shader.shaderobjects;
 
 import com.ventooth.swansong.shader.ShaderException;
+import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderSamplers;
-import com.ventooth.swansong.shader.loader.CompiledProgram;
-import com.ventooth.swansong.shader.loader.IShaderPool;
+import com.ventooth.swansong.shader.compile.CompiledProgram;
+import com.ventooth.swansong.shader.compile.IShaderPool;
 import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.uniform.Uniform;
 import lombok.val;
 import org.jetbrains.annotations.Contract;
-
-import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 
 public class GBufferShader extends ManagedShader {
     private static final List<Uniform<?>> RELEVANT_UNIFORMS = GeneralUniforms.getWith(ShaderSamplers.GBuffer.uniforms());
 
-    public GBufferShader(ResourceLocation loc, CompiledProgram prog) {
+    public GBufferShader(ShaderId loc, CompiledProgram prog) {
         super(loc, prog);
     }
 
     @Contract("_,_,true->!null")
-    public static GBufferShader load(IShaderPool pool, ResourceLocation loc, boolean essential) throws ShaderException {
+    public static GBufferShader load(IShaderPool pool, ShaderId loc, boolean essential) throws ShaderException {
         val shader = pool.borrowShader(loc, essential);
         if (shader == null) {
             if (essential) {

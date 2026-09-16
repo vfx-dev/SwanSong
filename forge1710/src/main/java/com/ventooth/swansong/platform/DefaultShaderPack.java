@@ -8,7 +8,10 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.resources.pack;
+package com.ventooth.swansong.platform;
+
+import com.ventooth.swansong.resources.pack.DimensionInfo;
+import com.ventooth.swansong.resources.pack.ShaderPack;
 
 import com.ventooth.swansong.Share;
 import lombok.val;
@@ -17,11 +20,9 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.WorldProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 
 public final class DefaultShaderPack extends ShaderPack {
     public static final String NAME = "(default)";
@@ -60,7 +61,7 @@ public final class DefaultShaderPack extends ShaderPack {
     }
 
     @Override
-    public @Nullable String getWorldSpecialization(@Nullable WorldProvider dimension) {
+    public @Nullable String getWorldSpecialization(@Nullable DimensionInfo dimension) {
         return null;
     }
 }

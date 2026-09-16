@@ -11,22 +11,13 @@
 package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.sufrace.FramebufferAttachment;
-import com.ventooth.swansong.sufrace.Texture2D;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
-
-import cpw.mods.fml.common.Loader;
-
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -34,10 +25,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
+import java.util.function.Consumer;
 
 public class Report {
-    private static final String CHAT_PREFIX = "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";
+    public static @Nullable Consumer<Report> chatReporter;
 
     public String name;
 
@@ -165,7 +156,7 @@ public class Report {
                         }
                         sb.append(input.getValue())
                           .append(" -> ")
-                          .append(input.getKey().gpuIndex());
+                          .append(input.getKey());
                     }
                     if (sb.length() != 0) {
                         log.info("    Inputs:  [{}]", sb);
@@ -177,7 +168,7 @@ public class Report {
                         if (sb.length() != 0) {
                             sb.append(", ");
                         }
-                        sb.append(output.getKey().name())
+                        sb.append(output.getKey())
                           .append(" -> ")
                           .append(output.getValue());
                     }
@@ -202,41 +193,19 @@ public class Report {
             }
         }
 
-        blk: if (!erroredShaders.isEmpty()) {
-            val plr = Minecraft.getMinecraft().thePlayer;
-            if (plr == null) {
-                break blk;
-            }
-            val zone = TimeZone.getDefault();
-            val now = ZonedDateTime.now(zone.toZoneId()).toLocalTime().toString();
-            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + "-----------------"));
-            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.YELLOW + now));
-            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.RED + "Failed to load shaders:"));
-            for (val sh: erroredShaders) {
-                plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + "  " + EnumChatFormatting.RED + sh));
-            }
-            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.YELLOW + "Check the log for more details"));
-            plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + "-----------------"));
-        }
-        if (!rpleCompatible && Loader.isModLoaded("rple")) {
-            val txt = """
-                    You are using a shaderpack which is not marked
-                    as compatible with RPLE. Do not report
-                    issues to SwanSong/RPLE.
-                    If the shaderpack works fine,
-                    add rpleCompatible=true to shaders.properties
-                    """.split("\n");
-            for (val line: txt) {
-                log.warn(line);
-            }
-            val plr = Minecraft.getMinecraft().thePlayer;
-            if (plr != null) {
-                for (val line: txt) {
-                    plr.addChatMessage(new ChatComponentText(CHAT_PREFIX + EnumChatFormatting.DARK_RED + line));
-                }
-            }
+        val chat = chatReporter;
+        if (chat != null) {
+            chat.accept(this);
         }
     }
+
+    public static final String[] RPLE_WARNING = """
+            You are using a shaderpack which is not marked
+            as compatible with RPLE. Do not report
+            issues to SwanSong/RPLE.
+            If the shaderpack works fine,
+            add rpleCompatible=true to shaders.properties
+            """.split("\n");
 
     private static String padding(int size) {
         if (size <= 0) {
@@ -271,8 +240,8 @@ public class Report {
     public static class CompositeStageInfo {
         public final String name;
         public final ObjectList<String> mipmaps = new ObjectArrayList<>(16);
-        public final Map<CompositeTextureData, String> inputs = new EnumMap<>(CompositeTextureData.class);
-        public final Map<FramebufferAttachment, String> outputs = new EnumMap<>(FramebufferAttachment.class);
+        public final Map<String, String> inputs = new LinkedHashMap<>();
+        public final Map<String, String> outputs = new LinkedHashMap<>();
     }
 
     public static class ShaderInfo {
@@ -284,9 +253,5 @@ public class Report {
         public final int width;
         public final int height;
         public final String format;
-
-        public TextureInfo(Texture2D tex) {
-            this(tex.width(), tex.height(), BufferNameUtil.gbufferFormatNameFromEnum(tex.internalFormat()));
-        }
     }
 }

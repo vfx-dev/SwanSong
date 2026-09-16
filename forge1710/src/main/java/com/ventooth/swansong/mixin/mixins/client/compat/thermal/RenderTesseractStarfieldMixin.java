@@ -14,6 +14,7 @@ import cofh.thermalexpansion.block.ender.TileTesseract;
 import cofh.thermalexpansion.render.RenderTesseractStarfield;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
@@ -41,7 +42,7 @@ public abstract class RenderTesseractStarfieldMixin {
             if (ShaderEngine.hasPortalShader()) {
                 ShaderEngine.graph.push(StateGraph.Stack.Portal);
                 ShaderState.pushBlockEntity();
-                ShaderState.portal();
+                ShaderState.portal(McShaderIds.endPortalBlockId());
                 ShaderState.updatePortalEyeState(true, true, true, true);
                 original.call(par1, par2, par3, par4, par5);
                 ShaderState.popBlockEntity();

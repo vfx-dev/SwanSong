@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.Minecraft;
 
 import java.util.List;
 import java.util.Map;
@@ -184,7 +183,7 @@ public class DrawBuffers {
                 shader.framebuffer.deinit();
             }
             shader.framebuffer = Framebuffer.create(shader.loc()
-                                                          .getResourcePath(),
+                                                          .path(),
                                                     gColor.getFramebufferAttachments(shader.renderTargets()),
                                                     gDepthTex);
         }
@@ -200,29 +199,29 @@ public class DrawBuffers {
     }
 
     public static Texture2D wrapMinecraftTexture() {
-        val fb = Minecraft.getMinecraft()
-                          .getFramebuffer();
+        val host = ShaderEngine.host;
         val gl = new GLTexture();
-        gl.glName = fb.framebufferTexture;
-        return new Texture2D("Minecraft", gl, GL11.GL_RGBA8, fb.framebufferWidth, fb.framebufferHeight);
+        gl.glName = host.mainFramebufferTexture();
+        return new Texture2D("Minecraft",
+                             gl,
+                             GL11.GL_RGBA8,
+                             host.mainFramebufferWidth(),
+                             host.mainFramebufferHeight());
     }
 
     public static Framebuffer wrapMinecraft() {
-        return Framebuffer.wrap("Minecraft",
-                                Minecraft.getMinecraft()
-                                         .getFramebuffer().framebufferObject);
+        return Framebuffer.wrap("Minecraft", ShaderEngine.host.mainFramebufferId());
     }
 
     public static boolean isMinecraftUpToDate(Framebuffer fb, Texture2D texture) {
         if (fb == null) {
             return false;
         }
-        val mc = Minecraft.getMinecraft()
-                          .getFramebuffer();
-        return fb.framebuffer.glName == mc.framebufferObject &&
-               texture.glName() == mc.framebufferTexture &&
-               texture.width() == mc.framebufferWidth &&
-               texture.height() == mc.framebufferHeight;
+        val host = ShaderEngine.host;
+        return fb.framebuffer.glName == host.mainFramebufferId() &&
+               texture.glName() == host.mainFramebufferTexture() &&
+               texture.width() == host.mainFramebufferWidth() &&
+               texture.height() == host.mainFramebufferHeight();
     }
 
     public void deinit() {

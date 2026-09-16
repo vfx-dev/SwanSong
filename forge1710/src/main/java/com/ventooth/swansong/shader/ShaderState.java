@@ -10,8 +10,8 @@
 
 package com.ventooth.swansong.shader;
 
-import com.falsepattern.lib.util.MathUtil;
-import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.CoreSettings;
+import com.ventooth.swansong.util.MathUtils;
 import com.ventooth.swansong.shader.loader.ShaderLoaderOutParams;
 import it.unimi.dsi.fastutil.ints.AbstractIntList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -34,18 +34,9 @@ import org.joml.Vector4dc;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
-import net.minecraft.tileentity.TileEntity;
-
 import java.nio.DoubleBuffer;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ShaderState {
@@ -145,7 +136,14 @@ public final class ShaderState {
 
     private static final Vector2i atlasSize = new Vector2i();
 
-    private static @Nullable ItemStack heldItem = null;
+    public static Supplier<WorldSample> worldSampler = () -> WorldSample.EMPTY;
+
+    public static HostWorld host = HostWorld.NONE;
+
+    public static IntSupplier heldItemIdSource = () -> -1;
+
+    public static IntSupplier heldBlockLightSource = () -> 0;
+
     private static boolean isHeldItemTranslucent = false;
 
     private static int biome = 0;
@@ -154,7 +152,6 @@ public final class ShaderState {
     private static double drynessHalfLife = 200D;
     private static double eyeBrightnessHalfLife = 10D;
     private static double centerDepthHalfLife = 1.0;
-
 
     private static double centerDepth = 0;
     private static double centerDepthSmooth = 0;
@@ -393,15 +390,15 @@ public final class ShaderState {
     }
 
     public static double farPlane() {
-        return mc().gameSettings.renderDistanceChunks * 16;
+        return host.farPlane();
     }
 
     public static boolean isGuiHidden() {
-        return mc().gameSettings.hideGUI;
+        return host.isGuiHidden();
     }
 
     public static double screenBrightness() {
-        return mc().gameSettings.gammaSetting;
+        return host.screenBrightness();
     }
 
     public static double frameTimeCounter() {
@@ -486,8 +483,7 @@ public final class ShaderState {
         return isHeldItemTranslucent;
     }
 
-    public static void nextBlockEntity(TileEntity tileEntity) {
-        int newId = ShaderEngine.getBlockEntityID(tileEntity);
+    public static void nextBlockEntity(int newId) {
         if (newId != blockEntityId) {
             blockEntityId = newId;
             updateUniforms();
@@ -512,42 +508,25 @@ public final class ShaderState {
         }
     }
 
-    public static void portal() {
-        blockEntityId = ShaderEngine.getBlockID(Blocks.end_portal, 0);
+    public static void portal(int endPortalBlockId) {
+        blockEntityId = endPortalBlockId;
         updateUniforms();
     }
 
-    public static void nextEntity(Entity entity) {
-        entityId = ShaderEngine.getEntityID(entity);
+    public static void nextEntity(int newEntityId) {
+        entityId = newEntityId;
         resetEntityColor();
         // resetEntityColor() implicitly calls updateUniforms();
     }
 
-    public static void setHeldItem(@Nullable ItemStack itemStack) {
-        heldItem = itemStack;
-        isHeldItemTranslucent = false;
-
-        if (heldItem == null) {
-            return;
-        }
-
-        val item = itemStack.getItem();
-        if (!(item instanceof ItemBlock itemBlock)) {
-            return;
-        }
-
-        val block = itemBlock.field_150939_a;
-        if (block == null) {
-            return;
-        }
-
-        isHeldItemTranslucent = block.getRenderBlockPass() != 0;
+    public static void setHeldItemTranslucent(boolean translucent) {
+        isHeldItemTranslucent = translucent;
     }
 
     public static boolean updateViewSize() {
-        val q = ShadersConfig.RenderQuality.get();
-        val width = (int) (mc().displayWidth * q);
-        val height = (int) (mc().displayHeight * q);
+        val q = CoreSettings.renderQuality;
+        val width = (int) (host.displayWidth() * q);
+        val height = (int) (host.displayHeight() * q);
 
         if (width == viewSize.x && height == viewSize.y) {
             return false;
@@ -558,41 +537,19 @@ public final class ShaderState {
     }
 
     public static void updatePreRenderWorld() {
-        val mc = mc();
-        val world = mc.theWorld;
-        val partialTick = ShaderState.getSubTick();
-        val viewEntity = mc.renderViewEntity;
-        @Nullable val playerEntity = mc.thePlayer;
+        val sample = worldSampler.get();
 
-        isEyeInWater = 0;
-        if (mc.gameSettings.thirdPersonView == 0 && !playerEntity.isPlayerSleeping()) {
-            if (viewEntity.isInsideOfMaterial(Material.water)) {
-                isEyeInWater = 1;
-            } else if (viewEntity.isInsideOfMaterial(Material.lava)) {
-                isEyeInWater = 2;
-            }
-        }
+        isEyeInWater = sample.eyeInWater();
+        nightVision = sample.nightVision();
+        blindness = MathUtils.clamp(sample.blindnessTicks() / 20.0, 0, 1);
 
-        nightVision = 0;
-        blindness = 0;
-        if (playerEntity != null) {
-            if (playerEntity.isPotionActive(Potion.nightVision)) {
-                nightVision = mc.entityRenderer.getNightVisionBrightness(mc.thePlayer, partialTick);
-            }
-            if (playerEntity.isPotionActive(Potion.blindness)) {
-                val blindnessTicks = playerEntity.getActivePotionEffect(Potion.blindness)
-                                                 .getDuration();
-                blindness = MathUtil.clamp(blindnessTicks / 20.0, 0, 1);
-            }
-        }
+        updateEyeBrightness(sample.rawEyeBrightness());
 
-        updateEyeBrightness(viewEntity, partialTick);
+        rainStrength = sample.rainStrength();
 
-        rainStrength = world.getRainStrength(partialTick);
-
-        worldTime = (int) (world.getWorldTime() % 24000L);
-        worldDay = (int) (world.getTotalWorldTime() / 24000L);
-        moonPhase = world.getMoonPhase();
+        worldTime = (int) (sample.worldTime() % 24000L);
+        worldDay = (int) (sample.totalWorldTime() / 24000L);
+        moonPhase = sample.moonPhase();
 
         frameCounter++;
         if (frameCounter >= 720720) {// Legacy value
@@ -621,10 +578,9 @@ public final class ShaderState {
         prevProjectionMat.set(projectionMat);
         prevModelViewMat.set(modelViewMat);
 
-        val skyColor = mc().theWorld.getSkyColor(viewEntity, ShaderState.getSubTick());
-        updateSkyColor(skyColor.xCoord, skyColor.yCoord, skyColor.zCoord);
+        updateSkyColor(sample.skyR(), sample.skyG(), sample.skyB());
 
-        biome = world.getBiomeGenForCoords(camPosInt.x, camPosInt.z).biomeID;
+        biome = sample.biomeId();
 
         entityId = -1;
         blockEntityId = -1;
@@ -636,8 +592,8 @@ public final class ShaderState {
         eyeBrightnessD.set(eyeBrightness);
     }
 
-    private static void updateEyeBrightness(Entity viewEntity, float partialTick) {
-        eyeBrightnessFromRaw(viewEntity.getBrightnessForRender(partialTick));
+    private static void updateEyeBrightness(int rawBrightness) {
+        eyeBrightnessFromRaw(rawBrightness);
         double temp1 = (double) diffSystemTime * 0.01;
         double temp2 = Math.exp(LOG_HALF * temp1 / eyeBrightnessHalfLife);
         eyeBrightnessSmooth.x = eyeBrightness.x + (eyeBrightnessSmooth.x - eyeBrightness.x) * temp2;
@@ -722,13 +678,10 @@ public final class ShaderState {
     }
 
     public static void updateCamera(boolean withUpdate) {
-        val viewEntity = mc().renderViewEntity;
-        val partialTick = ShaderState.getSubTick();
-
         // Stuff is needed-needed, otherwise stuff will jitter to hell and back
-        camPos.x = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * partialTick;
-        camPos.y = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * partialTick;
-        camPos.z = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * partialTick;
+        camPos.x = host.cameraX();
+        camPos.y = host.cameraY();
+        camPos.z = host.cameraZ();
         camPos.floor(camPosFract);
         camPosInt.set(camPosFract);
         camPosIntD.set(camPosInt);
@@ -753,7 +706,7 @@ public final class ShaderState {
     }
 
     public static void updateCelestialAngle() {
-        celestialAngle = mc().theWorld.getCelestialAngle(ShaderState.getSubTick());
+        celestialAngle = host.celestialAngle();
         sunAngle = celestialAngle < 0.75 ? celestialAngle + 0.25 : celestialAngle - 0.75;
 
         if (sunAngle <= 0.5D) {
@@ -831,33 +784,11 @@ public final class ShaderState {
     }
 
     public static int heldBlockLightValue() {
-        val itemId = heldItemId();
-        if (itemId == -1) {
-            return 0;
-        }
-        val block = (Block) Block.blockRegistry.getObjectById(itemId);
-        return block != null ? block.getLightValue() : 0;
+        return heldBlockLightSource.getAsInt();
     }
 
     public static int heldItemId() {
-        val stack = heldItem();
-        val item = stack != null ? stack.getItem() : null;
-        int itemId = -1;
-        if (item != null) {
-            itemId = Item.itemRegistry.getIDForObject(item);
-        }
-        return itemId;
-    }
-
-    private static ItemStack heldItem() {
-        val mc = mc();
-        val plr = mc.thePlayer;
-        val stack = plr != null ? plr.getHeldItem() : null;
-        return stack;
-    }
-
-    private static Minecraft mc() {
-        return Minecraft.getMinecraft();
+        return heldItemIdSource.getAsInt();
     }
 
     private static void updateUniforms() {

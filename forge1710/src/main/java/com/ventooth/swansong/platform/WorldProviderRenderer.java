@@ -8,8 +8,11 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader;
+package com.ventooth.swansong.platform;
 
+import com.ventooth.swansong.shader.MCRenderStage;
+import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -29,7 +32,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraftforge.client.IRenderHandler;
 
 import static com.ventooth.swansong.shader.ShaderEngine.graph;
-import static com.ventooth.swansong.shader.ShaderEngine.preSkyList;
+import static com.ventooth.swansong.platform.SkyBoxRenderer.preSkyList;
 
 public final class WorldProviderRenderer {
     private static final IRenderHandler SKY_RENDER_HANDLER = new DynRenderHandler(WorldProviderRenderer::renderSky);

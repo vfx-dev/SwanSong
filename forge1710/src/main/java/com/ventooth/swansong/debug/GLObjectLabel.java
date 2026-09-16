@@ -10,8 +10,7 @@
 
 package com.ventooth.swansong.debug;
 
-import com.ventooth.swansong.config.DebugConfig;
-import com.ventooth.swansong.config.ModuleConfig;
+import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.gl.GLFramebuffer;
 import com.ventooth.swansong.gl.GLProgram;
 import com.ventooth.swansong.gl.GLShader;
@@ -24,10 +23,9 @@ import org.lwjgl.opengl.KHRDebug;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GLObjectLabel {
-    private static final boolean ENABLED = ModuleConfig.Debug && DebugConfig.UseGLObjectLabels;
 
     public static boolean isEnabled() {
-        return ENABLED;
+        return CoreSettings.glObjectLabels;
     }
 
     public static void set(GLShader obj, String label) {

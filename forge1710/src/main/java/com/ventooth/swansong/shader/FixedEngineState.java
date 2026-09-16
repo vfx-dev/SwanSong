@@ -10,19 +10,21 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.config.ShadersConfig;
-import com.ventooth.swansong.pbr.PBRTextureEngine;
 import com.ventooth.swansong.resources.ShaderPackManager;
-import com.ventooth.swansong.resources.pack.DefaultShaderPack;
 import com.ventooth.swansong.resources.pack.InternalShaderPack;
+import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.resources.pack.ShaderPack;
+import com.ventooth.swansong.shader.compile.IShaderPool;
+import com.ventooth.swansong.shader.compile.MultiShaderPool;
+import com.ventooth.swansong.shader.compile.ShaderCompiler;
 import com.ventooth.swansong.shader.config.ConfigEntry;
-import com.ventooth.swansong.shader.loader.MultiShaderPool;
 import com.ventooth.swansong.shader.loader.ShaderLoader;
 import com.ventooth.swansong.shader.loader.ShaderLoaderInParams;
 import com.ventooth.swansong.shader.loader.ShaderLoaderOutParams;
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
 import com.ventooth.swansong.shader.texbuf.BufferConfig;
 import com.ventooth.swansong.shader.uniform.CompiledUniforms;
@@ -38,18 +40,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import net.minecraft.client.resources.Locale;
-import net.minecraft.world.WorldProvider;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Builder(access = AccessLevel.PRIVATE)
 class FixedEngineState {
-    public final @Nullable WorldProvider dimension;
+    public final @Nullable DimensionInfo dimension;
 
     public final @NotNull ShaderPack pack;
 
@@ -73,24 +73,22 @@ class FixedEngineState {
     public final @Nullable Integer noiseTexSize;
 
     public final ConfigEntry.RootScreen configScreen;
-    public final Locale locale;
+    public final PackLocalizer locale;
 
-    private static ShaderLoader createLoader(ShaderPack pack, @Nullable WorldProvider dimension) {
+    private static ShaderLoader createLoader(ShaderPack pack, @Nullable DimensionInfo dimension) {
         val loader = new ShaderLoader(pack, dimension);
         loader.inExpectedShaders = ShaderTypes.general;
-        loader.inAttribs = DanglingWiresTess.attribs;
         loader.inParams = ShaderLoaderInParams.builder()
-                                              .handDepth(ShadersConfig.HandDepth.get())
-                                              .renderQuality(ShadersConfig.RenderQuality.get())
-                                              .shadowQuality(ShadersConfig.ShadowQuality.get())
+                                              .handDepth(CoreSettings.handDepth)
+                                              .renderQuality(CoreSettings.renderQuality)
+                                              .shadowQuality(CoreSettings.shadowQuality)
                                               .build();
         loader.inShaderConfig = ShaderPackManager.readShaderPackConfig();
         loader.inEnvInfo = EnvInfo.get();
-        loader.inMcUniforms = GeneralUniforms.getFuncRegistry();
         return loader;
     }
 
-    public static @Nullable FixedEngineState init(@Nullable WorldProvider dimension, @Nullable Report report) {
+    public static @Nullable FixedEngineState init(@Nullable DimensionInfo dimension, @Nullable Report report) {
         val b = builder();
         b.dimension = dimension;
         try {
@@ -112,8 +110,9 @@ class FixedEngineState {
         val mainLoader = createLoader(pack, dimension);
 
         val loaders = new ArrayList<ShaderLoader>();
-        if (pack != DefaultShaderPack.INSTANCE) {
-            loaders.add(createLoader(DefaultShaderPack.INSTANCE, dimension));
+        val referencePack = ShaderPackManager.referencePack;
+        if (referencePack != null && pack != referencePack) {
+            loaders.add(createLoader(referencePack, dimension));
         }
         loaders.add(createLoader(InternalShaderPack.INSTANCE, dimension));
 
@@ -122,7 +121,10 @@ class FixedEngineState {
         b.configScreen = mainLoader.outConfigScreen;
         b.locale = mainLoader.outLocale;
 
-        b.compiledUniforms = mainLoader.outCompiledUniforms;
+        val shaderVars = mainLoader.outShaderVars;
+        b.compiledUniforms = shaderVars == null
+                             ? null
+                             : CompiledUniforms.createCompiledUniforms(GeneralUniforms.getFuncRegistry(), shaderVars);
 
         if (b.compiledUniforms != null) {
             UniformGetterDanglingWires.customUniforms = b.compiledUniforms.wrapUniforms();
@@ -141,19 +143,26 @@ class FixedEngineState {
         b.noiseTexPath = outParams.noiseTexture;
         b.noiseTexSize = outParams.noiseTextureResolution;
 
-        PBRTextureEngine.init();
+        ShaderEngine.host.onEngineInit();
 
         // TODO: Check if the shader actually needs center depth before populating, this call is not free.
-        if (ShadersConfig.LetMeUseDepthOfFieldPlease) {
+        if (CoreSettings.allowDepthOfField) {
             b.depthSampler = new DepthSampler();
             b.depthSampler.init();
         }
 
-        try (val shaderPool = new MultiShaderPool(mainLoader.borrowOutShaderPool(), loaders, report)) {
+        val fallbackPools = new ArrayList<Supplier<IShaderPool>>(loaders.size());
+        for (val loader : loaders) {
+            fallbackPools.add(() -> ShaderCompiler.lazyCompile(loader, DanglingWiresTess.attribs));
+        }
+
+        try (val shaderPool = new MultiShaderPool(ShaderCompiler.compile(mainLoader,
+                                                                        DanglingWiresTess.attribs,
+                                                                        report), fallbackPools, report)) {
             b.manager = ShaderBinding.init(shaderPool, dimension);
 
             if (b.manager.shadow != null) {
-                b.shadow = ShadowProperties.from(outParams, ShadersConfig.ShadowQuality.get());
+                b.shadow = ShadowProperties.from(outParams, (float) CoreSettings.shadowQuality);
             }
             ShaderState.applyParams(outParams);
         } catch (ShaderException e) {
@@ -244,7 +253,7 @@ class FixedEngineState {
             depthSampler.deinit();
         }
 
-        PBRTextureEngine.deinit();
+        ShaderEngine.host.onEngineDeinit();
         manager.deinit();
     }
 }

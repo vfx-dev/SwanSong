@@ -10,19 +10,18 @@
 
 package com.ventooth.swansong.shader.loader.config;
 
-import com.falsepattern.lib.util.MathUtil;
+import com.ventooth.swansong.util.MathUtils;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.preprocessor.Option;
 import lombok.val;
 
-import net.minecraft.client.resources.Locale;
 
 public /*sealed*/ abstract class ConfigChoice extends ConfigEntryBase implements ConfigEntry.Mutable {
     protected final int index;
     protected final Option option;
     protected final ConfigRootScreen root;
 
-    public ConfigChoice(Locale locale, Option option, int index, ConfigRootScreen root) {
+    public ConfigChoice(PackLocalizer locale, Option option, int index, ConfigRootScreen root) {
         super(Localization.create(locale, false, option.name, null /*TODO*/, option.valueStrings()));
         this.index = index;
         this.option = option;
@@ -53,7 +52,7 @@ public /*sealed*/ abstract class ConfigChoice extends ConfigEntryBase implements
     }
 
     public static class Switchable extends ConfigChoice implements ConfigEntry.Switchable {
-        public Switchable(Locale locale, Option option, int index, ConfigRootScreen root) {
+        public Switchable(PackLocalizer locale, Option option, int index, ConfigRootScreen root) {
             super(locale, option, index, root);
         }
 
@@ -72,7 +71,7 @@ public /*sealed*/ abstract class ConfigChoice extends ConfigEntryBase implements
         private final int max;
         private final float scaler;
 
-        public Draggable(Locale locale, Option option, int index, ConfigRootScreen root) {
+        public Draggable(PackLocalizer locale, Option option, int index, ConfigRootScreen root) {
             super(locale, option, index, root);
             max = option.getValueCount() - 1;
             scaler = (float) max;
@@ -80,8 +79,8 @@ public /*sealed*/ abstract class ConfigChoice extends ConfigEntryBase implements
 
         @Override
         public float setValue(float value) {
-            value = MathUtil.clamp(value, 0, 1);
-            var index = MathUtil.clamp(Math.round(value * scaler), 0, max);
+            value = MathUtils.clamp(value, 0, 1);
+            var index = MathUtils.clamp(Math.round(value * scaler), 0, max);
             option.setValueIndex(index);
             return index / scaler;
         }
@@ -93,7 +92,7 @@ public /*sealed*/ abstract class ConfigChoice extends ConfigEntryBase implements
     }
 
     public static class Toggleable extends ConfigChoice implements ConfigEntry.Toggleable {
-        public Toggleable(Locale locale, Option opt, int index, ConfigRootScreen root) {
+        public Toggleable(PackLocalizer locale, Option opt, int index, ConfigRootScreen root) {
             super(locale, opt, index, root);
             if (!opt.isToggle()) {
                 throw new AssertionError();

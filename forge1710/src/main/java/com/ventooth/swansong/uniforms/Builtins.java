@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.uniforms;
 
-import com.falsepattern.lib.util.MathUtil;
+import com.ventooth.swansong.util.MathUtils;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.joml.Vector2d;
@@ -250,7 +250,7 @@ public final class Builtins {
     }
 
     public static double frac(double x) {
-        return MathUtil.frac(x);
+        return MathUtils.frac(x);
     }
 
     public static double min(double x, double y) {
@@ -294,28 +294,28 @@ public final class Builtins {
     }
 
     public static double clamp(double x, double min, double max) {
-        return MathUtil.clamp(x, min, max);
+        return MathUtils.clamp(x, min, max);
     }
 
     public static int clamp(int x, int min, int max) {
-        return MathUtil.clamp(x, min, max);
+        return MathUtils.clamp(x, min, max);
     }
 
     public static Vector2dc clamp(Vector2dc x, Vector2dc min, Vector2dc max) {
-        return new Vector2d(MathUtil.clamp(x.x(), min.x(), max.x()), MathUtil.clamp(x.y(), min.y(), max.y()));
+        return new Vector2d(MathUtils.clamp(x.x(), min.x(), max.x()), MathUtils.clamp(x.y(), min.y(), max.y()));
     }
 
     public static Vector3dc clamp(Vector3dc x, Vector3dc min, Vector3dc max) {
-        return new Vector3d(MathUtil.clamp(x.x(), min.x(), max.x()),
-                            MathUtil.clamp(x.y(), min.y(), max.y()),
-                            MathUtil.clamp(x.z(), min.z(), max.z()));
+        return new Vector3d(MathUtils.clamp(x.x(), min.x(), max.x()),
+                            MathUtils.clamp(x.y(), min.y(), max.y()),
+                            MathUtils.clamp(x.z(), min.z(), max.z()));
     }
 
     public static Vector4dc clamp(Vector4dc x, Vector4dc min, Vector4dc max) {
-        return new Vector4d(MathUtil.clamp(x.x(), min.x(), max.x()),
-                            MathUtil.clamp(x.y(), min.y(), max.y()),
-                            MathUtil.clamp(x.z(), min.z(), max.z()),
-                            MathUtil.clamp(x.w(), min.w(), max.w()));
+        return new Vector4d(MathUtils.clamp(x.x(), min.x(), max.x()),
+                            MathUtils.clamp(x.y(), min.y(), max.y()),
+                            MathUtils.clamp(x.z(), min.z(), max.z()),
+                            MathUtils.clamp(x.w(), min.w(), max.w()));
     }
 
     public static double mix(double x, double y, double a) {

@@ -10,17 +10,17 @@
 
 package com.ventooth.swansong.gui;
 
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import lombok.val;
 
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.Locale;
 
 public interface Translatable {
     String langKey();
 
-    default String format(Locale locale, Object... args) {
+    default String format(PackLocalizer locale, Object... args) {
         val langKey = langKey();
-        var str = locale == null ? langKey : locale.formatMessage(langKey(), args);
+        var str = locale == null ? langKey : locale.packText(langKey(), args);
         if (langKey.equals(str)) {
             str = I18n.format(langKey, args);
         }
@@ -33,7 +33,7 @@ public interface Translatable {
      */
     interface BuiltinLocale extends Translatable {
         @Override
-        default String format(Locale locale, Object... args) {
+        default String format(PackLocalizer locale, Object... args) {
             return I18n.format(langKey(), args);
         }
     }

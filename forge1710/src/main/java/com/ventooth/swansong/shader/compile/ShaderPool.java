@@ -8,7 +8,9 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader.loader;
+package com.ventooth.swansong.shader.compile;
+
+import com.ventooth.swansong.shader.ShaderId;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
@@ -19,16 +21,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.ResourceLocation;
-
 @RequiredArgsConstructor
 public class ShaderPool implements IShaderPool {
-    private volatile Object2ObjectMap<ResourceLocation, CompiledProgram> programs = new Object2ObjectOpenHashMap<>();
-    private volatile ObjectSet<ResourceLocation> borrowed = new ObjectOpenHashSet<>();
+    private volatile Object2ObjectMap<ShaderId, CompiledProgram> programs = new Object2ObjectOpenHashMap<>();
+    private volatile ObjectSet<ShaderId> borrowed = new ObjectOpenHashSet<>();
     private volatile boolean dead = false;
     private volatile ObjectSet<String> disabled;
 
-    public synchronized void insertShader(ResourceLocation loc, CompiledProgram program) {
+    public synchronized void insertShader(ShaderId loc, CompiledProgram program) {
         if (dead) {
             throw new IllegalStateException("Shader pool was deinitialized!");
         }
@@ -41,7 +41,7 @@ public class ShaderPool implements IShaderPool {
     }
 
     @Override
-    public synchronized @Nullable CompiledProgram borrowShader(ResourceLocation loc, boolean essential) {
+    public synchronized @Nullable CompiledProgram borrowShader(ShaderId loc, boolean essential) {
         if (dead) {
             throw new IllegalStateException("Shader pool was deinitialized!");
         }

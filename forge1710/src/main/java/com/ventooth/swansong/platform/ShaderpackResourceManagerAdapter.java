@@ -8,7 +8,7 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.resources;
+package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.shader.preprocessor.FSProvider;
 import lombok.RequiredArgsConstructor;

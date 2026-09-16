@@ -43,7 +43,9 @@ public abstract class MixinRenderBlocks {
             require = 1)
     private void state_pushEntityBlock(Block block, int posX, int posY, int posZ, CallbackInfoReturnable<Boolean> cir) {
         if (ShaderEngine.isInitialized()) {
-            swansong$entityData.pushEntity(block, blockAccess.getBlockMetadata(posX, posY, posZ));
+            swansong$entityData.pushEntityBlock(Block.getIdFromBlock(block),
+                                               block.getRenderType(),
+                                               blockAccess.getBlockMetadata(posX, posY, posZ));
         }
     }
 
@@ -65,7 +67,9 @@ public abstract class MixinRenderBlocks {
                                                  int posZ,
                                                  CallbackInfoReturnable<Boolean> cir) {
         if (ShaderEngine.isInitialized()) {
-            swansong$entityData.pushEntity(block, blockAccess.getBlockMetadata(posX, posY, posZ));
+            swansong$entityData.pushEntityBlock(Block.getIdFromBlock(block),
+                                               block.getRenderType(),
+                                               blockAccess.getBlockMetadata(posX, posY, posZ));
         }
     }
 
@@ -84,7 +88,7 @@ public abstract class MixinRenderBlocks {
               require = 1)
     private int state_pushEntityBlockFlowerpot1(Block block) {
         if (ShaderEngine.isInitialized()) {
-            swansong$entityData.pushEntity(block);
+            swansong$entityData.pushEntityBlock(Block.getIdFromBlock(block), block.getRenderType(), 0);
         }
         return block.getRenderType();
     }

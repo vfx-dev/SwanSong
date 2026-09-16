@@ -8,7 +8,7 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.debug;
+package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.config.DebugConfig;
 import com.ventooth.swansong.config.ModuleConfig;

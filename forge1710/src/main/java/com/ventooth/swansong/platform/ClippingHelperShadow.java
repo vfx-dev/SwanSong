@@ -8,7 +8,7 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.shader;
+package com.ventooth.swansong.platform;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;

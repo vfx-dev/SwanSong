@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import net.minecraft.util.ResourceLocation;
 
 import java.nio.IntBuffer;
 import java.util.Objects;
@@ -27,14 +26,14 @@ import java.util.Objects;
 @Accessors(fluent = true,
            chain = false)
 public final class PBRTexture2D extends Texture2D {
-    private final ResourceLocation loc;
+    private final String loc;
 
-    public PBRTexture2D(ResourceLocation loc, GLTexture texture, int width, int height) {
-        super(loc.toString(), texture, GL11.GL_RGBA, width, height);
+    public PBRTexture2D(String loc, GLTexture texture, int width, int height) {
+        super(loc, texture, GL11.GL_RGBA, width, height);
         this.loc = loc;
     }
 
-    public static PBRTexture2D ofWrapped(ResourceLocation loc,
+    public static PBRTexture2D ofWrapped(String loc,
                                          int width,
                                          int height,
                                          int glName) {
@@ -46,7 +45,7 @@ public final class PBRTexture2D extends Texture2D {
     /**
      * @apiNote Texture remains bound after call
      */
-    public static PBRTexture2D ofIntBuffer(ResourceLocation loc,
+    public static PBRTexture2D ofIntBuffer(String loc,
                                            int width,
                                            int height,
                                            boolean clamp,
@@ -73,17 +72,17 @@ public final class PBRTexture2D extends Texture2D {
 
     // TODO: convert to record
     public static final class Bundle {
-        private final ResourceLocation base;
+        private final String base;
         private final @Nullable PBRTexture2D norm;
         private final @Nullable PBRTexture2D spec;
 
-        public Bundle(ResourceLocation base, @Nullable PBRTexture2D norm, @Nullable PBRTexture2D spec) {
+        public Bundle(String base, @Nullable PBRTexture2D norm, @Nullable PBRTexture2D spec) {
             this.base = base;
             this.norm = norm;
             this.spec = spec;
         }
 
-        public ResourceLocation base() {
+        public String base() {
             return base;
         }
 

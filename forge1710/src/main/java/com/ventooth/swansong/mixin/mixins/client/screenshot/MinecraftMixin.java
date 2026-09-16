@@ -12,7 +12,7 @@ package com.ventooth.swansong.mixin.mixins.client.screenshot;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.ventooth.swansong.image.ThreadedScreenshot;
+import com.ventooth.swansong.platform.ThreadedScreenshot;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 

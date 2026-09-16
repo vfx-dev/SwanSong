@@ -8,10 +8,11 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.image;
+package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.image.ImageUtils;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -17,10 +17,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.api.SwanSongRenderEvent;
+import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
-import com.ventooth.swansong.shader.WorldProviderRenderer;
+import com.ventooth.swansong.platform.WorldProviderRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
@@ -212,7 +213,7 @@ public abstract class RenderGlobalMixin {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            ShaderState.nextEntity(entity);
+            ShaderState.nextEntity(McShaderIds.entityId(entity));
         }
         return true;
     }
@@ -250,7 +251,7 @@ public abstract class RenderGlobalMixin {
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
         if (ShaderEngine.isInitialized()) {
-            ShaderState.nextBlockEntity(tileEntity);
+            ShaderState.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
             RenderUtil.bindEmptyTexture();
         }
         return true;

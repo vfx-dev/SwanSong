@@ -8,16 +8,13 @@
  * or in the LICENSES directory which is distributed along with the software.
  */
 
-package com.ventooth.swansong.debug;
+package com.ventooth.swansong.platform;
 
+import com.ventooth.swansong.shader.ShaderEngine;
 import lombok.val;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.MovingObjectPosition;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -25,47 +22,30 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
-public final class DebugCommandServer extends CommandBase {
+public final class DebugCommandClient extends CommandBase {
     private final String name;
     private final List<String> aliases;
     private final String usage;
     private final int permission;
 
-    private final Map<String, Consumer<ICommandSender>> optionMap;
+    private final Map<String, Runnable> optionMap;
     private final List<String> optionList;
 
-    public DebugCommandServer() {
-        this.name = "swan2";
+    public DebugCommandClient() {
+        this.name = "swan";
         this.aliases = Collections.singletonList(this.name);
         this.usage = MessageFormat.format("/{0} <option>", this.name);
         this.permission = 0;
 
         this.optionMap = new LinkedHashMap<>();
-        this.optionMap.put("smite", sender -> {
-            if (!(sender instanceof EntityPlayerMP player)) {
-                return;
+        this.optionMap.put("tex", TexDumper::dumpAllMc);
+        this.optionMap.put("fb_reset", () -> {
+            if (ShaderEngine.isInitialized()) {
+                ShaderEngine.scheduleFramebufferResize();
             }
-            // Got Player
-            val hit = player.rayTrace(100F, 0F);
-            if (hit == null || hit.typeOfHit == MovingObjectPosition.MovingObjectType.MISS) {
-                return;
-            }
-            // Got Hit
-
-            val world = player.worldObj;
-
-            val posX = hit.blockX;
-            val posY = hit.blockY;
-            val posZ = hit.blockZ;
-
-            val bolt = new EntityLightningBolt(world, posX, posY, posZ);
-
-            world.addWeatherEffect(bolt);
-
-            sender.addChatMessage(new ChatComponentText("ZAP!"));
         });
+        this.optionMap.put("sh_reset", ShaderEngine::scheduleShaderPackReload);
 
         this.optionList = new ArrayList<>(optionMap.keySet());
     }
@@ -80,7 +60,7 @@ public final class DebugCommandServer extends CommandBase {
         for (val option : optionMap.entrySet()) {
             if (arg.equals(option.getKey())) {
                 option.getValue()
-                      .accept(sender);
+                      .run();
                 return;
             }
         }

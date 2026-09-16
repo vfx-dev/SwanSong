@@ -12,7 +12,6 @@ package com.ventooth.swansong.shader.texbuf;
 
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.debug.GLDebugGroups;
-import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
 import com.ventooth.swansong.shader.DrawBuffers;
@@ -34,9 +33,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.EntityRenderer;
 
 import java.util.BitSet;
 import java.util.Collections;
@@ -91,7 +87,7 @@ public class CompositePipeline implements Runnable {
         if (info != null) {
             for (val tex : aux.getAllTextures()
                               .values()) {
-                info.auxTextures.add(new Report.TextureInfo(tex));
+                info.auxTextures.add(textureInfo(tex));
             }
         }
         val steps = new ObjectArrayList<Runnable>();
@@ -138,17 +134,23 @@ public class CompositePipeline implements Runnable {
             stage.mipmaps.add(mipmap.name());
         }
         for (val input : inputTex.entrySet()) {
-            stage.inputs.put(input.getKey(),
+            stage.inputs.put(String.valueOf(input.getKey().gpuIndex()),
                              input.getValue()
                                   .name());
         }
         if (outputTex != null) {
             for (val entry: outputTex.entrySet()) {
-                stage.outputs.put(entry.getKey(),
+                stage.outputs.put(entry.getKey().name(),
                                   entry.getValue()
                                        .name());
             }
         }
+    }
+
+    private static Report.TextureInfo textureInfo(Texture2D tex) {
+        return new Report.TextureInfo(tex.width(),
+                                      tex.height(),
+                                      BufferNameUtil.gbufferFormatNameFromEnum(tex.internalFormat()));
     }
 
     private static void genAuxPostBlit(@NotNull DrawBuffers buffers,
@@ -407,10 +409,10 @@ public class CompositePipeline implements Runnable {
             GLDebugGroups.RENDER_COMPOSITE_FINAL.push();
             ShaderEngine.useCompositeShader(shader);
             ShaderEngine.bindCompositeTextures(inputs);
-            val anaglyph = ((ShaderGameSettings) Minecraft.getMinecraft().gameSettings).swan$anaglyph();
+            val anaglyph = ShaderEngine.host.anaglyphOffset();
             GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.push();
             if (anaglyph != 0) {
-                ShadersCompositeMesh.drawWithAnaglyphField(EntityRenderer.anaglyphField);
+                ShadersCompositeMesh.drawWithAnaglyphField(ShaderEngine.host.anaglyphField());
             } else {
                 ShadersCompositeMesh.drawWithColor();
             }

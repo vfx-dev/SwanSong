@@ -11,6 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,7 +43,7 @@ public abstract class ItemRendererMixin {
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
         if (ShaderEngine.isInitialized()) {
-            ShaderState.setHeldItem(itemToRender);
+            ShaderState.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }
     }
 }

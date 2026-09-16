@@ -10,23 +10,21 @@
 
 package com.ventooth.swansong.shader.loader;
 
-import com.falsepattern.lib.util.MathUtil;
 import com.ventooth.swansong.EnvInfo;
+import com.ventooth.swansong.util.MathUtils;
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.config.DebugConfig;
-import com.ventooth.swansong.config.ModuleConfig;
-import com.ventooth.swansong.gl.GLProgram;
-import com.ventooth.swansong.gl.GLShader;
 import com.ventooth.swansong.resources.ShaderPackManager;
-import com.ventooth.swansong.resources.ShaderpackResourceManagerAdapter;
+import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.resources.pack.ShaderPack;
 import com.ventooth.swansong.shader.MCRenderStage;
 import com.ventooth.swansong.shader.Report;
-import com.ventooth.swansong.shader.ShaderException;
+import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderTypes;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.info.ShaderProperties;
+import com.ventooth.swansong.shader.info.ShaderVar;
 import com.ventooth.swansong.shader.loader.config.ConfigChoice;
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import com.ventooth.swansong.shader.loader.config.ConfigProfile;
 import com.ventooth.swansong.shader.loader.config.ConfigRootScreen;
 import com.ventooth.swansong.shader.loader.config.ConfigScreen;
@@ -34,9 +32,6 @@ import com.ventooth.swansong.shader.preprocessor.MacroBuilder;
 import com.ventooth.swansong.shader.preprocessor.Option;
 import com.ventooth.swansong.shader.preprocessor.ShaderPreprocessor;
 import com.ventooth.swansong.shader.preprocessor.ShaderStage2Meta;
-import com.ventooth.swansong.shader.uniform.CompiledUniforms;
-import com.ventooth.swansong.todo.tess.DanglingWiresTess;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -50,22 +45,13 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import lombok.val;
-import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector4d;
-import org.lwjgl.opengl.GL20;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.Locale;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.WorldProvider;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -75,32 +61,23 @@ import java.util.function.DoubleConsumer;
 
 public class ShaderLoader {
     //region input - populate before load()
-    public ObjectList<ResourceLocation> inExpectedShaders;
-    //mc_Entity, etc.
-    public ObjectList<DanglingWiresTess.AttribMapping> inAttribs;
+    public ObjectList<ShaderId> inExpectedShaders;
     //miscellaneous parameters
     public ShaderLoaderInParams inParams;
     //shader txt config file contents
     public byte @Nullable [] inShaderConfig;
     // environment info
     public EnvInfo inEnvInfo;
-    // "minecraft" uniforms (NOT the builtins!)
-    public UniformFunctionRegistry inMcUniforms;
     //endregion
 
     //region output - populated by load()
-    private ShaderPool outShaderPool;
+    public ObjectList<PreprocessedProgram> outPrograms;
+    public ObjectSet<String> outDisabled;
 
-    public IShaderPool borrowOutShaderPool() {
-        val res = outShaderPool;
-        outShaderPool = null;
-        return res;
-    }
-
-    public @Nullable CompiledUniforms outCompiledUniforms;
+    public @Nullable ObjectList<ShaderVar> outShaderVars;
     public ConfigEntry.RootScreen outConfigScreen;
     public ShaderLoaderOutParams outParams;
-    public Locale outLocale;
+    public PackLocalizer outLocale;
     //endregion
 
     //region internal state
@@ -108,7 +85,7 @@ public class ShaderLoader {
     //fixed
     private final ShaderPack pack;
     private final ShaderPreprocessor preprocessor;
-    private final @Nullable WorldProvider dimension;
+    private final @Nullable DimensionInfo dimension;
 
     //common
     private ShaderLoaderOutParams.Builder paramsBuilder;
@@ -126,7 +103,7 @@ public class ShaderLoader {
     private ShaderProperties shaderProperties;
     private DeduplicatingOptionList definesStage2;
     private DeduplicatingOptionList constsStage2;
-    private ObjectList<ProgramStage2> stage2;
+    private ObjectList<PreprocessedProgram> stage2;
     private ObjectSet<String> disabled;
 
     //endregion
@@ -156,7 +133,7 @@ public class ShaderLoader {
         }
     }
 
-    public ShaderLoader(ShaderPack pack, @Nullable WorldProvider dimension) {
+    public ShaderLoader(ShaderPack pack, @Nullable DimensionInfo dimension) {
         this.pack = pack;
         this.preprocessor = new ShaderPreprocessor(pack);
         this.dimension = dimension;
@@ -165,17 +142,13 @@ public class ShaderLoader {
     //Discards all dynamic state to conserve memory
     public void reset() {
         inExpectedShaders = null;
-        inAttribs = null;
         inShaderConfig = null;
         inEnvInfo = null;
         inParams = null;
 
-        val comp = outShaderPool;
-        if (comp != null) {
-            comp.close();
-        }
-        outShaderPool = null;
-        outCompiledUniforms = null;
+        outPrograms = null;
+        outDisabled = null;
+        outShaderVars = null;
         outConfigScreen = null;
         outParams = null;
         outLocale = null;
@@ -209,11 +182,6 @@ public class ShaderLoader {
         loaded = true;
         Option.purgeCaches();
         //cleanup
-        val comp = outShaderPool;
-        if (comp != null) {
-            comp.close();
-        }
-        outShaderPool = new ShaderPool();
         shaderPropertiesMacros = null;
         shaderProperties = null;
 
@@ -238,44 +206,21 @@ public class ShaderLoader {
         }
         inExpectedShaders = null;
 
-        outLocale = new Locale();
-        val lang = Minecraft.getMinecraft()
-                            .getLanguageManager()
-                            .getCurrentLanguage();
-        val langs = new ArrayList<String>();
-        langs.add("en_US");
-        if (!"en_US".equals(lang.getLanguageCode())) {
-            langs.add(lang.getLanguageCode());
-        }
-        outLocale.loadLocaleDataFiles(new ShaderpackResourceManagerAdapter(pack), langs);
+        outLocale = ShaderPackManager.localizerFactory.apply(pack);
 
         //configure
         parseShadersProperties();
         extractParamsFromProperties();
         disableShadersFromProperties();
-        if (!disabled.isEmpty()) {
-            outShaderPool.setDisabled(disabled);
-        }
+        outDisabled = disabled;
         createConfigScreen();
         for (val sh1 : stage1) {
             stage2.add(runProgramStage2(sh1));
         }
+        outPrograms = stage2;
 
-        //compile
-        for (val sh2 : stage2) {
-            val c = compileShader(sh2, report);
-            if (c != null) {
-                outShaderPool.insertShader(c.loc,
-                                           new CompiledProgram(c.path,
-                                                               c.program,
-                                                               c.mipmapEnabled,
-                                                               c.renderTargets,
-                                                               c.actualLoc));
-            }
-        }
-        inAttribs = null;
         extractParamsFromStage2();
-        compileUniforms();
+        collectShaderVars();
 
         outParams = paramsBuilder.build();
 
@@ -381,7 +326,7 @@ public class ShaderLoader {
         }
     }
 
-    private ProgramStage1 runProgramStage1(ResourceLocation inLoc, @Nullable Report report) {
+    private ProgramStage1 runProgramStage1(ShaderId inLoc, @Nullable Report report) {
         val inPath = shaderPath(inLoc);
         var path = inPath;
         var loc = inLoc;
@@ -419,9 +364,9 @@ public class ShaderLoader {
         }
     }
 
-    private String shaderPath(ResourceLocation loc) {
-        val domain = loc.getResourceDomain();
-        var path = loc.getResourcePath();
+    private String shaderPath(ShaderId loc) {
+        val domain = loc.namespace();
+        var path = loc.path();
         if (!"minecraft".equals(domain)) {
             path = domain + "/" + path;
         }
@@ -476,14 +421,14 @@ public class ShaderLoader {
 
     //TODO convert to record
     private static final class ProgramStage1 {
-        private final ResourceLocation loc;
-        private final ResourceLocation actualLoc;
+        private final ShaderId loc;
+        private final ShaderId actualLoc;
         private final String path;
         private final ShaderPreprocessor.PreprocessorStage1Suspend vert;
         private final ShaderPreprocessor.PreprocessorStage1Suspend frag;
 
-        private ProgramStage1(ResourceLocation loc,
-                              ResourceLocation actualLoc,
+        private ProgramStage1(ShaderId loc,
+                              ShaderId actualLoc,
                               String path,
                               ShaderPreprocessor.PreprocessorStage1Suspend vert,
                               ShaderPreprocessor.PreprocessorStage1Suspend frag) {
@@ -494,11 +439,11 @@ public class ShaderLoader {
             this.frag = frag;
         }
 
-        public ResourceLocation loc() {
+        public ShaderId loc() {
             return loc;
         }
 
-        public ResourceLocation actualLoc() {
+        public ShaderId actualLoc() {
             return actualLoc;
         }
 
@@ -908,7 +853,7 @@ public class ShaderLoader {
         });
     }
 
-    private ProgramStage2 runProgramStage2(ProgramStage1 stage1) {
+    private PreprocessedProgram runProgramStage2(ProgramStage1 stage1) {
         val pRenderTargets = new IntList[1];
         val mipmapEnabled = new ObjectLinkedOpenHashSet<String>();
         val vert = stage1.vert.runStage2(stage2 -> {
@@ -918,7 +863,7 @@ public class ShaderLoader {
             fetchStage2Data(stage2, mipmapEnabled);
             pRenderTargets[0] = stage2.renderTargets;
         });
-        return new ProgramStage2(stage1.loc,
+        return new PreprocessedProgram(stage1.loc,
                                  stage1.actualLoc,
                                  stage1.path,
                                  vert,
@@ -1033,7 +978,6 @@ public class ShaderLoader {
         return true;
     }
 
-
     private boolean tryFetchBufferClearColor(Option option) {
         val name = option.name;
         if (!name.endsWith("ClearColor")) {
@@ -1074,7 +1018,7 @@ public class ShaderLoader {
         if (dVal == null) {
             return;
         }
-        val clamped = MathUtil.clamp(dVal, min, max);
+        val clamped = MathUtils.clamp(dVal, min, max);
         output.accept(clamped);
     }
 
@@ -1086,287 +1030,15 @@ public class ShaderLoader {
         output.accept(dVal);
     }
 
-    //TODO convert to record
-    private static final class ProgramStage2 {
-        private final ResourceLocation loc;
-        private final ResourceLocation actualLoc;
-        private final String path;
-        private final ShaderPreprocessor.PreprocessorStage2Suspend vert;
-        private final ShaderPreprocessor.PreprocessorStage2Suspend frag;
-        private final ObjectList<String> mipmapEnabled;
-        private final IntList renderTargets;
-
-        private ProgramStage2(ResourceLocation loc,
-                              ResourceLocation actualLoc,
-                              String path,
-                              ShaderPreprocessor.PreprocessorStage2Suspend vert,
-                              ShaderPreprocessor.PreprocessorStage2Suspend frag,
-                              ObjectList<String> mipmapEnabled,
-                              IntList renderTargets) {
-            this.loc = loc;
-            this.actualLoc = actualLoc;
-            this.path = path;
-            this.vert = vert;
-            this.frag = frag;
-            this.mipmapEnabled = mipmapEnabled;
-            this.renderTargets = renderTargets;
-        }
-
-        public ResourceLocation loc() {
-            return loc;
-        }
-
-        public ResourceLocation actualLoc() {
-            return actualLoc;
-        }
-
-        public String path() {
-            return path;
-        }
-
-        public ShaderPreprocessor.PreprocessorStage2Suspend vert() {
-            return vert;
-        }
-
-        public ShaderPreprocessor.PreprocessorStage2Suspend frag() {
-            return frag;
-        }
-
-        public ObjectList<String> mipmapEnabled() {
-            return mipmapEnabled;
-        }
-
-        public IntList renderTargets() {
-            return renderTargets;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (ProgramStage2) obj;
-            return Objects.equals(this.loc, that.loc) &&
-                   Objects.equals(this.path, that.path) &&
-                   Objects.equals(this.vert, that.vert) &&
-                   Objects.equals(this.frag, that.frag) &&
-                   Objects.equals(this.mipmapEnabled, that.mipmapEnabled) &&
-                   Objects.equals(this.renderTargets, that.renderTargets);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(loc, path, vert, frag, mipmapEnabled, renderTargets);
-        }
-
-        @Override
-        public String toString() {
-            return "ProgramStage2[" +
-                   "loc=" +
-                   loc +
-                   ", " +
-                   "path=" +
-                   path +
-                   ", " +
-                   "vert=" +
-                   vert +
-                   ", " +
-                   "frag=" +
-                   frag +
-                   ", " +
-                   "mipmapEnabled=" +
-                   mipmapEnabled +
-                   ", " +
-                   "renderTargets=" +
-                   renderTargets +
-                   ']';
-        }
-    }
-
     //endregion
 
     //region compile
 
-    private void compileUniforms() {
+    private void collectShaderVars() {
         if (shaderProperties == null) {
             return;
         }
-        outCompiledUniforms = CompiledUniforms.createCompiledUniforms(inMcUniforms, shaderProperties.shaderVars());
-    }
-
-    private ProgramCompiled compileShader(ProgramStage2 stage2, @Nullable Report report) {
-        GLShader vert = null;
-        GLShader frag = null;
-
-        try {
-            vert = createShader(GL20.GL_VERTEX_SHADER, stage2.path + ".vsh", stage2.vert.getNativeBuffer(true));
-            frag = createShader(GL20.GL_FRAGMENT_SHADER, stage2.path + ".fsh", stage2.frag.getNativeBuffer(true));
-            val prog = createProgram(stage2.path, vert, frag);
-            return new ProgramCompiled(stage2.loc,
-                                       stage2.actualLoc,
-                                       stage2.path,
-                                       prog,
-                                       stage2.mipmapEnabled,
-                                       stage2.renderTargets);
-        } catch (Exception e) {
-            Share.log.error("Error while compiling shader {}", stage2.path);
-            Share.log.error("Stacktrace:", e);
-            if (report != null) {
-                report.erroredShaders.add(stage2.path);
-            }
-            return null;
-        } finally {
-            if (vert != null) {
-                vert.glDeleteShader();
-            }
-            if (frag != null) {
-                frag.glDeleteShader();
-            }
-        }
-    }
-
-    /**
-     * src MUST be null terminated!
-     */
-    @NotNull
-    public GLShader createShader(@MagicConstant(intValues = {GL20.GL_VERTEX_SHADER, GL20.GL_FRAGMENT_SHADER}) int type,
-                                 String name,
-                                 ByteBuffer src) throws ShaderException {
-        ShaderPackManager.dumpShader(name, src);
-        val shader = new GLShader();
-        shader.glCreateShader(type);
-        shader.glShaderSource(src);
-        shader.glCompileShader();
-
-        if (!shader.glGetShaderCompileStatus()) {
-            var infoLog = shader.glGetShaderInfoLog();
-            if (infoLog.isEmpty()) {
-                infoLog = "Empty shader info log";
-            }
-            shader.glDeleteShader();
-
-            throw new ShaderException("Failed to compile shader: " + name + '\n' + (infoLog) + '\n');
-        }
-
-        return shader;
-    }
-
-    @NotNull
-    public GLProgram createProgram(@NotNull String name, @NotNull GLShader vertShader, @NotNull GLShader fragShader)
-            throws ShaderException {
-        val program = new GLProgram();
-        program.glCreateProgram();
-        program.glAttachShader(vertShader);
-        program.glAttachShader(fragShader);
-
-        for (val attrib : inAttribs) {
-            program.glBindAttribLocation(attrib.index, attrib.name);
-        }
-
-        program.glLinkProgram();
-        if (!program.glGetProgramLinkStatus()) {
-            var infoLog = program.glGetProgramInfoLog();
-            if (infoLog.isEmpty()) {
-                infoLog = "Empty program info log";
-            }
-            program.glDeleteProgram();
-
-            throw new ShaderException("Failed to link program: " + name + '\n' + (infoLog) + '\n');
-        }
-
-        return program;
-    }
-
-    //TODO convert to record
-    private static final class ProgramCompiled {
-        private final ResourceLocation loc;
-        private final ResourceLocation actualLoc;
-        private final String path;
-        private final GLProgram program;
-        private final ObjectList<String> mipmapEnabled;
-        private final IntList renderTargets;
-
-        private ProgramCompiled(ResourceLocation loc,
-                                ResourceLocation actualLoc,
-                                String path,
-                                GLProgram program,
-                                ObjectList<String> mipmapEnabled,
-                                IntList renderTargets) {
-            this.loc = loc;
-            this.actualLoc = actualLoc;
-            this.path = path;
-            this.program = program;
-            this.mipmapEnabled = mipmapEnabled;
-            this.renderTargets = renderTargets;
-        }
-
-        public ResourceLocation loc() {
-            return loc;
-        }
-
-        public ResourceLocation actualLoc() {
-            return actualLoc;
-        }
-
-        public String path() {
-            return path;
-        }
-
-        public GLProgram program() {
-            return program;
-        }
-
-        public ObjectList<String> mipmapEnabled() {
-            return mipmapEnabled;
-        }
-
-        public IntList renderTargets() {
-            return renderTargets;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (ProgramCompiled) obj;
-            return Objects.equals(this.loc, that.loc) &&
-                   Objects.equals(this.path, that.path) &&
-                   Objects.equals(this.program, that.program) &&
-                   Objects.equals(this.mipmapEnabled, that.mipmapEnabled) &&
-                   Objects.equals(this.renderTargets, that.renderTargets);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(loc, path, program, mipmapEnabled, renderTargets);
-        }
-
-        @Override
-        public String toString() {
-            return "ProgramCompiled[" +
-                   "loc=" +
-                   loc +
-                   ", " +
-                   "path=" +
-                   path +
-                   ", " +
-                   "program=" +
-                   program +
-                   ", " +
-                   "mipmapEnabled=" +
-                   mipmapEnabled +
-                   ", " +
-                   "renderTargets=" +
-                   renderTargets +
-                   ']';
-        }
+        outShaderVars = shaderProperties.shaderVars();
     }
 
     //endregion

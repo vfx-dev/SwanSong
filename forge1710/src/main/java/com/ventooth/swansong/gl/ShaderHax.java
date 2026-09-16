@@ -10,13 +10,8 @@
 
 package com.ventooth.swansong.gl;
 
-import com.falsepattern.lib.dependencies.DependencyLoader;
-import com.falsepattern.lib.dependencies.Library;
-import com.falsepattern.lib.dependencies.SemanticVersion;
 import com.sun.jna.Function;
 import com.sun.jna.Pointer;
-import com.ventooth.swansong.Tags;
-import com.ventooth.swansong.asm.CoreLoadingPlugin;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.lwjgl.BufferChecks;
@@ -37,21 +32,15 @@ public class ShaderHax {
     static {
         boolean isLwjgl3 = false;
         try {
-            Class.forName("org.lwjgl.system.MemoryUtil", false, CoreLoadingPlugin.class.getClassLoader());
+            Class.forName("org.lwjgl.system.MemoryUtil", false, ShaderHax.class.getClassLoader());
             isLwjgl3 = true;
         } catch (Throwable ignored) {
         }
         lwjgl3 = isLwjgl3;
-        if (!lwjgl3) {
-            DependencyLoader.addMavenRepo("https://repo1.maven.org/maven2/");
-            DependencyLoader.loadLibraries(Library.builder()
-                                                  .loadingModId(Tags.MOD_ID)
-                                                  .groupId("net.java.dev.jna")
-                                                  .artifactId("jna")
-                                                  .minVersion(new SemanticVersion(5, 17, 0))
-                                                  .preferredVersion(new SemanticVersion(5, 17, 0))
-                                                  .build());
-        }
+    }
+
+    public static boolean isLwjgl3() {
+        return lwjgl3;
     }
 
     public static void glShaderSource(int shader, ByteBuffer sourceNullTerminated) {

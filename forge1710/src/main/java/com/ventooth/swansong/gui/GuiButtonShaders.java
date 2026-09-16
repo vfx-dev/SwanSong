@@ -12,15 +12,15 @@ package com.ventooth.swansong.gui;
 
 import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.resources.Locale;
 
 import java.util.List;
 
 public abstract class GuiButtonShaders extends GuiButton {
-    protected final Locale locale;
+    protected final PackLocalizer locale;
 
     public GuiButtonShaders(int id,
                             int posX,
@@ -29,7 +29,7 @@ public abstract class GuiButtonShaders extends GuiButton {
                             int width,
                             int height,
                             Translatable lang,
-                            Locale locale) {
+                            PackLocalizer locale) {
         super(id, posX, posY + (stepY * id), width, height, lang.format(locale));
         this.locale = locale;
     }
@@ -46,7 +46,7 @@ public abstract class GuiButtonShaders extends GuiButton {
                                   int stepY,
                                   int width,
                                   int height,
-                                  Locale locale) {
+                                  PackLocalizer locale) {
         buttonList.add(new AntiAliasing(posX, posY, stepY, width, height, locale));
         buttonList.add(new NormalMapping(posX, posY, stepY, width, height, locale));
         buttonList.add(new SpecularMapping(posX, posY, stepY, width, height, locale));
@@ -60,7 +60,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class AntiAliasing extends GuiButtonShaders {
         public static int ID = 0;
 
-        private AntiAliasing(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private AntiAliasing(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.AntiAliasing, locale);
         }
 
@@ -75,7 +75,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class NormalMapping extends GuiButtonShaders {
         public static int ID = 1;
 
-        private NormalMapping(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private NormalMapping(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.NormalMapping, locale);
         }
 
@@ -93,7 +93,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class SpecularMapping extends GuiButtonShaders {
         public static int ID = 2;
 
-        private SpecularMapping(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private SpecularMapping(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.SpecularMapping, locale);
         }
 
@@ -111,7 +111,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class RenderQuality extends GuiButtonShaders {
         public static int ID = 3;
 
-        private RenderQuality(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private RenderQuality(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.RenderQuality, locale);
         }
 
@@ -127,7 +127,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class ShadowQuality extends GuiButtonShaders {
         public static int ID = 4;
 
-        private ShadowQuality(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private ShadowQuality(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.ShadowQuality, locale);
         }
 
@@ -143,7 +143,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class HandDepth extends GuiButtonShaders {
         public static int ID = 5;
 
-        private HandDepth(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private HandDepth(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.HandDepth, locale);
         }
 
@@ -158,7 +158,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class OldHandLight extends GuiButtonShaders {
         public static int ID = 6;
 
-        private OldHandLight(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private OldHandLight(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.OldHandLight, locale);
         }
 
@@ -173,7 +173,7 @@ public abstract class GuiButtonShaders extends GuiButton {
     public static final class OldHandDepth extends GuiButtonShaders {
         public static int ID = 7;
 
-        private OldHandDepth(int posX, int posY, int stepY, int width, int height, Locale locale) {
+        private OldHandDepth(int posX, int posY, int stepY, int width, int height, PackLocalizer locale) {
             super(ID, posX, posY, stepY, width, height, ShadersConfig.OldHandDepth, locale);
         }
 

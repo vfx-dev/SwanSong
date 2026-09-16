@@ -20,12 +20,10 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.val;
 import org.jetbrains.annotations.Unmodifiable;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.Locale;
-
 import java.util.Objects;
 
 public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profile {
+    private final PackLocalizer localizer;
     private final ObjectList<Option> allOptions;
     private final ObjectList<Profile> profiles;
     private int currentProfile = -1;
@@ -33,8 +31,9 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
     private int initialProfile = -1;
     private boolean detected = false;
 
-    public ConfigProfile(Locale locale, ObjectList<Option> allOptions, Object2ObjectMap<String, String> profiles) {
+    public ConfigProfile(PackLocalizer locale, ObjectList<Option> allOptions, Object2ObjectMap<String, String> profiles) {
         super(Localization.createProfile(locale, new ObjectArrayList<>(profiles.keySet())));
+        this.localizer = locale;
         val profs = new ObjectArrayList<Profile>();
         Object2ObjectMaps.fastForEach(profiles, entry -> {
             val name = entry.getKey();
@@ -88,7 +87,7 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
     public String valueName() {
         ensureDetected();
         if (currentProfile == -1) {
-            return I18n.format("gui.swansong.shaders.profile.custom");
+            return localizer.modText("gui.swansong.shaders.profile.custom");
         }
         return profiles.get(currentProfile)
                        .localizedName();

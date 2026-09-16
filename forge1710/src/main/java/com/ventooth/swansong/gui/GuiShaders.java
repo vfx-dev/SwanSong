@@ -10,9 +10,8 @@
 
 package com.ventooth.swansong.gui;
 
-
+import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.resources.ShaderPackManager;
-import com.ventooth.swansong.resources.pack.DefaultShaderPack;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import lombok.val;
@@ -100,7 +99,7 @@ public final class GuiShaders extends GuiScreen {
 
         switch (button.id) {
             case BUTTON_ID_BROWSE:
-                ShaderPackManager.openShaderPacksDir();
+                PlatformHooks.openShaderPacksDir();
                 break;
             case BUTTON_ID_EXIT:
                 this.mc.displayGuiScreen(this.parentGui);
@@ -251,7 +250,7 @@ public final class GuiShaders extends GuiScreen {
             if (label.equals(ShaderPackManager.DISABLED_SHADER_PACK_NAME)) {
                 label = I18n.format("options.off");
                 color = 0xe04040;
-            } else if (label.equals(DefaultShaderPack.NAME)) {
+            } else if (ShaderPackManager.isReferencePack(label)) {
                 label = I18n.format("gui.swansong.shaders.default");
                 color = 0xa0a0a0;
             } else {

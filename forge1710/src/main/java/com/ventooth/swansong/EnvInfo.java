@@ -11,13 +11,10 @@
 package com.ventooth.swansong;
 
 import lombok.ToString;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Unmodifiable;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,34 +50,43 @@ public final class EnvInfo {
     public final GLVendor glVendor;
     public final GLRenderer glRenderer;
 
-    private EnvInfo() {
-        this.mcVersion = Share.MC_VERSION;
-        this.swansongVersion = Tags.MOD_VERSION;
+    public EnvInfo(String mcVersion,
+                   String swansongVersion,
+                   String osName,
+                   String glVendorStr,
+                   String glRendererStr,
+                   String glVersionStr,
+                   List<String> glExtList,
+                   String glslVersionStr,
+                   int maxTextureSize,
+                   int maxTextureUnits) {
+        this.mcVersion = mcVersion;
+        this.swansongVersion = swansongVersion;
 
-        this.osName = System.getProperty("os.name");
+        this.osName = osName;
 
-        this.glVendorStr = GL11.glGetString(GL11.GL_VENDOR);
-        this.glRendererStr = GL11.glGetString(GL11.GL_RENDERER);
-        this.glVersionStr = GL11.glGetString(GL11.GL_VERSION);
+        this.glVendorStr = glVendorStr;
+        this.glRendererStr = glRendererStr;
+        this.glVersionStr = glVersionStr;
 
-        this.glExtList = Arrays.asList(StringUtils.split(GL11.glGetString(GL11.GL_EXTENSIONS)));
+        this.glExtList = Collections.unmodifiableList(new ArrayList<>(glExtList));
         this.glExtSet = Collections.unmodifiableSet(new LinkedHashSet<>(this.glExtList));
 
-        this.glslVersionStr = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
+        this.glslVersionStr = glslVersionStr;
 
-        this.maxTextureSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
-        this.maxTextureUnits = GL11.glGetInteger(GL20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+        this.maxTextureSize = maxTextureSize;
+        this.maxTextureUnits = maxTextureUnits;
 
         this.osPlatform = OS.of(this.osName);
         this.glVendor = GLVendor.of(this.glVendorStr);
         this.glRenderer = GLRenderer.of(this.glRendererStr);
     }
 
-    public static void init() {
+    public static void init(EnvInfo info) {
         if (instance != null) {
             log.error("", new IllegalStateException("Already initialized"));
         }
-        instance = new EnvInfo();
+        instance = info;
 
         log.info("Initialized:\n{}", instance);
     }

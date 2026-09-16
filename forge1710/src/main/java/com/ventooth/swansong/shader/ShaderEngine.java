@@ -12,15 +12,13 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.api.SwanSongLifecycleEvent;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.debug.GLSimpleDebug;
-import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
-import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import com.ventooth.swansong.shader.config.ConfigEntry;
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.shader.shaderobjects.GBufferShader;
 import com.ventooth.swansong.shader.shaderobjects.ManagedShader;
@@ -48,26 +46,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
-
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.culling.Frustrum;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.Locale;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.WorldProvider;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
@@ -134,7 +112,9 @@ public final class ShaderEngine {
 
     public static StateGraph graph = new StateGraph();
 
-    public static Locale locale() {
+    public static HostRenderer host = HostRenderer.NONE;
+
+    public static PackLocalizer locale() {
         return state == null ? null : state.locale;
     }
 
@@ -162,13 +142,7 @@ public final class ShaderEngine {
         DebugMarker.GENERIC.insert("POST_COPY_DEPTH_2");
 
         if (!ShaderState.isHeldItemTranslucent()) {
-            val mc = Minecraft.getMinecraft();
-
-            val isGuiVisible = !mc.gameSettings.hideGUI;
-            val isFirstPerson = mc.gameSettings.thirdPersonView == 0;
-            val isSleeping = mc.renderViewEntity.isPlayerSleeping();
-
-            if (isGuiVisible && isFirstPerson && !isSleeping) {
+            if (host.isHandVisible()) {
                 renderHand(false);
             }
         }
@@ -272,14 +246,12 @@ public final class ShaderEngine {
     private static void renderHand(boolean isTranslucent) {
         assert state != null : "Not Initialized";
 
-        val mc = Minecraft.getMinecraft();
         val partialTick = ShaderState.getSubTick();
-        val entityRenderer = Minecraft.getMinecraft().entityRenderer;
-        val anaglyph = ((ShaderGameSettings) mc.gameSettings).swan$anaglyph();
-        val anaglyphField = EntityRenderer.anaglyphField;
+        val anaglyph = host.anaglyphOffset();
+        val anaglyphField = host.anaglyphField();
 
         // Some weird state is leaked somewhere in the pipeline, and this ensures we're working with the base value
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+        host.resetLightmapCoords();
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
         GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -289,14 +261,14 @@ public final class ShaderEngine {
         val handDepth = 0.125F;
 
         {
-            val fov = Math.toRadians(entityRenderer.getFOVModifier(partialTick, false));
+            val fov = Math.toRadians(host.fieldOfView(partialTick));
             val aspect = ShaderState.aspectRatio();
             val near = 0.05;
-            val far = entityRenderer.farPlaneDistance * 2;
+            val far = host.farPlaneDistance() * 2;
             tempDoubleBuffer.clear();
             tempMat4.scaling(1, 1, handDepth);
             if (anaglyph != 0) {
-                tempMat4.translate((float) (-(anaglyphField * 2 - 1)) * 0.07f * anaglyph, 0, 0);
+                tempMat4.translate((float) (-(anaglyphField * 2 - 1) * 0.07f * anaglyph), 0, 0);
             }
             tempMat4.perspective(fov, aspect, near, far);
             tempMat4.get(tempDoubleBuffer);
@@ -308,15 +280,10 @@ public final class ShaderEngine {
         GL11.glLoadIdentity();
 
         if (anaglyph != 0) {
-            GL11.glTranslatef((float) (anaglyphField * 2 - 1) * 0.1f * anaglyph, 0, 0);
+            GL11.glTranslatef((float) ((anaglyphField * 2 - 1) * 0.1f * anaglyph), 0, 0);
         }
 
-        entityRenderer.hurtCameraEffect(partialTick);
-
-        if (mc.gameSettings.viewBobbing) {
-            entityRenderer.setupViewBobbing(partialTick);
-        }
-
+        host.applyCameraEffects(partialTick);
 
         val lastShader = state.manager.current();
 
@@ -330,9 +297,7 @@ public final class ShaderEngine {
 
         GL11.glDepthMask(true);
 
-        entityRenderer.enableLightmap(partialTick);
-        entityRenderer.itemRenderer.renderItemInFirstPerson(partialTick);
-        entityRenderer.disableLightmap(partialTick);
+        host.renderFirstPersonItem(partialTick);
 
         use(lastShader);
 
@@ -349,13 +314,7 @@ public final class ShaderEngine {
 
     private static void captureLastDepth() {
         if (ShaderState.isHeldItemTranslucent()) {
-            val mc = Minecraft.getMinecraft();
-
-            val isGuiVisible = !mc.gameSettings.hideGUI;
-            val isFirstPerson = mc.gameSettings.thirdPersonView == 0;
-            val isSleeping = mc.renderViewEntity.isPlayerSleeping();
-
-            if (isGuiVisible && isFirstPerson && !isSleeping) {
+            if (host.isHandVisible()) {
                 renderHand(true);
             }
         }
@@ -378,7 +337,7 @@ public final class ShaderEngine {
 
     private static void renderFinal() {
         assert state != null : "Not Initialized";
-        val anaglyph = ((ShaderGameSettings) Minecraft.getMinecraft().gameSettings).swan$anaglyph();
+        val anaglyph = host.anaglyphOffset();
 
         if (finalPipeline != null) {
             // Actual shader pass doing it
@@ -395,16 +354,14 @@ public final class ShaderEngine {
                 use(state.manager.blit_color_mismatched);
             }
             // I'm paranoid.
-            Minecraft.getMinecraft()
-                     .getFramebuffer()
-                     .bindFramebuffer(false);
+            host.bindMainFramebuffer(false);
 
             GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
             src.bind();
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
             if (anaglyph != 0) {
-                ShadersCompositeMesh.drawWithAnaglyphField(EntityRenderer.anaglyphField);
+                ShadersCompositeMesh.drawWithAnaglyphField(host.anaglyphField());
             } else {
                 ShadersCompositeMesh.drawWithColor();
             }
@@ -412,19 +369,6 @@ public final class ShaderEngine {
                 DebugMarker.TEXTURE_COLOR_BLIT.insertFormat("{0} -> {1}", src.name(), mcTexture.name());
             }
         }
-    }
-
-    private static @Nullable WorldProvider mcDimensionID() {
-        val mc = Minecraft.getMinecraft();
-        val world = mc.theWorld;
-        if (world == null) {
-            return null;
-        }
-        val provider = world.provider;
-        if (provider == null) {
-            return null;
-        }
-        return provider;
     }
 
     /**
@@ -464,7 +408,7 @@ public final class ShaderEngine {
     }
 
     private static boolean doShaderPackReload() {
-        MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackReload());
+        host.onLifecycle(HostRenderer.Lifecycle.RELOAD_SCHEDULED);
 
         deinit();
         if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(ShaderPackManager.currentShaderPackName)) {
@@ -513,7 +457,7 @@ public final class ShaderEngine {
         GLSimpleDebug.flushError();
 
         report.startTime = System.nanoTime();
-        state = FixedEngineState.init(mcDimensionID(), report);
+        state = FixedEngineState.init(host.currentDimension(), report);
         use(null);
 
         ShadersCompositeMesh.init();
@@ -619,7 +563,7 @@ public final class ShaderEngine {
 
         if (!shaderPackLoaded) {
             shaderPackLoaded = true;
-            MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackLoaded());
+            host.onLifecycle(HostRenderer.Lifecycle.LOADED);
         }
 
         GLSimpleDebug.checkError();
@@ -664,7 +608,7 @@ public final class ShaderEngine {
 
         if (shaderPackLoaded) {
             shaderPackLoaded = false;
-            MinecraftForge.EVENT_BUS.post(new SwanSongLifecycleEvent.ShaderPackUnloaded());
+            host.onLifecycle(HostRenderer.Lifecycle.UNLOADED);
         }
     }
 
@@ -814,13 +758,15 @@ public final class ShaderEngine {
 
         ShaderState.updateCelestialAngle();
 
-        renderShadowMap();
+        if (state.shadow != null) {
+            shadowPass.renderShadowPass(state.shadow, buffers);
+        }
     }
 
     /**
      * Experimental feature that might either be just left in, or put behind a toggle depending on perf overhead.
      * <p>
-     * What we're doing is handing whatever will render in the {@link RenderWorldLastEvent} depth that excludes translucent geometry.
+     * What we're doing is handing whatever will render in the RenderWorldLastEvent depth that excludes translucent geometry.
      * <p>
      * This is closer to what vanilla does, but in turn this will cost us an additional 3 full-screen depth blits.
      */
@@ -852,9 +798,7 @@ public final class ShaderEngine {
         // Composite first
         renderComposite();
         // Both binds the framebuffer AND sets the viewport!
-        Minecraft.getMinecraft()
-                 .getFramebuffer()
-                 .bindFramebuffer(true);
+        host.bindMainFramebuffer(true);
         // This will either blit, or like the shader figures it out
         renderFinal();
         // Unbind whatever shader is bound.
@@ -863,245 +807,7 @@ public final class ShaderEngine {
         alphaAndDepthClear();
     }
 
-    public static @Nullable Frustrum mcFrustrum;
-
-    private static @Nullable Frustrum frustrum;
-    private static @Nullable ClippingHelperShadow ch;
-
-    private static int shadowFrustumCheckOffset = 0;
-
-    private static void clipRenderersByFrustumShadow(WorldRenderer[] wrs) {
-        assert frustrum != null: "frustrum not initialized";
-
-        for (int i = 0, wrsLength = wrs.length; i < wrsLength; i++) {
-            var wr = wrs[i];
-            val wre = (WorldRendererExt) wr;
-            wre.swan$backupFrustum();
-            if (!wr.skipAllRenderPasses() && (!wr.isInFrustum || (i + shadowFrustumCheckOffset & 15) == 0)) {
-                wr.updateInFrustum(frustrum);
-            }
-        }
-        shadowFrustumCheckOffset++;
-    }
-
-    private static void addWorldToShadowReceivers(WorldRenderer[] wrs) {
-        for (val wr : wrs) {
-            val wre = (WorldRendererExt) wr;
-            if (wr != null && wre.swan$initialized() && wr.isVisible && wr.isInFrustum && !wr.skipAllRenderPasses()) {
-                ch.addShadowReceiver(wr);
-            }
-        }
-    }
-
-    private static void renderShadowMap() {
-        assert state != null : "Not Initialized";
-        if (state.shadow == null) {
-            return;
-        }
-
-        if (frustrum == null || ch == null) {
-            frustrum = new Frustrum();
-            ch = new ClippingHelperShadow();
-            frustrum.clippingHelper = ch;
-        }
-
-        GLDebugGroups.RENDER_SHADOW.push();
-
-        val partialTicks = ShaderState.getSubTick();
-        val entityRenderer = Minecraft.getMinecraft().entityRenderer;
-
-        // Set to zero before pushing attribs
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-
-        Minecraft mc = Minecraft.getMinecraft();
-        RenderGlobal renderGlobal = mc.renderGlobal;
-        graph.moveTo(Node.ShadowBegin);
-        val preShadowPassThirdPersonView = mc.gameSettings.thirdPersonView;
-        mc.gameSettings.thirdPersonView = 1;
-
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPushMatrix();
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-
-        entityRenderer.setupCameraTransform(partialTicks, 2);
-
-        ShaderState.setCameraShadow(state.shadow.resolution,
-                                    state.shadow.distance,
-                                    state.shadow.fov,
-                                    state.shadow.intervalSize);
-        ActiveRenderInfo.updateRenderInfo(mc.thePlayer, false);
-
-        buffers.shadow.bindDraw();
-
-        GL11.glClearColor(1F, 1F, 1F, 1F);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-        val wrs = renderGlobal.sortedWorldRenderers;
-        val numWrs = wrs.length;
-
-        // region Shadow culling stuff
-        val viewEntity = mc.renderViewEntity;
-        ch.shadowModelViewMatrix.set(ShaderState.shadowModelView());
-
-        ch.begin();
-
-        addWorldToShadowReceivers(wrs);
-
-        if (mcFrustrum != null) {
-            try {
-                // Defensive Copy (We do this once a frame, so should be ok?)
-                val entities = mc.theWorld.loadedEntityList.toArray(new Entity[0]);
-                val tileEntities = mc.theWorld.loadedTileEntityList.toArray(new TileEntity[0]);
-
-                // TODO: Handling for infinite extent bounding boxes?
-                for (val entity : entities) {
-                    val aabb = entity.boundingBox;
-                    if (mcFrustrum.isBoundingBoxInFrustum(aabb)) {
-                        ch.addShadowReceiver(aabb);
-                    }
-                }
-                for (val tileEntity : tileEntities) {
-                    val aabb = tileEntity.getRenderBoundingBox();
-                    if (mcFrustrum.isBoundingBoxInFrustum(aabb)) {
-                        ch.addShadowReceiver(aabb);
-                    }
-                }
-            } catch (RuntimeException e) {
-                log.error("Caught error while doing the shadow culling: ", e);
-            }
-        }
-
-        ch.end();
-
-        clipRenderersByFrustumShadow(wrs);
-        // endregion
-
-        // region Opaque Uhh, things
-        GL11.glShadeModel(GL11.GL_SMOOTH);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthFunc(GL11.GL_LEQUAL);
-        GL11.glDepthMask(true);
-        GL11.glColorMask(true, true, true, true);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        mc.getTextureManager()
-          .bindTexture(TextureMap.locationBlocksTexture);
-
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-
-        GLDebugGroups.RENDER_SHADOW_0_TERRAIN.push();
-        {
-            graph.moveTo(Node.ShadowChunk0);
-            renderGlobal.renderSortedRenderers(0, numWrs, 0, partialTicks);
-        }
-        GLDebugGroups.RENDER_SHADOW_0_TERRAIN.pop();
-
-        GL11.glShadeModel(GL11.GL_FLAT);
-        GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
-        GL11.glPushMatrix();
-
-        GLDebugGroups.RENDER_SHADOW_0_ENTITIES.push();
-        {
-            ForgeHooksClient.setRenderPass(0);
-            RenderHelper.enableStandardItemLighting();
-            renderGlobal.renderEntities(viewEntity, frustrum, partialTicks);
-            RenderHelper.disableStandardItemLighting();
-        }
-        GLDebugGroups.RENDER_SHADOW_0_ENTITIES.pop();
-
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
-        // endregion
-
-        unlockShader();
-        // shadowtex0 -> [includes all geometry]
-        // shadowtex1 -> [excludes transparent geometry]
-        //
-        // So like, we rendered all the OPAQUE stuff so we blit it over
-        blitDepth(buffers.shadowDepthTex0, buffers.shadowDepthTex1);
-        // Needed as blit will drop the FB binding...
-        buffers.shadow.bind();
-        lockShader();
-
-        // region Render Translucent
-        GL11.glDepthMask(true);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-        GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glDepthMask(true);
-        mc.getTextureManager()
-          .bindTexture(TextureMap.locationBlocksTexture);
-        GL11.glShadeModel(GL11.GL_SMOOTH);
-
-        GLDebugGroups.RENDER_SHADOW_1_TERRAIN.push();
-        {
-            graph.moveTo(Node.ShadowChunk1);
-            renderGlobal.renderSortedRenderers(0, numWrs, 1, partialTicks);
-        }
-        GLDebugGroups.RENDER_SHADOW_1_TERRAIN.pop();
-
-        GLDebugGroups.RENDER_SHADOW_1_ENTITIES.push();
-        {
-            RenderHelper.enableStandardItemLighting();
-            ForgeHooksClient.setRenderPass(1);
-            renderGlobal.renderEntities(viewEntity, frustrum, partialTicks);
-            ForgeHooksClient.setRenderPass(-1);
-            RenderHelper.disableStandardItemLighting();
-        }
-        GLDebugGroups.RENDER_SHADOW_1_ENTITIES.pop();
-
-        GL11.glShadeModel(GL11.GL_FLAT);
-        GL11.glDepthMask(true);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_BLEND);
-        // endregion
-
-        graph.moveTo(Node.ShadowLast);
-
-        mc.gameSettings.thirdPersonView = preShadowPassThirdPersonView;
-
-        if (state.shadow.depthMipmapEnabled(0)) {
-            genMipmap(buffers.shadowDepthTex0);
-        }
-        if (state.shadow.depthMipmapEnabled(1)) {
-            genMipmap(buffers.shadowDepthTex1);
-        }
-        if (state.shadow.colorMipmapEnabled(0)) {
-            genMipmap(buffers.shadowColorTex0);
-        }
-        if (state.shadow.colorMipmapEnabled(1)) {
-            genMipmap(buffers.shadowColorTex1);
-        }
-
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPopMatrix();
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-
-        // Need to reset this before calling pop attrib!
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-        GL11.glPopAttrib();
-
-        GLDebugGroups.RENDER_SHADOW.pop();
-
-        mc.getTextureManager()
-          .bindTexture(TextureMap.locationBlocksTexture);
-
-        for (val wr : wrs) {
-            if (wr != null) {
-                val wre = (WorldRendererExt) wr;
-                wre.swan$restoreFrustum();
-            }
-        }
-    }
+    public static ShadowPassRenderer shadowPass = ShadowPassRenderer.NONE;
 
     // TODO: [CUSTOM_TEX] Bind the custom textures if applicable
     public static void bindCompositeTextures(Map<CompositeTextureData, Texture2D> textures) {
@@ -1134,7 +840,7 @@ public final class ShaderEngine {
         GL11.glPopAttrib();
     }
 
-    private static void genMipmap(@Nullable Texture2D tex) {
+    public static void genMipmap(@Nullable Texture2D tex) {
         if (tex == null) {
             return;
         }
@@ -1292,7 +998,7 @@ public final class ShaderEngine {
 
     private static void reloadMinecraftRenderersSafe() {
         try {
-            Minecraft.getMinecraft().renderGlobal.loadRenderers();
+            host.reloadChunkRenderers();
         } catch (Throwable t) {
             log.error("Caught exception while reloading minecraft renderers!", t);
         }
@@ -1300,79 +1006,12 @@ public final class ShaderEngine {
 
     // region Shader Hooks
 
-    public static void preSkyList() {
-        if (!ShaderEngine.isInitialized()) {
-            return;
-        }
-        ShaderState.setUpPosition();
-        val fogColor = ShaderState.fogColor();
-        GL11.glColor3d(fogColor.x(), fogColor.y(), fogColor.z());
-
-        Tessellator tess = Tessellator.instance;
-        float farDistance = Minecraft.getMinecraft().gameSettings.renderDistanceChunks * 16;
-        double xzq = farDistance * 0.9238;
-        double xzp = farDistance * 0.3826;
-        double xzn = -xzp;
-        double xzm = -xzq;
-        double top = 16f;
-        double bot = -ShaderState.camPos()
-                                 .y();
-
-        tess.startDrawingQuads();
-        // horizon
-        tess.addVertex(xzn, bot, xzm);
-        tess.addVertex(xzn, top, xzm);
-        tess.addVertex(xzm, top, xzn);
-        tess.addVertex(xzm, bot, xzn);
-
-        tess.addVertex(xzm, bot, xzn);
-        tess.addVertex(xzm, top, xzn);
-        tess.addVertex(xzm, top, xzp);
-        tess.addVertex(xzm, bot, xzp);
-
-        tess.addVertex(xzm, bot, xzp);
-        tess.addVertex(xzm, top, xzp);
-        tess.addVertex(xzn, top, xzp);
-        tess.addVertex(xzn, bot, xzp);
-
-        tess.addVertex(xzn, bot, xzp);
-        tess.addVertex(xzn, top, xzp);
-        tess.addVertex(xzp, top, xzq);
-        tess.addVertex(xzp, bot, xzq);
-
-        tess.addVertex(xzp, bot, xzq);
-        tess.addVertex(xzp, top, xzq);
-        tess.addVertex(xzq, top, xzp);
-        tess.addVertex(xzq, bot, xzp);
-
-        tess.addVertex(xzq, bot, xzp);
-        tess.addVertex(xzq, top, xzp);
-        tess.addVertex(xzq, top, xzn);
-        tess.addVertex(xzq, bot, xzn);
-
-        tess.addVertex(xzq, bot, xzn);
-        tess.addVertex(xzq, top, xzn);
-        tess.addVertex(xzp, top, xzm);
-        tess.addVertex(xzp, bot, xzm);
-
-        tess.addVertex(xzp, bot, xzm);
-        tess.addVertex(xzp, top, xzm);
-        tess.addVertex(xzn, top, xzm);
-        tess.addVertex(xzn, bot, xzm);
-
-        tess.draw();
-
-        val skyColor = ShaderState.skyColor();
-        GL11.glColor3d(skyColor.x(), skyColor.y(), skyColor.z());
-    }
-
     // TODO: Used for toggling sky basic/textured, as was done in shaders mod
 
     // TODO: Used for toggling sky basic/textured, as was done in shaders mod
     // endregion
 
-    static int getBlockID(Block block, int meta) {
-        val blockID = Block.getIdFromBlock(block);
+    public static int remapBlockID(int blockID, int meta) {
         //Thread safety
         val _state = state;
         if (_state != null && _state.remapper != null) {
@@ -1380,16 +1019,6 @@ public final class ShaderEngine {
         } else {
             return blockID;
         }
-    }
-
-    static int getBlockEntityID(TileEntity tileEntity) {
-        // TODO: Would we ever need to be NBT-Aware?
-        return getBlockID(tileEntity.getBlockType(), tileEntity.getBlockMetadata());
-    }
-
-    static int getEntityID(Entity entity) {
-        // TODO: Are there any mapping tables for this?
-        return EntityList.getEntityID(entity);
     }
 
     public static void useCompositeShader(CompositeShader shader) {
@@ -1407,11 +1036,11 @@ public final class ShaderEngine {
         state.manager.use(shaderStack.pop());
     }
 
-    static void lockShader() {
+    public static void lockShader() {
         useShaderLocked = true;
     }
 
-    static void unlockShader() {
+    public static void unlockShader() {
         useShaderLocked = false;
     }
 

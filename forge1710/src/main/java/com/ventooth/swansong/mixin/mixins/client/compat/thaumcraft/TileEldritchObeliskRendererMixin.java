@@ -13,6 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.thaumcraft;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.ventooth.swansong.api.ShaderStateInfo;
+import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
@@ -62,7 +63,7 @@ public abstract class TileEldritchObeliskRendererMixin {
 
             ShaderEngine.graph.push(StateGraph.Stack.Portal);
             ShaderState.pushBlockEntity();
-            ShaderState.portal();
+            ShaderState.portal(McShaderIds.endPortalBlockId());
             ShaderState.updatePortalEyeState(false, false, false, true);
             portalPass.set(true);
         }
@@ -83,7 +84,7 @@ public abstract class TileEldritchObeliskRendererMixin {
                              @Share("portal_pass") LocalBooleanRef portalPass) {
         if (portalPass.get()) {
             GL11.glEnable(GL11.GL_LIGHTING);
-            ShaderState.nextBlockEntity(te);
+            ShaderState.nextBlockEntity(McShaderIds.blockEntityId(te));
             ShaderState.popBlockEntity();
             ShaderEngine.graph.pop(StateGraph.Stack.Portal);
         }

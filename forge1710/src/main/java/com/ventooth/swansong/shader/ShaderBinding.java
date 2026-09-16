@@ -12,8 +12,10 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.debug.DebugMarker;
+import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.resources.pack.InternalShaderPack;
-import com.ventooth.swansong.shader.loader.IShaderPool;
+import com.ventooth.swansong.shader.compile.IShaderPool;
+import com.ventooth.swansong.shader.compile.ShaderCompiler;
 import com.ventooth.swansong.shader.loader.ShaderLoader;
 import com.ventooth.swansong.shader.loader.ShaderLoaderInParams;
 import com.ventooth.swansong.shader.shaderobjects.BlitShader;
@@ -21,7 +23,6 @@ import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.shader.shaderobjects.GBufferShader;
 import com.ventooth.swansong.shader.shaderobjects.ManagedShader;
 import com.ventooth.swansong.shader.shaderobjects.ShadowShader;
-import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -34,11 +35,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.WorldProvider;
-
 import java.util.List;
-
 
 @Builder(builderClassName = "Builder",
          access = AccessLevel.PRIVATE)
@@ -81,7 +78,7 @@ public class ShaderBinding {
     public final @Nullable ObjectList<CompositeShader> compositeList;
     public final @Nullable CompositeShader _final;
 
-    public static ShaderBinding init(IShaderPool shaderPool, @Nullable WorldProvider dimension) throws ShaderException {
+    public static ShaderBinding init(IShaderPool shaderPool, @Nullable DimensionInfo dimension) throws ShaderException {
         val b = builder();
         try {
             b.basic(b.gBuffer(shaderPool, ShaderTypes.gbuffers_basic));
@@ -113,16 +110,14 @@ public class ShaderBinding {
                 val internalLoader = new ShaderLoader(InternalShaderPack.INSTANCE, dimension);
 
                 internalLoader.inExpectedShaders = ShaderTypes.internal;
-                internalLoader.inAttribs = ObjectLists.emptyList();
                 internalLoader.inParams = ShaderLoaderInParams.builder()
                                                               .handDepth(1)
                                                               .build();
                 internalLoader.inShaderConfig = null;
                 internalLoader.inEnvInfo = EnvInfo.get();
-                internalLoader.inMcUniforms = GeneralUniforms.getFuncRegistry();
 
                 internalLoader.load(null);
-                @Cleanup val internalPool = internalLoader.borrowOutShaderPool();
+                @Cleanup val internalPool = ShaderCompiler.compile(internalLoader, ObjectLists.emptyList(), null);
 
                 b.blit_color_identical(b.safeInit(BlitShader.load(internalPool,
                                                                   ShaderTypes.blit_color_identical,
@@ -189,13 +184,13 @@ public class ShaderBinding {
             return build();
         }
 
-        private @NotNull GBufferShader gBuffer(IShaderPool pool, ResourceLocation loc) throws ShaderException {
+        private @NotNull GBufferShader gBuffer(IShaderPool pool, ShaderId loc) throws ShaderException {
             val shader = safeInit(GBufferShader.load(pool, loc, true));
             gBufferList.add(shader);
             return shader;
         }
 
-        private @Nullable GBufferShader gBufferOpt(IShaderPool pool, ResourceLocation loc) throws ShaderException {
+        private @Nullable GBufferShader gBufferOpt(IShaderPool pool, ShaderId loc) throws ShaderException {
             val shader = safeInit(GBufferShader.load(pool, loc, false));
             if (shader == null) {
                 return null;
@@ -204,7 +199,7 @@ public class ShaderBinding {
             return shader;
         }
 
-        private @Nullable ObjectList<CompositeShader> composite(IShaderPool pool, List<ResourceLocation> locs) {
+        private @Nullable ObjectList<CompositeShader> composite(IShaderPool pool, List<ShaderId> locs) {
             val list = new ObjectArrayList<CompositeShader>();
             for (val loc : locs) {
                 val shader = composite(pool, loc);
@@ -218,7 +213,7 @@ public class ShaderBinding {
             return list;
         }
 
-        private @Nullable CompositeShader composite(IShaderPool pool, ResourceLocation loc) {
+        private @Nullable CompositeShader composite(IShaderPool pool, ShaderId loc) {
             return safeInit(CompositeShader.load(pool, loc, false));
         }
 

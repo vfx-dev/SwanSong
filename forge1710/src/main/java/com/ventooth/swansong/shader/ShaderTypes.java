@@ -20,8 +20,6 @@ import lombok.val;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import net.minecraft.util.ResourceLocation;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,38 +29,38 @@ import java.util.StringJoiner;
 
 @NoArgsConstructor
 public final class ShaderTypes {
-    public static final ResourceLocation gbuffers_basic;
-    public static final ResourceLocation gbuffers_skybasic;
-    public static final ResourceLocation gbuffers_textured;
-    public static final ResourceLocation gbuffers_skytextured;
-    public static final ResourceLocation gbuffers_clouds;
-    public static final ResourceLocation gbuffers_beaconbeam;
-    public static final ResourceLocation gbuffers_armor_glint;
-    public static final ResourceLocation gbuffers_spidereyes;
-    public static final ResourceLocation gbuffers_textured_lit;
-    public static final ResourceLocation gbuffers_item;
-    public static final ResourceLocation gbuffers_entities;
-    public static final ResourceLocation gbuffers_weather;
-    public static final ResourceLocation gbuffers_hand;
-    public static final ResourceLocation gbuffers_hand_water;
-    public static final ResourceLocation gbuffers_terrain;
-    public static final ResourceLocation gbuffers_terrain_solid;
-    public static final ResourceLocation gbuffers_terrain_cutout_mip;
-    public static final ResourceLocation gbuffers_terrain_cutout;
-    public static final ResourceLocation gbuffers_damagedblock;
-    public static final ResourceLocation gbuffers_water;
-    public static final ResourceLocation gbuffers_block;
-    public static final ResourceLocation gbuffers_portal;
-    public static final ResourceLocation gbuffers_instanced;
+    public static final ShaderId gbuffers_basic;
+    public static final ShaderId gbuffers_skybasic;
+    public static final ShaderId gbuffers_textured;
+    public static final ShaderId gbuffers_skytextured;
+    public static final ShaderId gbuffers_clouds;
+    public static final ShaderId gbuffers_beaconbeam;
+    public static final ShaderId gbuffers_armor_glint;
+    public static final ShaderId gbuffers_spidereyes;
+    public static final ShaderId gbuffers_textured_lit;
+    public static final ShaderId gbuffers_item;
+    public static final ShaderId gbuffers_entities;
+    public static final ShaderId gbuffers_weather;
+    public static final ShaderId gbuffers_hand;
+    public static final ShaderId gbuffers_hand_water;
+    public static final ShaderId gbuffers_terrain;
+    public static final ShaderId gbuffers_terrain_solid;
+    public static final ShaderId gbuffers_terrain_cutout_mip;
+    public static final ShaderId gbuffers_terrain_cutout;
+    public static final ShaderId gbuffers_damagedblock;
+    public static final ShaderId gbuffers_water;
+    public static final ShaderId gbuffers_block;
+    public static final ShaderId gbuffers_portal;
+    public static final ShaderId gbuffers_instanced;
 
-    public static final ResourceLocation shadow;
+    public static final ShaderId shadow;
 
-    public static final @Unmodifiable ObjectList<ResourceLocation> deferredList;
-    public static final @Unmodifiable ObjectList<ResourceLocation> compositeList;
+    public static final @Unmodifiable ObjectList<ShaderId> deferredList;
+    public static final @Unmodifiable ObjectList<ShaderId> compositeList;
 
-    public static final ResourceLocation _final;
+    public static final ShaderId _final;
 
-    public static final @Unmodifiable ObjectList<ResourceLocation> general;
+    public static final @Unmodifiable ObjectList<ShaderId> general;
 
     static {
         val listBuilder = new ShaderTypeListBuilder();
@@ -103,12 +101,12 @@ public final class ShaderTypes {
         general = listBuilder.build();
     }
 
-    public static final ResourceLocation blit_color_identical;
-    public static final ResourceLocation blit_depth_identical;
-    public static final ResourceLocation blit_color_mismatched;
-    public static final ResourceLocation blit_depth_mismatched;
+    public static final ShaderId blit_color_identical;
+    public static final ShaderId blit_depth_identical;
+    public static final ShaderId blit_color_mismatched;
+    public static final ShaderId blit_depth_mismatched;
 
-    public static final @Unmodifiable ObjectList<ResourceLocation> internal;
+    public static final @Unmodifiable ObjectList<ShaderId> internal;
 
     static {
         val listBuilder = new ShaderTypeListBuilder();
@@ -123,10 +121,10 @@ public final class ShaderTypes {
         internal = listBuilder.build();
     }
 
-    private static Map<ResourceLocation, ResourceLocation> fallbacks = new HashMap<>();
+    private static Map<ShaderId, ShaderId> fallbacks = new HashMap<>();
     private static volatile boolean registryLocked = false;
 
-    public static @Nullable ResourceLocation getFallback(ResourceLocation loc) {
+    public static @Nullable ShaderId getFallback(ShaderId loc) {
         if (registryLocked) {
             return fallbacks.get(loc);
         } else {
@@ -166,8 +164,8 @@ public final class ShaderTypes {
         registerFallback(blit_depth_identical, blit_depth_mismatched);
     }
 
-    public static synchronized void registerFallback(@NonNull ResourceLocation shader,
-                                                     @Nullable ResourceLocation fallback) {
+    public static synchronized void registerFallback(@NonNull ShaderId shader,
+                                                     @Nullable ShaderId fallback) {
         if (registryLocked) {
             throw new IllegalStateException("Registry is already locked! Register shaders in the init phase!");
         }
@@ -192,7 +190,7 @@ public final class ShaderTypes {
         fallbacks = Collections.unmodifiableMap(fallbacks);
         Share.log.info("Locked Shader Type Registry with {} entries:", fallbacks.size());
 
-        val reverse = new HashMap<ResourceLocation, List<ResourceLocation>>();
+        val reverse = new HashMap<ShaderId, List<ShaderId>>();
         fallbacks.forEach((shader, fallback) -> {
             reverse.computeIfAbsent(fallback, loc -> new ArrayList<>())
                    .add(shader);
@@ -204,12 +202,12 @@ public final class ShaderTypes {
         });
     }
 
-    private static String toStr(@Nullable ResourceLocation loc) {
+    private static String toStr(@Nullable ShaderId loc) {
         if (loc == null) {
             return "NULL";
         }
-        val name = loc.getResourcePath();
-        val domain = loc.getResourceDomain();
+        val name = loc.path();
+        val domain = loc.namespace();
         if ("minecraft".equals(domain)) {
             return name;
         } else {
@@ -218,11 +216,11 @@ public final class ShaderTypes {
     }
 
     private static class ShaderTypeListBuilder {
-        final ObjectList<ResourceLocation> list = new ObjectArrayList<>();
+        final ObjectList<ShaderId> list = new ObjectArrayList<>();
 
         @Unmodifiable
-        ObjectList<ResourceLocation> addMulti(String baseName, int count) {
-            val list = new ObjectArrayList<ResourceLocation>();
+        ObjectList<ShaderId> addMulti(String baseName, int count) {
+            val list = new ObjectArrayList<ShaderId>();
             list.add(addSingle(baseName));
             for (var i = 1; i < count; i++) {
                 list.add(addSingle(baseName + i));
@@ -230,14 +228,14 @@ public final class ShaderTypes {
             return ObjectLists.unmodifiable(list);
         }
 
-        ResourceLocation addSingle(String name) {
-            val loc = new ResourceLocation(name);
+        ShaderId addSingle(String name) {
+            val loc = ShaderId.of(name);
             list.add(loc);
             return loc;
         }
 
         @Unmodifiable
-        ObjectList<ResourceLocation> build() {
+        ObjectList<ShaderId> build() {
             return ObjectLists.unmodifiable(list);
         }
     }

@@ -21,8 +21,6 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.resources.Locale;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -31,7 +29,7 @@ public class ConfigRootScreen extends ConfigScreen implements ConfigEntry.RootSc
     private final ObjectList<@NotNull Option> allOptions;
     private final IntList initialValues;
 
-    public ConfigRootScreen(Locale locale,
+    public ConfigRootScreen(PackLocalizer locale,
                             @NotNull ObjectList<@Nullable ConfigEntry> content,
                             @NotNull ObjectList<@NotNull Option> allOptions) {
         super(locale, null, content);

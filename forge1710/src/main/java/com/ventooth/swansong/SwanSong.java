@@ -11,9 +11,12 @@
 package com.ventooth.swansong;
 
 import com.ventooth.swansong.config.ModuleConfig;
-import com.ventooth.swansong.debug.DebugCommandClient;
-import com.ventooth.swansong.debug.DebugCommandServer;
-import com.ventooth.swansong.image.ThreadedScreenshot;
+import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.platform.DebugCommandClient;
+import com.ventooth.swansong.platform.DebugCommandServer;
+import com.ventooth.swansong.gl.GLEnvProbe;
+import com.ventooth.swansong.platform.PlatformHooks;
+import com.ventooth.swansong.platform.ThreadedScreenshot;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.ModJarContainer;
 import com.ventooth.swansong.shader.ShaderEngine;
@@ -29,6 +32,7 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -77,12 +81,13 @@ public final class SwanSong {
         @Override
         public void preInit(FMLPreInitializationEvent event) {
             ModJarContainer.init();
-            EnvInfo.init();
+            EnvInfo.init(GLEnvProbe.probe(Share.MC_VERSION, Tags.MOD_VERSION));
 
             if (EnvInfo.isMacOS()) {
                 Share.log.warn("Current MacOS support not great :(");
             }
 
+            PlatformHooks.install();
             ShaderTypes.registerInternalFallbacks();
             MinecraftForge.EVENT_BUS.register(this);
             FMLCommonHandler.instance()
@@ -103,7 +108,7 @@ public final class SwanSong {
 
         @Override
         public void postInit(FMLPostInitializationEvent event) {
-            ShaderPackManager.init();
+            ShaderPackManager.init(Minecraft.getMinecraft().mcDataDir.toPath(), ShadersConfig.CurrentShaderPack);
 
             if (ModuleConfig.ThreadedScreenshots) {
                 ThreadedScreenshot.init();
@@ -137,6 +142,13 @@ public final class SwanSong {
                 for (val node : ShaderEngine.graphLog) {
                     text.right.add(node.name());
                 }
+            }
+        }
+
+        @SubscribeEvent
+        public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+            if (Tags.MOD_ID.equals(event.modID)) {
+                PlatformHooks.syncCoreSettings();
             }
         }
 

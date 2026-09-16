@@ -20,8 +20,6 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import net.minecraft.client.shader.Framebuffer;
-
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +29,6 @@ public final class ImageUtils {
     public static final Logger log = Share.getLogger();
 
     private static IntBuffer tempBuf = BufferUtils.createIntBuffer(128 * 128);
-
-    public static @Nullable RawImage downloadGLTextureAsBGRA(Framebuffer frameBuffer) {
-        return downloadGLTextureAsBGRA(frameBuffer.framebufferTexture);
-    }
 
     public static @Nullable RawImage downloadGLTextureAsBGRA(int tex) {
         if (tex == 0) {

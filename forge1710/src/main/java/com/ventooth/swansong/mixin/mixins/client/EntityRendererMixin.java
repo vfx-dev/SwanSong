@@ -11,6 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client;
 
 import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.platform.McShadowPassRenderer;
 import com.ventooth.swansong.shader.ShaderEngine;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
@@ -20,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.culling.Frustrum;
-import net.minecraft.client.shader.Shader;
 
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin {
@@ -30,7 +30,7 @@ public abstract class EntityRendererMixin {
               require = 1)
     private void grabFrustrum(Frustrum instance, double x, double y, double z) {
         if (ShaderEngine.isInitialized()) {
-            ShaderEngine.mcFrustrum = instance;
+            McShadowPassRenderer.mcFrustrum = instance;
         }
         instance.setPosition(x, y, z);
     }

@@ -17,13 +17,12 @@ import lombok.val;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import net.minecraft.client.resources.Locale;
 
 public class ConfigScreen extends ConfigEntryBase implements ConfigEntry.Screen {
     public final ObjectList<@Nullable ConfigEntry> content;
     private final ObjectList<ConfigEntry> contentUnmodifiable;
 
-    public ConfigScreen(Locale locale, String screenName, ObjectList<@Nullable ConfigEntry> content) {
+    public ConfigScreen(PackLocalizer locale, String screenName, ObjectList<@Nullable ConfigEntry> content) {
         super(Localization.createScreen(locale, screenName));
         this.content = content;
         this.contentUnmodifiable = ObjectLists.unmodifiable(content);

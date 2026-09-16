@@ -13,7 +13,6 @@ package com.ventooth.swansong.config;
 import com.falsepattern.lib.config.ConfigException;
 import com.falsepattern.lib.config.ConfigurationManager;
 import com.ventooth.swansong.Share;
-import ibxm.Module;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
