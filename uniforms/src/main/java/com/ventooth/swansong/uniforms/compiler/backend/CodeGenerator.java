@@ -72,6 +72,8 @@ public class CodeGenerator {
             genRel(rel, insnList);
         } else if (input instanceof TypedUnaryMinusNode minus) {
             genMinus(minus, insnList);
+        } else if (input instanceof TypedUnaryNotNode not) {
+            genNot(not, insnList);
         } else {
             throw new UnsupportedOperationException(input.getClass()
                                                          .getName());
