@@ -114,7 +114,7 @@ public final class PlatformHooks {
         CoreSettings.glDebugMarkers = DebugConfig.GLDebugMarkers;
         CoreSettings.glDebugGroups = ModuleConfig.Debug && DebugConfig.UseGLDebugGroups;
         CoreSettings.glObjectLabels = ModuleConfig.Debug && DebugConfig.UseGLObjectLabels;
-        CoreSettings.handDepth = ShadersConfig.HandDepth.get();
+        CoreSettings.handDepth = 0.125 * ShadersConfig.HandDepth.get();
         CoreSettings.renderQuality = ShadersConfig.RenderQuality.get();
         CoreSettings.shadowQuality = ShadersConfig.ShadowQuality.get();
         CoreSettings.allowDepthOfField = ShadersConfig.LetMeUseDepthOfFieldPlease;

@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.debug.DebugMarker;
@@ -243,8 +244,7 @@ public final class ShaderEngine {
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
 
-        // TODO: Shaders/Config should define this!
-        val handDepth = 0.125F;
+        val handDepth = CoreSettings.handDepth;
 
         {
             val fov = Math.toRadians(host.fieldOfView(partialTick));
