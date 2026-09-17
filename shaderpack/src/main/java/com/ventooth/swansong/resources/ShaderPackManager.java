@@ -181,8 +181,7 @@ public final class ShaderPackManager {
                             }
                         } catch (IOException ignored) {}
                     } else if (Files.isDirectory(realPath)) {
-                        val nestDir = realPath.resolve("shaders").toRealPath();
-                        if (Files.isDirectory(nestDir)) {
+                        if (Files.isDirectory(realPath.resolve("shaders"))) {
                             newShaders.add(subPath.getFileName()
                                                   .toString());
                         }
