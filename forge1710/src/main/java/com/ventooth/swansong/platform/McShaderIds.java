@@ -21,7 +21,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -38,11 +37,6 @@ public final class McShaderIds {
     public static int entityId(Entity entity) {
         // TODO: Are there any mapping tables for this?
         return EntityList.getEntityID(entity);
-    }
-
-    // TODO: remove
-    public static int endPortalBlockId() {
-        return blockId(Blocks.end_portal, 0);
     }
 
     public static boolean isItemTranslucent(@Nullable ItemStack stack) {

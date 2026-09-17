@@ -50,11 +50,6 @@ public final class GeneralUniforms {
             .addMat4("shadowProjectionInverse", ShaderState::shadowProjectionInverse)
             .addMat4("shadowModelView", ShaderState::shadowModelView)
             .addMat4("shadowModelViewInverse", ShaderState::shadowModelViewInverse)
-            // TODO: remove
-            .addBool("swan_portalEyeS", () -> ShaderState.portalEye()[0])
-            .addBool("swan_portalEyeT", () -> ShaderState.portalEye()[1])
-            .addBool("swan_portalEyeR", () -> ShaderState.portalEye()[2])
-            .addBool("swan_portalEyeQ", () -> ShaderState.portalEye()[3])
             .addInt("renderStage", ShaderState::renderStage)
             .addVec2i("atlasSize", ShaderState::atlasSize)
             .build();

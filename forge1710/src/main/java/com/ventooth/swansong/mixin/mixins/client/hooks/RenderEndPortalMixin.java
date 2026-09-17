@@ -12,8 +12,6 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.ventooth.swansong.api.ShaderStateInfo;
 import com.ventooth.swansong.shader.ShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
-import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
@@ -50,33 +48,13 @@ public abstract class RenderEndPortalMixin {
                                              float subTick,
                                              CallbackInfo ci) {
         if (ShaderEngine.graph.isManaged()) {
+            ci.cancel();
             if (ShaderStateInfo.shadowPassActive()) {
                 // Don't render anything
-                ci.cancel();
-                return;
-            }
-
-            // TODO: remove
-            if (ShaderEngine.hasPortalShader()) {
-                ShaderState.updatePortalEyeState(false, false, false, true);
-                // Shader support end portals via a gbuffer shader
-                ShaderEngine.graph.push(StateGraph.Stack.Portal);
                 return;
             }
             // Shadersmod style compat
-            ci.cancel();
             swan$renderPortalShadersMod(posX, posY, posZ);
-        }
-    }
-
-    @Inject(method = "renderTileEntityAt(Lnet/minecraft/tileentity/TileEntityEndPortal;DDDF)V",
-            at = @At("RETURN"))
-    private void endPortal(TileEntityEndPortal entity, double x, double y, double z, float tickDelta, CallbackInfo ci) {
-        if (ShaderEngine.graph.isManaged()) {
-            // TODO: remove
-            if (ShaderEngine.hasPortalShader()) {
-                ShaderEngine.graph.pop(StateGraph.Stack.Portal);
-            }
         }
     }
 

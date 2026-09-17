@@ -13,10 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.thaumcraft;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.ventooth.swansong.api.ShaderStateInfo;
-import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.shader.ShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
-import com.ventooth.swansong.shader.StateGraph;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,30 +41,20 @@ public abstract class TileEldritchObeliskRendererMixin {
                             double z,
                             float f,
                             CallbackInfo ci,
-                            @Share("portal_pass") LocalBooleanRef portalPass) {
-        portalPass.set(false);
+                            @Share("lighting_off") LocalBooleanRef lightingOff) {
+        lightingOff.set(false);
         if (!inrange) {
             return;
         }
 
         if (ShaderEngine.graph.isManaged()) {
+            inrange = false;
             if (ShaderStateInfo.shadowPassActive()) {
-                inrange = false;
                 return;
             }
 
             GL11.glDisable(GL11.GL_LIGHTING);
-            // TODO: remove
-            if (!ShaderEngine.hasPortalShader()) {
-                inrange = false;
-            }
-
-            // TODO: remove
-            ShaderEngine.graph.push(StateGraph.Stack.Portal);
-            ShaderState.pushBlockEntity();
-            ShaderState.portal(McShaderIds.endPortalBlockId());
-            ShaderState.updatePortalEyeState(false, false, false, true);
-            portalPass.set(true);
+            lightingOff.set(true);
         }
     }
 
@@ -83,13 +70,9 @@ public abstract class TileEldritchObeliskRendererMixin {
                              double z,
                              float f,
                              CallbackInfo ci,
-                             @Share("portal_pass") LocalBooleanRef portalPass) {
-        if (portalPass.get()) {
+                             @Share("lighting_off") LocalBooleanRef lightingOff) {
+        if (lightingOff.get()) {
             GL11.glEnable(GL11.GL_LIGHTING);
-            ShaderState.nextBlockEntity(McShaderIds.blockEntityId(te));
-            ShaderState.popBlockEntity();
-            // TODO: remove
-            ShaderEngine.graph.pop(StateGraph.Stack.Portal);
         }
     }
 }

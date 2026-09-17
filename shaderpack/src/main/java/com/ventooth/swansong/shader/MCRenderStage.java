@@ -87,11 +87,6 @@ public enum MCRenderStage {
      * Block entity geometry.
      */
     BLOCK_ENTITIES,
-    // TODO: remove
-    /**
-     * End portal, thaumcraft pylon, etc.
-     */
-    BLOCK_ENTITIES_PORTAL,
     /**
      * Intended to be used for the block cracks texture.
      *

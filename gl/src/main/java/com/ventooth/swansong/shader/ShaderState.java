@@ -132,9 +132,6 @@ public final class ShaderState {
 
     private static final Vector4d entityColor = new Vector4d(0D);
 
-    // TODO: remove
-    private static final boolean[] portalEye = new boolean[4];
-
     private static final Vector2i atlasSize = new Vector2i();
 
     public static Supplier<WorldSample> worldSampler = () -> WorldSample.EMPTY;
@@ -382,11 +379,6 @@ public final class ShaderState {
         return entityColor;
     }
 
-    // TODO: remove
-    public static boolean[] portalEye() {
-        return portalEye;
-    }
-
     public static double nearPlane() {
         return 0.05;
     }
@@ -508,12 +500,6 @@ public final class ShaderState {
             blockEntityId = newId;
             updateUniforms();
         }
-    }
-
-    // TODO: remove
-    public static void portal(int endPortalBlockId) {
-        blockEntityId = endPortalBlockId;
-        updateUniforms();
     }
 
     public static void nextEntity(int newEntityId) {
@@ -767,15 +753,6 @@ public final class ShaderState {
      */
     public static void updateEntityColor(double r, double g, double b, double mixFactor) {
         entityColor.set(r, g, b, mixFactor);
-        updateUniforms();
-    }
-
-    // TODO: remove
-    public static void updatePortalEyeState(boolean s, boolean t, boolean r, boolean q) {
-        portalEye[0] = s;
-        portalEye[1] = t;
-        portalEye[2] = r;
-        portalEye[3] = q;
         updateUniforms();
     }
 

@@ -547,26 +547,6 @@ public class StateGraph {
                 }
             }
         },
-        // TODO: remove
-        Portal {
-            @Override
-            protected void push(Node currentNode) {
-                pushRenderStage();
-                updateRenderStage(MCRenderStage.BLOCK_ENTITIES_PORTAL);
-                if (currentNode.isRender) {
-                    pushShader();
-                    use(state.manager.portal);
-                }
-            }
-
-            @Override
-            protected void pop(Node currentNode) {
-                popRenderStage();
-                if (currentNode.isRender) {
-                    popShader();
-                }
-            }
-        },
         Leash {
             @Override
             protected void push(Node currentNode) {

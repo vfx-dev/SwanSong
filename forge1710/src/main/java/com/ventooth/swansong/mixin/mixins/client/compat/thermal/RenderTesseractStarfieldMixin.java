@@ -14,10 +14,7 @@ import cofh.thermalexpansion.block.ender.TileTesseract;
 import cofh.thermalexpansion.render.RenderTesseractStarfield;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.shader.ShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
-import com.ventooth.swansong.shader.StateGraph;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,31 +25,6 @@ import net.minecraft.tileentity.TileEntity;
 public abstract class RenderTesseractStarfieldMixin {
     @Shadow(remap = false)
     public abstract void renderTileEntityAt(TileTesseract tileTesseract, double v, double v1, double v2, float v3);
-
-    @WrapMethod(method = "renderTileEntityAt(Lcofh/thermalexpansion/block/ender/TileTesseract;DDDF)V",
-                remap = false,
-                require = 1)
-    private void wrapStarfieldRenderer(TileTesseract par1,
-                                       double par2,
-                                       double par3,
-                                       double par4,
-                                       float par5,
-                                       Operation<Void> original) {
-        if (ShaderEngine.graph.isManaged()) {
-            // TODO: remove
-            if (ShaderEngine.hasPortalShader()) {
-                ShaderEngine.graph.push(StateGraph.Stack.Portal);
-                ShaderState.pushBlockEntity();
-                ShaderState.portal(McShaderIds.endPortalBlockId());
-                ShaderState.updatePortalEyeState(true, true, true, true);
-                original.call(par1, par2, par3, par4, par5);
-                ShaderState.popBlockEntity();
-                ShaderEngine.graph.pop(StateGraph.Stack.Portal);
-            } else {
-                original.call(par1, par2, par3, par4, par5);
-            }
-        }
-    }
 
     /**
      * @author FalsePattern

@@ -179,14 +179,6 @@ public final class ShaderEngine {
     }
 
     // TODO: remove
-    public static boolean hasPortalShader() {
-        if (state == null) {
-            return false;
-        }
-        return !state.manager.portal.isFallback();
-    }
-
-    // TODO: remove
     public static boolean hasInstancedShader() {
         if (state == null) {
             return false;

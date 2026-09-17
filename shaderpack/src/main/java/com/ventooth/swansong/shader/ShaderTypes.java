@@ -51,8 +51,6 @@ public final class ShaderTypes {
     public static final ShaderId gbuffers_water;
     public static final ShaderId gbuffers_block;
     // TODO: remove
-    public static final ShaderId gbuffers_portal;
-    // TODO: remove
     public static final ShaderId gbuffers_instanced;
 
     public static final ShaderId shadow;
@@ -90,8 +88,6 @@ public final class ShaderTypes {
         gbuffers_damagedblock       = listBuilder.addSingle("gbuffers_damagedblock");
         gbuffers_water              = listBuilder.addSingle("gbuffers_water");
         gbuffers_block              = listBuilder.addSingle("gbuffers_block");
-        // TODO: remove
-        gbuffers_portal             = listBuilder.addSingle("gbuffers_portal");
         // TODO: remove
         gbuffers_instanced          = listBuilder.addSingle("gbuffers_instanced");
         // Shadows
@@ -158,8 +154,6 @@ public final class ShaderTypes {
         registerFallback(gbuffers_damagedblock, gbuffers_terrain);
         registerFallback(gbuffers_water, gbuffers_terrain);
         registerFallback(gbuffers_block, gbuffers_terrain);
-        // TODO: remove
-        registerFallback(gbuffers_portal, gbuffers_block);
         // TODO: remove
         registerFallback(gbuffers_instanced, gbuffers_entities);
 
