@@ -101,7 +101,15 @@ repositories {
     exclusive(ivy("github", "https://github.com/", "[orgPath]/releases/download/[revision]/[artifact]-[revision](-[classifier]).[ext]"), "jss2a98aj.NotFine")
 }
 
+configurations.shadowImplementation {
+    attributes {
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+    }
+}
+
 dependencies {
+    shadowImplementation(project(":uniforms"))
+
     apiSplit("com.falsepattern:falsepatternlib-mc1.7.10:1.9.0")
 
     compileOnly("com.ventooth:venterceptor-service-api:${venterceptorVersion}")
