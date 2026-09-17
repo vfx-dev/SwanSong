@@ -226,7 +226,7 @@ class FixedEngineState {
 
             val format = BufferNameUtil.gbufferFormatFromName(formatStr);
             if (format == -1) {
-                Share.log.warn("Color gbuffer: {} tried to set INVALID format={}", formatStr, nameStr);
+                Share.log.warn("Color gbuffer: {} tried to set INVALID format={}", nameStr, formatStr);
                 continue;
             }
             if (report != null) {
