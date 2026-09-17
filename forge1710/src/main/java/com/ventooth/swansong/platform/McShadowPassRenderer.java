@@ -125,7 +125,6 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
                 val entities = mc.theWorld.loadedEntityList.toArray(new Entity[0]);
                 val tileEntities = mc.theWorld.loadedTileEntityList.toArray(new TileEntity[0]);
 
-                // TODO: Handling for infinite extent bounding boxes?
                 for (val entity : entities) {
                     val aabb = entity.boundingBox;
                     if (mcFrustrum.isBoundingBoxInFrustum(aabb)) {
@@ -134,7 +133,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
                 }
                 for (val tileEntity : tileEntities) {
                     val aabb = tileEntity.getRenderBoundingBox();
-                    if (mcFrustrum.isBoundingBoxInFrustum(aabb)) {
+                    if (aabb != TileEntity.INFINITE_EXTENT_AABB && mcFrustrum.isBoundingBoxInFrustum(aabb)) {
                         ch.addShadowReceiver(aabb);
                     }
                 }
