@@ -513,7 +513,9 @@ public final class ShaderEngine {
             val path = "/shaders/" + state.noiseTexPath;
             noiseTex = CustomTexture2D.load(state.pack, path);
             if (noiseTex == null) {
-                Share.log.error("Missing noise texture: {}", path);
+                Share.log.warn("Missing noise texture: {}", path);
+                val size = state.noiseTexSize == null ? 256 : state.noiseTexSize;
+                noiseTex = HFNoiseTexture2D.create(size, size);
             } else {
                 // TODO: Make format look like: noise<TAB>lib/textures/noise.png<TAB>RGBA<TAB>128x128
                 report.customTextures.put(state.noiseTexPath,
