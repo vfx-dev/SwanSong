@@ -11,6 +11,7 @@
 package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.api.SwanSongLifecycleEvent;
+import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.pbr.PBRTextureEngine;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
@@ -133,6 +134,26 @@ public final class McHostRenderer implements HostRenderer {
     @Override
     public void onEngineDeinit() {
         PBRTextureEngine.deinit();
+    }
+
+    @Override
+    public double handDepth() {
+        return 0.125 * ShadersConfig.HandDepth.get();
+    }
+
+    @Override
+    public double renderQuality() {
+        return ShadersConfig.RenderQuality.get();
+    }
+
+    @Override
+    public double shadowQuality() {
+        return ShadersConfig.ShadowQuality.get();
+    }
+
+    @Override
+    public boolean allowDepthOfField() {
+        return ShadersConfig.LetMeUseDepthOfFieldPlease;
     }
 
     @Override

@@ -32,7 +32,6 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -142,13 +141,6 @@ public final class SwanSong {
                 for (val node : ShaderEngine.graphLog) {
                     text.right.add(node.name());
                 }
-            }
-        }
-
-        @SubscribeEvent
-        public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if (Tags.MOD_ID.equals(event.modID)) {
-                PlatformHooks.syncCoreSettings();
             }
         }
 

@@ -50,6 +50,14 @@ public interface HostRenderer {
 
     void onEngineDeinit();
 
+    double handDepth();
+
+    double renderQuality();
+
+    double shadowQuality();
+
+    boolean allowDepthOfField();
+
     enum Lifecycle {
         RELOAD_SCHEDULED,
         LOADED,
@@ -137,6 +145,26 @@ public interface HostRenderer {
 
         @Override
         public void onEngineDeinit() {
+        }
+
+        @Override
+        public double handDepth() {
+            return 0.125;
+        }
+
+        @Override
+        public double renderQuality() {
+            return 1;
+        }
+
+        @Override
+        public double shadowQuality() {
+            return 1;
+        }
+
+        @Override
+        public boolean allowDepthOfField() {
+            return false;
         }
     };
 }

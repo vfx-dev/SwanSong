@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.shader;
 
-import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.resources.ShaderPackManager;
@@ -79,9 +78,9 @@ class FixedEngineState {
         val loader = new ShaderLoader(pack, dimension);
         loader.inExpectedShaders = ShaderTypes.general;
         loader.inParams = ShaderLoaderInParams.builder()
-                                              .handDepth(CoreSettings.handDepth)
-                                              .renderQuality(CoreSettings.renderQuality)
-                                              .shadowQuality(CoreSettings.shadowQuality)
+                                              .handDepth(ShaderEngine.host.handDepth())
+                                              .renderQuality(ShaderEngine.host.renderQuality())
+                                              .shadowQuality(ShaderEngine.host.shadowQuality())
                                               .build();
         loader.inShaderConfig = ShaderPackManager.readShaderPackConfig();
         loader.inEnvInfo = EnvInfo.get();
@@ -146,7 +145,7 @@ class FixedEngineState {
         ShaderEngine.host.onEngineInit();
 
         // TODO: Check if the shader actually needs center depth before populating, this call is not free.
-        if (CoreSettings.allowDepthOfField) {
+        if (ShaderEngine.host.allowDepthOfField()) {
             b.depthSampler = new DepthSampler();
             b.depthSampler.init();
         }
@@ -162,7 +161,7 @@ class FixedEngineState {
             b.manager = ShaderBinding.init(shaderPool, dimension);
 
             if (b.manager.shadow != null) {
-                b.shadow = ShadowProperties.from(outParams, (float) CoreSettings.shadowQuality);
+                b.shadow = ShadowProperties.from(outParams, (float) ShaderEngine.host.shadowQuality());
             }
             ShaderState.applyParams(outParams);
         } catch (ShaderException e) {

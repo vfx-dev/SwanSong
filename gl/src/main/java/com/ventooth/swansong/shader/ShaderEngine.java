@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.shader;
 
-import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.debug.DebugMarker;
@@ -190,7 +189,7 @@ public final class ShaderEngine {
     }
 
     public static void beginRenderAll() {
-        needsFramebufferResize = ShaderState.updateViewSize();
+        needsFramebufferResize = ShaderState.updateViewSize(host.renderQuality());
         if (needsShaderPackReload) {
             if (!doShaderPackReload()) {
                 return;
@@ -244,7 +243,7 @@ public final class ShaderEngine {
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
 
-        val handDepth = CoreSettings.handDepth;
+        val handDepth = host.handDepth();
 
         {
             val fov = Math.toRadians(host.fieldOfView(partialTick));
@@ -367,7 +366,7 @@ public final class ShaderEngine {
 
         log.info("Initializing for the very first time...");
         try {
-            ShaderState.updateViewSize();
+            ShaderState.updateViewSize(host.renderQuality());
             doShaderPackReload();
         } catch (RuntimeException | Error e) {
             log.fatal("Failed to initialize: ", e);

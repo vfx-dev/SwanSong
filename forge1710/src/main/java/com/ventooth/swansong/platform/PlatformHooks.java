@@ -14,7 +14,6 @@ import com.falsepattern.lib.dependencies.DependencyLoader;
 import com.falsepattern.lib.dependencies.Library;
 import com.falsepattern.lib.dependencies.SemanticVersion;
 import com.falsepattern.lib.util.FileUtil;
-import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.Tags;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.Configs;
@@ -62,7 +61,6 @@ public final class PlatformHooks {
         ShaderPackManager.localizerFactory = MinecraftPackLocalizer::new;
         ShaderPackManager.referencePack = DefaultShaderPack.INSTANCE;
         ShaderEngine.shadowPass = new McShadowPassRenderer();
-        syncCoreSettings();
         ensureJnaAvailable();
         ShaderEngine.host = new McHostRenderer();
         ShaderState.host = new McHostWorld();
@@ -109,15 +107,7 @@ public final class PlatformHooks {
                                               .build());
     }
 
-    public static void syncCoreSettings() {
-        CoreSettings.handDepth = 0.125 * ShadersConfig.HandDepth.get();
-        CoreSettings.renderQuality = ShadersConfig.RenderQuality.get();
-        CoreSettings.shadowQuality = ShadersConfig.ShadowQuality.get();
-        CoreSettings.allowDepthOfField = ShadersConfig.LetMeUseDepthOfFieldPlease;
-    }
-
     private static void onShaderSettingsChanged() {
-        syncCoreSettings();
         ShadersConfig.CurrentShaderPack = ShaderPackManager.getCurrentShaderPackName();
         ShaderEngine.scheduleShaderPackReload();
         Configs.syncConfigFile();

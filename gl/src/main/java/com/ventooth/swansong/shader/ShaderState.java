@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.shader;
 
-import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.util.MathUtils;
 import com.ventooth.swansong.shader.loader.ShaderLoaderOutParams;
 import it.unimi.dsi.fastutil.ints.AbstractIntList;
@@ -489,8 +488,7 @@ public final class ShaderState {
         isHeldItemTranslucent = translucent;
     }
 
-    public static boolean updateViewSize() {
-        val q = CoreSettings.renderQuality;
+    public static boolean updateViewSize(double q) {
         val width = (int) (host.displayWidth() * q);
         val height = (int) (host.displayHeight() * q);
 
