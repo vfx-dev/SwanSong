@@ -3,6 +3,7 @@ plugins {
 }
 
 include("uniforms")
+include("shaderpack")
 include("forge1710")
 
 rootProject.name = "SwanSong"

@@ -19,7 +19,8 @@ import org.apache.logging.log4j.Logger;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Share {
     public static final String MC_VERSION = "1.7.10";
-    public static final Logger log = LogManager.getLogger(Tags.MOD_NAME);
+    private static final String MOD_NAME = "SwanSong";
+    public static final Logger log = LogManager.getLogger(MOD_NAME);
 
     // TODO: Some debug? Verbose? Logging? :idk:
     public static Logger getLogger() {
@@ -32,6 +33,6 @@ public final class Share {
     }
 
     public static Logger getLogger(String name) {
-        return LogManager.getLogger(Tags.MOD_NAME + "|" + name);
+        return LogManager.getLogger(MOD_NAME + "|" + name);
     }
 }
