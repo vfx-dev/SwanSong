@@ -178,14 +178,6 @@ public final class ShaderEngine {
         }
     }
 
-    // TODO: remove
-    public static boolean hasInstancedShader() {
-        if (state == null) {
-            return false;
-        }
-        return !state.manager.instanced.isFallback();
-    }
-
     public static void beginRenderAllPre() {
         if (isInitialized()) {
             return;

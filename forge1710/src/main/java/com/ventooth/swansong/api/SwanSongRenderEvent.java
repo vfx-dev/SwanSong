@@ -18,26 +18,4 @@ public abstract class SwanSongRenderEvent extends SwanSongEvent {
     public final boolean isCancelable() {
         return false;
     }
-
-    // TODO: remove
-    /**
-     * Experimental hook for doing instanced rendering.
-     * <p>
-     * Figure out the draw calls yourself, nerd.
-     */
-    @ApiStatus.Experimental
-    public static final class InstancedEntities extends SwanSongRenderEvent {
-        public final Pass pass;
-
-        public InstancedEntities(int pass) {
-            this.pass = (pass == 0) ? Pass.OPAQUE : Pass.TRANSLUCENT;
-        }
-    }
-
-    // TODO: Any way we can make this like, cleaner?
-    @ApiStatus.Experimental
-    public enum Pass {
-        OPAQUE,
-        TRANSLUCENT
-    }
 }

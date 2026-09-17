@@ -50,8 +50,6 @@ public final class ShaderTypes {
     public static final ShaderId gbuffers_damagedblock;
     public static final ShaderId gbuffers_water;
     public static final ShaderId gbuffers_block;
-    // TODO: remove
-    public static final ShaderId gbuffers_instanced;
 
     public static final ShaderId shadow;
 
@@ -88,8 +86,6 @@ public final class ShaderTypes {
         gbuffers_damagedblock       = listBuilder.addSingle("gbuffers_damagedblock");
         gbuffers_water              = listBuilder.addSingle("gbuffers_water");
         gbuffers_block              = listBuilder.addSingle("gbuffers_block");
-        // TODO: remove
-        gbuffers_instanced          = listBuilder.addSingle("gbuffers_instanced");
         // Shadows
         shadow                      = listBuilder.addSingle("shadow");
         // Composites
@@ -154,8 +150,6 @@ public final class ShaderTypes {
         registerFallback(gbuffers_damagedblock, gbuffers_terrain);
         registerFallback(gbuffers_water, gbuffers_terrain);
         registerFallback(gbuffers_block, gbuffers_terrain);
-        // TODO: remove
-        registerFallback(gbuffers_instanced, gbuffers_entities);
 
         registerFallback(blit_color_mismatched, null);
         registerFallback(blit_depth_mismatched, null);

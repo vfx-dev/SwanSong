@@ -47,13 +47,4 @@ public final class ShaderStateInfo {
     public static boolean shadowPassActive() {
         return ShaderEngine.graph.isShadowPass();
     }
-
-    // TODO: remove
-    /**
-     * @return {@code true} if the instanced rendering pass exists
-     */
-    @ApiStatus.Experimental
-    public static boolean instancedPassExists() {
-        return ShaderEngine.hasInstancedShader();
-    }
 }

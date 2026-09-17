@@ -32,20 +32,6 @@ public class DanglingWiresTess {
 
     public static final @Unmodifiable ObjectList<AttribMapping> attribs;
 
-    // TODO: remove
-    public static @Unmodifiable ObjectList<AttribMapping> hostAttribs = ObjectLists.emptyList();
-
-    // TODO: remove
-    public static @Unmodifiable ObjectList<AttribMapping> allAttribs() {
-        if (hostAttribs.isEmpty()) {
-            return attribs;
-        }
-        val all = new ObjectArrayList<AttribMapping>(attribs.size() + hostAttribs.size());
-        all.addAll(attribs);
-        all.addAll(hostAttribs);
-        return ObjectLists.unmodifiable(all);
-    }
-
     static {
         val tempAttribs = new ObjectArrayList<AttribMapping>();
         tempAttribs.add(new AttribMapping(entityAttrib, "mc_Entity"));
