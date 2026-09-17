@@ -527,14 +527,7 @@ public abstract class Option {
             });
         }
 
-        //TODO convert to record
-        static final class Int implements Value {
-            private final int v;
-
-            public Int(int v) {
-                this.v = v;
-            }
-
+        record Int(int v) implements Value {
             @Override
             public String toString() {
                 return Integer.toString(v);
@@ -559,38 +552,9 @@ public abstract class Option {
             public Double doubleValue() {
                 return (double) v;
             }
-
-            public int v() {
-                return v;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == this) {
-                    return true;
-                }
-                if (obj == null || obj.getClass() != this.getClass()) {
-                    return false;
-                }
-                var that = (Int) obj;
-                return this.v == that.v;
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(v);
-            }
-
         }
 
-        //TODO convert to record
-        static final class Dbl implements Value {
-            private final double v;
-
-            public Dbl(double v) {
-                this.v = v;
-            }
-
+        record Dbl(double v) implements Value {
             @Override
             public String toString() {
                 return Double.toString(v);
@@ -616,37 +580,9 @@ public abstract class Option {
                 return v;
             }
 
-            public double v() {
-                return v;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == this) {
-                    return true;
-                }
-                if (obj == null || obj.getClass() != this.getClass()) {
-                    return false;
-                }
-                var that = (Dbl) obj;
-                return Double.doubleToLongBits(this.v) == Double.doubleToLongBits(that.v);
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(v);
-            }
-
         }
 
-        //TODO convert to record
-        static final class Str implements Value {
-            private final String v;
-
-            public Str(String v) {
-                this.v = v;
-            }
-
+        record Str(String v) implements Value {
             @Override
             public String toString() {
                 return v;
@@ -670,27 +606,6 @@ public abstract class Option {
             @Override
             public Double doubleValue() {
                 return null;
-            }
-
-            public String v() {
-                return v;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == this) {
-                    return true;
-                }
-                if (obj == null || obj.getClass() != this.getClass()) {
-                    return false;
-                }
-                var that = (Str) obj;
-                return Objects.equals(this.v, that.v);
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(v);
             }
 
         }

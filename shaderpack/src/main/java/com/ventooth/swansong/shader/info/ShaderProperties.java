@@ -37,31 +37,13 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 
-//TODO convert to record
-public final class ShaderProperties {
-    private final Screen screen;
-    private final Object2ObjectMap<String, String> profiles;
-    private final ObjectList<String> programEnableExpressions;
-    private final ObjectList<ShaderVar> shaderVars;
-    private final Object2ObjectMap<String, String> alphaTest;
-    private final Object2ObjectMap<String, String> texture;
-    private final Object2ObjectMap<String, String> everything;
-
-    public ShaderProperties(Screen screen,
-                            Object2ObjectMap<String, String> profiles,
-                            ObjectList<String> programEnableExpressions,
-                            ObjectList<ShaderVar> shaderVars,
-                            Object2ObjectMap<String, String> alphaTest,
-                            Object2ObjectMap<String, String> texture,
-                            Object2ObjectMap<String, String> everything) {
-        this.screen = screen;
-        this.profiles = profiles;
-        this.programEnableExpressions = programEnableExpressions;
-        this.shaderVars = shaderVars;
-        this.alphaTest = alphaTest;
-        this.texture = texture;
-        this.everything = everything;
-    }
+public record ShaderProperties(Screen screen,
+                               Object2ObjectMap<String, String> profiles,
+                               ObjectList<String> programEnableExpressions,
+                               ObjectList<ShaderVar> shaderVars,
+                               Object2ObjectMap<String, String> alphaTest,
+                               Object2ObjectMap<String, String> texture,
+                               Object2ObjectMap<String, String> everything) {
 
     public static @NotNull ShaderProperties parse(byte[] code) {
         val properties = new OrderedProperties();
@@ -233,83 +215,6 @@ public final class ShaderProperties {
 
     private @Nullable String getValue(@NotNull String name) {
         return everything.get(name);
-    }
-
-    public Screen screen() {
-        return screen;
-    }
-
-    public Object2ObjectMap<String, String> profiles() {
-        return profiles;
-    }
-
-    public ObjectList<String> programEnableExpressions() {
-        return programEnableExpressions;
-    }
-
-    public ObjectList<ShaderVar> shaderVars() {
-        return shaderVars;
-    }
-
-    public Object2ObjectMap<String, String> alphaTest() {
-        return alphaTest;
-    }
-
-    public Object2ObjectMap<String, String> texture() {
-        return texture;
-    }
-
-    public Object2ObjectMap<String, String> everything() {
-        return everything;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (ShaderProperties) obj;
-        return Objects.equals(this.screen, that.screen) &&
-               Objects.equals(this.profiles, that.profiles) &&
-               Objects.equals(this.programEnableExpressions, that.programEnableExpressions) &&
-               Objects.equals(this.shaderVars, that.shaderVars) &&
-               Objects.equals(this.alphaTest, that.alphaTest) &&
-               Objects.equals(this.texture, that.texture) &&
-               Objects.equals(this.everything, that.everything);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(screen, profiles, programEnableExpressions, shaderVars, alphaTest, texture, everything);
-    }
-
-    @Override
-    public String toString() {
-        return "ShaderProperties[" +
-               "screen=" +
-               screen +
-               ", " +
-               "profiles=" +
-               profiles +
-               ", " +
-               "programEnableExpressions=" +
-               programEnableExpressions +
-               ", " +
-               "shaderVars=" +
-               shaderVars +
-               ", " +
-               "alphaTest=" +
-               alphaTest +
-               ", " +
-               "texture=" +
-               texture +
-               ", " +
-               "everything=" +
-               everything +
-               ']';
     }
 
 }

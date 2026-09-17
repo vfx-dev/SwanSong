@@ -321,118 +321,14 @@ public class MacroInterpreter {
         return true;
     }
 
-    //TODO convert to record
-    public static final class Result {
-        private final @Nullable GLSL glsl;
-        private final @NotNull
-        @Unmodifiable List<TaggedLine> code;
-        private final @NotNull
-        @Unmodifiable Int2ObjectMap<Option> options;
+    public record Result(@Nullable GLSL glsl,
+                         @NotNull @Unmodifiable List<TaggedLine> code,
+                         @NotNull @Unmodifiable Int2ObjectMap<Option> options) {
 
-        public Result(@Nullable GLSL glsl,
-                      @NotNull @Unmodifiable List<TaggedLine> code,
-                      @NotNull @Unmodifiable Int2ObjectMap<Option> options) {
-            this.glsl = glsl;
-            this.code = code;
-            this.options = options;
-        }
 
-        public @Nullable GLSL glsl() {
-            return glsl;
-        }
-
-        public @NotNull @Unmodifiable List<TaggedLine> code() {
-            return code;
-        }
-
-        public @NotNull @Unmodifiable Int2ObjectMap<Option> options() {
-            return options;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (Result) obj;
-            return Objects.equals(this.glsl, that.glsl) &&
-                   Objects.equals(this.code, that.code) &&
-                   Objects.equals(this.options, that.options);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(glsl, code, options);
-        }
-
-        @Override
-        public String toString() {
-            return "Result[" + "glsl=" + glsl + ", " + "code=" + code + ", " + "options=" + options + ']';
-        }
-
-        //TODO convert to record
-        public static final class GLSL {
-            private final @Nullable String version;
-            private final @NotNull
-            @Unmodifiable List<String> extensions;
-            private final @Nullable
-            @Unmodifiable IntList renderTargets;
-
-            public GLSL(@Nullable String version,
-                        @NotNull @Unmodifiable List<String> extensions,
-                        @Nullable @Unmodifiable IntList renderTargets) {
-                this.version = version;
-                this.extensions = extensions;
-                this.renderTargets = renderTargets;
-            }
-
-            public @Nullable String version() {
-                return version;
-            }
-
-            public @NotNull @Unmodifiable List<String> extensions() {
-                return extensions;
-            }
-
-            public @Nullable @Unmodifiable IntList renderTargets() {
-                return renderTargets;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == this) {
-                    return true;
-                }
-                if (obj == null || obj.getClass() != this.getClass()) {
-                    return false;
-                }
-                var that = (GLSL) obj;
-                return Objects.equals(this.version, that.version) &&
-                       Objects.equals(this.extensions, that.extensions) &&
-                       Objects.equals(this.renderTargets, that.renderTargets);
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(version, extensions, renderTargets);
-            }
-
-            @Override
-            public String toString() {
-                return "GLSL[" +
-                       "version=" +
-                       version +
-                       ", " +
-                       "extensions=" +
-                       extensions +
-                       ", " +
-                       "renderTargets=" +
-                       renderTargets +
-                       ']';
-            }
+        public record GLSL(@Nullable String version,
+                           @NotNull @Unmodifiable List<String> extensions,
+                           @Nullable @Unmodifiable IntList renderTargets) {
         }
     }
 }

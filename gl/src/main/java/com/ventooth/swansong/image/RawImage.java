@@ -15,17 +15,9 @@ import lombok.val;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-//TODO convert to record
-public final class RawImage {
-    private final int[] data;
-    private final int width;
-    private final int height;
-
-    public RawImage(int[] data, int width, int height) {
-        this.data = data;
-        this.width = width;
-        this.height = height;
-    }
+public record RawImage(int[] data,
+                       int width,
+                       int height) {
 
     public BufferedImage asBufImg(boolean withAlpha, boolean flipY) {
         val img = new BufferedImage(width,
@@ -42,39 +34,5 @@ public final class RawImage {
         }
         return img;
     }
-
-    public int[] data() {
-        return data;
-    }
-
-    public int width() {
-        return width;
-    }
-
-    public int height() {
-        return height;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (RawImage) obj;
-        return Objects.equals(this.data, that.data) && this.width == that.width && this.height == that.height;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(data, width, height);
-    }
-
-    @Override
-    public String toString() {
-        return "RawImage[" + "data=" + data + ", " + "width=" + width + ", " + "height=" + height + ']';
-    }
-
+    
 }

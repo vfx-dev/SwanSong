@@ -109,51 +109,13 @@ public abstract class UniformFunctionRegistry {
             subRegistries.add(subRegistry);
         }
 
-        //TODO convert to record
-        private static final class MultiIterable implements Iterable<UniformFunction> {
-            private final String name;
-            private final Iterable<UniformFunctionRegistry> subIterables;
-
-            private MultiIterable(String name, Iterable<UniformFunctionRegistry> subIterables) {
-                this.name = name;
-                this.subIterables = subIterables;
-            }
+        private record MultiIterable(String name,
+                                     Iterable<UniformFunctionRegistry> subIterables) implements Iterable<UniformFunction> {
 
             @Override
             public @NotNull Iterator<UniformFunction> iterator() {
                 return new MultiIterator(name, subIterables.iterator());
             }
-
-            public String name() {
-                return name;
-            }
-
-            public Iterable<UniformFunctionRegistry> subIterables() {
-                return subIterables;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                if (obj == this) {
-                    return true;
-                }
-                if (obj == null || obj.getClass() != this.getClass()) {
-                    return false;
-                }
-                var that = (MultiIterable) obj;
-                return Objects.equals(this.name, that.name) && Objects.equals(this.subIterables, that.subIterables);
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(name, subIterables);
-            }
-
-            @Override
-            public String toString() {
-                return "MultiIterable[" + "name=" + name + ", " + "subIterables=" + subIterables + ']';
-            }
-
 
             @RequiredArgsConstructor
             private static class MultiIterator implements Iterator<UniformFunction> {

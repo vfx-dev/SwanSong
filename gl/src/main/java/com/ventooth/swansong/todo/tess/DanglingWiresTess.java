@@ -43,10 +43,7 @@ public class DanglingWiresTess {
         attribs = ObjectLists.unmodifiable(tempAttribs);
     }
 
-    //TODO make this a record
-    @RequiredArgsConstructor
-    public static class AttribMapping {
-        public final int index;
-        public final String name;
+    public record AttribMapping(int index,
+                                String name) {
     }
 }

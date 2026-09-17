@@ -114,19 +114,9 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
         return highestDetected;
     }
 
-    //TODO convert to record
-    public static final class Profile {
-        private final String localizedName;
-        private final String name;
-        private final @Unmodifiable Object2ObjectMap<String, Option.Value> optionSettings;
-
-        public Profile(String localizedName,
-                       String name,
-                       @Unmodifiable Object2ObjectMap<String, Option.Value> optionSettings) {
-            this.localizedName = localizedName;
-            this.name = name;
-            this.optionSettings = optionSettings;
-        }
+    public record Profile(String localizedName,
+                          String name,
+                          @Unmodifiable Object2ObjectMap<String, Option.Value> optionSettings) {
 
         public static Profile parse(ObjectList<Profile> knownProfiles,
                                     Localization locale,
@@ -193,51 +183,6 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
                 }
                 option.setCurrentValue(expectedValue);
             }
-        }
-
-        public String localizedName() {
-            return localizedName;
-        }
-
-        public String name() {
-            return name;
-        }
-
-        public @Unmodifiable Object2ObjectMap<String, Option.Value> optionSettings() {
-            return optionSettings;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (Profile) obj;
-            return Objects.equals(this.localizedName, that.localizedName) &&
-                   Objects.equals(this.name, that.name) &&
-                   Objects.equals(this.optionSettings, that.optionSettings);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(localizedName, name, optionSettings);
-        }
-
-        @Override
-        public String toString() {
-            return "Profile[" +
-                   "localizedName=" +
-                   localizedName +
-                   ", " +
-                   "name=" +
-                   name +
-                   ", " +
-                   "optionSettings=" +
-                   optionSettings +
-                   ']';
         }
 
     }

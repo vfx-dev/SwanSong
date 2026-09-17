@@ -92,34 +92,14 @@ public final class Configs {
         return categories;
     }
 
-    //TODO convert to record
-    static final class CfgCategory {
-        private final String name;
-        private final String lang;
-        private final Class<?> type;
-
-        CfgCategory(String name, String lang, Class<?> type) {
-            this.name = name;
-            this.lang = lang;
-            this.type = type;
-        }
+    record CfgCategory(String name,
+                       String lang,
+                       Class<?> type) {
 
         @SuppressWarnings({"rawtypes", "unchecked"})
         IConfigElement asElement() throws ConfigException {
             val innerElements = ConfigurationManager.getConfigElementsMulti(type);
             return new DummyConfigElement.DummyCategoryElement(name, lang, innerElements);
-        }
-
-        public String name() {
-            return name;
-        }
-
-        public String lang() {
-            return lang;
-        }
-
-        public Class<?> type() {
-            return type;
         }
 
         @Override
@@ -134,16 +114,6 @@ public final class Configs {
             return Objects.equals(this.name, that.name) &&
                    Objects.equals(this.lang, that.lang) &&
                    Objects.equals(this.type, that.type);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, lang, type);
-        }
-
-        @Override
-        public String toString() {
-            return "CfgCategory[" + "name=" + name + ", " + "lang=" + lang + ", " + "type=" + type + ']';
         }
 
     }

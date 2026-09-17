@@ -16,30 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-//TODO convert to record
-public final class UniformFunction {
-    private final @Nullable Method constantFoldMethod;
-    private final String javaOwner;
-    private final String javaName;
-    private final Type returns;
-    private final List<Type> params;
-    private final boolean statefulIndexed;
-
-    public UniformFunction(@Nullable Method constantFoldMethod,
-                           String javaOwner,
-                           String javaName,
-                           Type returns,
-                           List<Type> params,
-                           boolean statefulIndexed) {
-        this.constantFoldMethod = constantFoldMethod;
-        this.javaOwner = javaOwner;
-        this.javaName = javaName;
-        this.returns = returns;
-        this.params = params;
-        this.statefulIndexed = statefulIndexed;
-    }
+public record UniformFunction(@Nullable Method constantFoldMethod,
+                              String javaOwner,
+                              String javaName,
+                              Type returns,
+                              List<Type> params,
+                              boolean statefulIndexed) {
 
     public static UniformFunction of(Method method, boolean constantFoldable, boolean statefulIndexed) {
         val returns = Type.of(method.getReturnType());
@@ -54,75 +37,6 @@ public final class UniformFunction {
                                    returns,
                                    params,
                                    statefulIndexed);
-    }
-
-    public @Nullable Method constantFoldMethod() {
-        return constantFoldMethod;
-    }
-
-    public String javaOwner() {
-        return javaOwner;
-    }
-
-    public String javaName() {
-        return javaName;
-    }
-
-    public Type returns() {
-        return returns;
-    }
-
-    public List<Type> params() {
-        return params;
-    }
-
-    public boolean statefulIndexed() {
-        return statefulIndexed;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (UniformFunction) obj;
-        return Objects.equals(this.constantFoldMethod, that.constantFoldMethod) &&
-               Objects.equals(this.javaOwner, that.javaOwner) &&
-               Objects.equals(this.javaName, that.javaName) &&
-               Objects.equals(this.returns, that.returns) &&
-               Objects.equals(this.params, that.params) &&
-               this.statefulIndexed == that.statefulIndexed;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(constantFoldMethod, javaOwner, javaName, returns, params, statefulIndexed);
-    }
-
-    @Override
-    public String toString() {
-        return "UniformFunction[" +
-               "constantFoldMethod=" +
-               constantFoldMethod +
-               ", " +
-               "javaOwner=" +
-               javaOwner +
-               ", " +
-               "javaName=" +
-               javaName +
-               ", " +
-               "returns=" +
-               returns +
-               ", " +
-               "params=" +
-               params +
-               ", " +
-               "statefulIndexed=" +
-               statefulIndexed +
-               ']';
     }
 
 }

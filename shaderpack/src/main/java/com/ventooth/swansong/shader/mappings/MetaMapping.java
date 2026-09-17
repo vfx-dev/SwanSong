@@ -20,15 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-//TODO convert to record
-public final class MetaMapping {
-    private final int outputID;
-    private final @Nullable IntSet pattern;
-
-    public MetaMapping(int outputID, @Nullable IntSet pattern) {
-        this.outputID = outputID;
-        this.pattern = pattern;
-    }
+public record MetaMapping(int outputID,
+                          @Nullable IntSet pattern) {
 
     public boolean matches(int meta) {
         if (pattern == null) {
@@ -80,37 +73,6 @@ public final class MetaMapping {
         mappings.add(new MetaMapping(outputID, metas));
         return Status.Added;
     }
-
-    public int outputID() {
-        return outputID;
-    }
-
-    public @Nullable IntSet pattern() {
-        return pattern;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (MetaMapping) obj;
-        return this.outputID == that.outputID && Objects.equals(this.pattern, that.pattern);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(outputID, pattern);
-    }
-
-    @Override
-    public String toString() {
-        return "MetaMapping[" + "outputID=" + outputID + ", " + "pattern=" + pattern + ']';
-    }
-
 
     public enum Status {
         Added,

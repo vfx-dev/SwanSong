@@ -369,53 +369,9 @@ public class ShaderPreprocessor {
         }
     }
 
-    //TODO convert to record
-    private static final class PreprocessedCode {
-        private final List<String> prelude;
-        private final List<TaggedLine> code;
-        private final Int2ObjectMap<Option> opts;
-
-        private PreprocessedCode(List<String> prelude, List<TaggedLine> code, Int2ObjectMap<Option> opts) {
-            this.prelude = prelude;
-            this.code = code;
-            this.opts = opts;
-        }
-
-        public List<String> prelude() {
-            return prelude;
-        }
-
-        public List<TaggedLine> code() {
-            return code;
-        }
-
-        public Int2ObjectMap<Option> opts() {
-            return opts;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (PreprocessedCode) obj;
-            return Objects.equals(this.prelude, that.prelude) &&
-                   Objects.equals(this.code, that.code) &&
-                   Objects.equals(this.opts, that.opts);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(prelude, code, opts);
-        }
-
-        @Override
-        public String toString() {
-            return "PreprocessedCode[" + "prelude=" + prelude + ", " + "code=" + code + ", " + "opts=" + opts + ']';
-        }
+    private record PreprocessedCode(List<String> prelude,
+                                    List<TaggedLine> code,
+                                    Int2ObjectMap<Option> opts) {
 
     }
 }

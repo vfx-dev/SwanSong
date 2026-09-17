@@ -16,10 +16,7 @@ import com.ventooth.swansong.config.CompatConfig;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -123,17 +120,10 @@ public final class EventHijacker {
     }
 
 
-    @Getter
-    @AllArgsConstructor
-    @Accessors(fluent = true,
-               chain = false)
-    //TODO convert to record
-    public static final class EventHandlerInfo {
-        public final ModContainer owner;
-        public final Object target;
-        public final Method method;
-        public final SubscribeEvent subInfo;
-
+    public record EventHandlerInfo(ModContainer owner,
+                                   Object target,
+                                   Method method,
+                                   SubscribeEvent subInfo) {
         public String modId() {
             return owner.getModId();
         }

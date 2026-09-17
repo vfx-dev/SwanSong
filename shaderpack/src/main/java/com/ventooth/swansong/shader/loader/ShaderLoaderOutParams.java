@@ -235,62 +235,8 @@ public class ShaderLoaderOutParams {
         Off
     }
 
-    //TODO convert to record
-    public static final class StagedTexture {
-        private final String stage;
-        private final String bufferName;
-        private final String path;
-
-        public StagedTexture(String stage, String bufferName, String path) {
-            this.stage = stage;
-            this.bufferName = bufferName;
-            this.path = path;
-        }
-
-        public String stage() {
-            return stage;
-        }
-
-        public String bufferName() {
-            return bufferName;
-        }
-
-        public String path() {
-            return path;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (StagedTexture) obj;
-            return Objects.equals(this.stage, that.stage) &&
-                   Objects.equals(this.bufferName, that.bufferName) &&
-                   Objects.equals(this.path, that.path);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(stage, bufferName, path);
-        }
-
-        @Override
-        public String toString() {
-            return "StagedTexture[" +
-                   "stage=" +
-                   stage +
-                   ", " +
-                   "bufferName=" +
-                   bufferName +
-                   ", " +
-                   "path=" +
-                   path +
-                   ']';
-        }
-
+    public record StagedTexture(String stage,
+                                String bufferName,
+                                String path) {
     }
 }

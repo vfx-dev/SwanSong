@@ -21,17 +21,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-//TODO convert to record
-public final class Localization {
-    private final String name;
-    private final ObjectList<String> description;
-    private final Object2ObjectMap<String, String> options;
-
-    public Localization(String name, ObjectList<String> description, Object2ObjectMap<String, String> options) {
-        this.name = name;
-        this.description = description;
-        this.options = options;
-    }
+public record Localization(String name,
+                           ObjectList<String> description,
+                           Object2ObjectMap<String, String> options) {
 
     public static String localize(PackLocalizer locale, String key) {
         return locale.packText(key);
@@ -122,51 +114,6 @@ public final class Localization {
             options = Object2ObjectMaps.unmodifiable(theOptions);
         }
         return new Localization(localizedName, commentLines, options);
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public ObjectList<String> description() {
-        return description;
-    }
-
-    public Object2ObjectMap<String, String> options() {
-        return options;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (Localization) obj;
-        return Objects.equals(this.name, that.name) &&
-               Objects.equals(this.description, that.description) &&
-               Objects.equals(this.options, that.options);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, description, options);
-    }
-
-    @Override
-    public String toString() {
-        return "Localization[" +
-               "name=" +
-               name +
-               ", " +
-               "description=" +
-               description +
-               ", " +
-               "options=" +
-               options +
-               ']';
     }
 
 }

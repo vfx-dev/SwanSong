@@ -144,7 +144,7 @@ public final class ShaderCompiler {
         program.glAttachShader(fragShader);
 
         for (val attrib : attribs) {
-            program.glBindAttribLocation(attrib.index, attrib.name);
+            program.glBindAttribLocation(attrib.index(), attrib.name());
         }
 
         program.glLinkProgram();

@@ -33,10 +33,7 @@ public final class PBRTexture2D extends Texture2D {
         this.loc = loc;
     }
 
-    public static PBRTexture2D ofWrapped(String loc,
-                                         int width,
-                                         int height,
-                                         int glName) {
+    public static PBRTexture2D ofWrapped(String loc, int width, int height, int glName) {
         val texture = new GLTexture();
         texture.glName = glName;
         return new PBRTexture2D(loc, texture, width, height);
@@ -70,52 +67,8 @@ public final class PBRTexture2D extends Texture2D {
         return new PBRTexture2D(loc, texture, width, height);
     }
 
-    // TODO: convert to record
-    public static final class Bundle {
-        private final String base;
-        private final @Nullable PBRTexture2D norm;
-        private final @Nullable PBRTexture2D spec;
-
-        public Bundle(String base, @Nullable PBRTexture2D norm, @Nullable PBRTexture2D spec) {
-            this.base = base;
-            this.norm = norm;
-            this.spec = spec;
-        }
-
-        public String base() {
-            return base;
-        }
-
-        public @Nullable PBRTexture2D norm() {
-            return norm;
-        }
-
-        public @Nullable PBRTexture2D spec() {
-            return spec;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || obj.getClass() != this.getClass()) {
-                return false;
-            }
-            var that = (Bundle) obj;
-            return Objects.equals(this.base, that.base) &&
-                   Objects.equals(this.norm, that.norm) &&
-                   Objects.equals(this.spec, that.spec);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(base, norm, spec);
-        }
-
-        @Override
-        public String toString() {
-            return "Bundle[" + "base=" + base + ", " + "norm=" + norm + ", " + "spec=" + spec + ']';
-        }
+    public record Bundle(String base,
+                         @Nullable PBRTexture2D norm,
+                         @Nullable PBRTexture2D spec) {
     }
 }
