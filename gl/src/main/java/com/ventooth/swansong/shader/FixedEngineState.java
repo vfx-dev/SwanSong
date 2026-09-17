@@ -153,11 +153,11 @@ class FixedEngineState {
 
         val fallbackPools = new ArrayList<Supplier<IShaderPool>>(loaders.size());
         for (val loader : loaders) {
-            fallbackPools.add(() -> ShaderCompiler.lazyCompile(loader, DanglingWiresTess.attribs));
+            fallbackPools.add(() -> ShaderCompiler.lazyCompile(loader, DanglingWiresTess.allAttribs()));
         }
 
         try (val shaderPool = new MultiShaderPool(ShaderCompiler.compile(mainLoader,
-                                                                        DanglingWiresTess.attribs,
+                                                                        DanglingWiresTess.allAttribs(),
                                                                         report), fallbackPools, report)) {
             b.manager = ShaderBinding.init(shaderPool, dimension);
 

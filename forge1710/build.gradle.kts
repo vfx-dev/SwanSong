@@ -110,6 +110,7 @@ configurations.shadowImplementation {
 dependencies {
     shadowImplementation(project(":uniforms"))
     shadowImplementation(project(":shaderpack"))
+    shadowImplementation(project(":gl"))
 
     apiSplit("com.falsepattern:falsepatternlib-mc1.7.10:1.9.0")
 

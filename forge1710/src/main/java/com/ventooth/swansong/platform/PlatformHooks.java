@@ -17,6 +17,7 @@ import com.falsepattern.lib.util.FileUtil;
 import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.Tags;
 import com.ventooth.swansong.Share;
+import com.ventooth.swansong.api.SwanSongAttributes.Instanced;
 import com.ventooth.swansong.config.Configs;
 import com.ventooth.swansong.config.DebugConfig;
 import com.ventooth.swansong.config.ModuleConfig;
@@ -27,7 +28,12 @@ import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
+import com.ventooth.swansong.todo.tess.DanglingWiresTess;
+import com.ventooth.swansong.todo.tess.DanglingWiresTess.AttribMapping;
 import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -70,7 +76,26 @@ public final class PlatformHooks {
         ShaderState.worldSampler = McWorldSampler::sample;
         ShaderState.heldItemIdSource = McWorldSampler::heldItemId;
         ShaderState.heldBlockLightSource = McWorldSampler::heldBlockLightValue;
+        DanglingWiresTess.hostAttribs = instancedAttribs();
         UniformCodegen.dumpDirSupplier = PlatformHooks::uniformDumpDir;
+    }
+
+    private static ObjectList<AttribMapping> instancedAttribs() {
+        val attribs = new ObjectArrayList<AttribMapping>();
+        attribs.add(new AttribMapping(Instanced.staticPosition, "inst_Position"));
+        attribs.add(new AttribMapping(Instanced.staticTexture, "inst_Texture"));
+        attribs.add(new AttribMapping(Instanced.staticColor, "inst_Color"));
+        attribs.add(new AttribMapping(Instanced.staticEntityData, "inst_EntityData"));
+        attribs.add(new AttribMapping(Instanced.staticNormal, "inst_Normal"));
+        attribs.add(new AttribMapping(Instanced.staticTangent, "inst_Tangent"));
+        attribs.add(new AttribMapping(Instanced.staticMidTexture, "inst_MidTexture"));
+        attribs.add(new AttribMapping(Instanced.staticEdgeTexture, "inst_EdgeTexture"));
+
+        attribs.add(new AttribMapping(Instanced.dynamicModelMat, "inst_ModelMat"));
+        attribs.add(new AttribMapping(Instanced.dynamicBrightnessR, "inst_BrightnessR"));
+        attribs.add(new AttribMapping(Instanced.dynamicBrightnessG, "inst_BrightnessG"));
+        attribs.add(new AttribMapping(Instanced.dynamicBrightnessB, "inst_BrightnessB"));
+        return ObjectLists.unmodifiable(attribs);
     }
 
     private static @Nullable Integer findBlockId(String modId, String blockName) {
