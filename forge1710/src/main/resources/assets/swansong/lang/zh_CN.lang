@@ -16,10 +16,6 @@ config.swansong.modules.Zoom.tooltip=缩放选项的设置选项
 
 config.swansong.debug.ApplyVenterceptorLogFilters=应用 Venterceptor 日志过滤器
 config.swansong.debug.ApplyVenterceptorLogFilters.tooltip=如果使用了 Venterceptor 的 GLDebug 日志记录，则过滤掉刷屏的消息。
-config.swansong.debug.UseGLObjectLabels=OpenGL 对象标签
-config.swansong.debug.UseGLObjectLabels.tooltip=我们是否应该启用（或者可能禁用?）创建对象上的标签。
-config.swansong.debug.UseGLDebugGroups=OpenGL 调试组
-config.swansong.debug.UseGLDebugGroups.tooltip=用于标记调用等操作发生区域的有用小分组。
 
 config.swansong.shaders.CurrentShaderPack=当前光影包
 config.swansong.shaders.CurrentShaderPack.tooltip=待办：CurrentShaderPack 描述!

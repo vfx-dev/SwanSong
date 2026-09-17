@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.debug;
 
-import com.ventooth.swansong.CoreSettings;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,8 +36,10 @@ public enum DebugMarker {
 
     private final int id;
 
+    private static final boolean ENABLED = Boolean.getBoolean("swansong.glDebugMarkers");
+
     public static boolean isEnabled() {
-        return CoreSettings.glDebugMarkers;
+        return ENABLED;
     }
 
     public void insert() {

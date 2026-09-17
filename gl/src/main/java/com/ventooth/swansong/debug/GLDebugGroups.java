@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.debug;
 
-import com.ventooth.swansong.CoreSettings;
 import com.ventooth.swansong.StackStateTracker;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -50,8 +49,10 @@ public final class GLDebugGroups {
     private static final StackStateTracker<Void> stack = new StackStateTracker<>(true);
 
 
+    private static final boolean ENABLED = Boolean.getBoolean("swansong.glDebugGroups");
+
     public static boolean isEnabled() {
-        return CoreSettings.glDebugGroups;
+        return ENABLED;
     }
 
     public static void push(@NonNull GLDebugGroups.Key group) {

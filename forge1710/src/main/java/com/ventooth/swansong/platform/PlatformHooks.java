@@ -19,7 +19,6 @@ import com.ventooth.swansong.Tags;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.Configs;
 import com.ventooth.swansong.config.DebugConfig;
-import com.ventooth.swansong.config.ModuleConfig;
 import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.gl.ShaderHax;
 import com.ventooth.swansong.resources.ShaderPackManager;
@@ -111,9 +110,6 @@ public final class PlatformHooks {
     }
 
     public static void syncCoreSettings() {
-        CoreSettings.glDebugMarkers = DebugConfig.GLDebugMarkers;
-        CoreSettings.glDebugGroups = ModuleConfig.Debug && DebugConfig.UseGLDebugGroups;
-        CoreSettings.glObjectLabels = ModuleConfig.Debug && DebugConfig.UseGLObjectLabels;
         CoreSettings.handDepth = 0.125 * ShadersConfig.HandDepth.get();
         CoreSettings.renderQuality = ShadersConfig.RenderQuality.get();
         CoreSettings.shadowQuality = ShadersConfig.ShadowQuality.get();

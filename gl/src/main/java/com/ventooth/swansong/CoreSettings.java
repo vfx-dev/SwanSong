@@ -15,12 +15,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CoreSettings {
-    public static boolean glDebugMarkers = false;
-
-    public static boolean glDebugGroups = false;
-
-    public static boolean glObjectLabels = false;
-
     public static double handDepth = 1;
 
     public static double renderQuality = 1;

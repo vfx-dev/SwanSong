@@ -16,10 +16,6 @@ config.swansong.modules.Zoom.tooltip=Settings for the zoom module
 
 config.swansong.debug.ApplyVenterceptorLogFilters=Apply Venterceptor Log Filters
 config.swansong.debug.ApplyVenterceptorLogFilters.tooltip=Filter out spammy messages if Venterceptor GLDebug logging is in use.
-config.swansong.debug.UseGLObjectLabels=OpenGL Object Labels
-config.swansong.debug.UseGLObjectLabels.tooltip=If we should enable (or perhaps, disable?) tagged labels on created objects.
-config.swansong.debug.UseGLDebugGroups=OpenGL Debug Groups
-config.swansong.debug.UseGLDebugGroups.tooltip=Useful little grouping for marking regions where calls and stuff happen.
 
 config.swansong.shaders.CurrentShaderPack=Current ShaderPack
 config.swansong.shaders.CurrentShaderPack.tooltip=TODO: CurrentShaderPack Desc!

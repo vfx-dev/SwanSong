@@ -31,21 +31,6 @@ public final class DebugConfig {
     @Config.DefaultBoolean(true)
     public static boolean ApplyVenterceptorLogFilters;
 
-    @Config.Name("UseGLObjectLabels")
-    @Config.Comment("If we should enable (or perhaps, disable?) tagged labels on created objects.")
-    @Config.LangKey("config.swansong.debug.UseGLObjectLabels")
-    @Config.DefaultBoolean(false)
-    public static boolean UseGLObjectLabels;
-
-    @Config.Name("UseGLDebugGroups")
-    @Config.Comment("Useful little grouping for marking regions where calls and stuff happen.")
-    @Config.LangKey("config.swansong.debug.UseGLDebugGroups")
-    @Config.DefaultBoolean(false)
-    public static boolean UseGLDebugGroups;
-
-    @Config.DefaultBoolean(false)
-    public static boolean GLDebugMarkers; // TODO: Desc
-
     @Config.DefaultBoolean(false)
     public static boolean DumpCompiledUniforms; // TODO: Desc
 }
