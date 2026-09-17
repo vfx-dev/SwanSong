@@ -112,7 +112,7 @@ public final class FunkyZoom {
     }
 
     public static float tweakFov(float baseFov) {
-        return baseFov / 4; //TODO: This is the same modifier as used by OptiFine zoom
+        return baseFov / 4; // Same modifier as OptiFine zoom
     }
 
     private enum SmoothCameraState {

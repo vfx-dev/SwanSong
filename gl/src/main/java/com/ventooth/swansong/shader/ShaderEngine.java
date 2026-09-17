@@ -990,13 +990,6 @@ public final class ShaderEngine {
         }
     }
 
-    // region Shader Hooks
-
-    // TODO: Used for toggling sky basic/textured, as was done in shaders mod
-
-    // TODO: Used for toggling sky basic/textured, as was done in shaders mod
-    // endregion
-
     public static int remapBlockID(int blockID, int meta) {
         //Thread safety
         val _state = state;

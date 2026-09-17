@@ -58,8 +58,6 @@ public class GLProgram {
      * Uhh, the name of the active uniform?
      */
     public String glGetActiveUniform(int index, int maxLength) {
-        // TODO: This function is missing from LWJGL3ify?
-        // return GL20.glGetActiveUniform(glName, index, maxLength);
         return GL20.glGetActiveUniform(glName, index, maxLength, TEMP);
     }
 
@@ -120,10 +118,6 @@ public class GLProgram {
 
     public void glValidateProgram() {
         GL20.glValidateProgram(glName);
-    }
-
-    public boolean glGetProgramValidateStatus() {
-        return GL20.glGetProgrami(glName, GL20.GL_VALIDATE_STATUS) == GL11.GL_TRUE;
     }
 
     // endregion

@@ -28,8 +28,6 @@ public enum MCRenderStage {
     NONE,
     /**
      * The upper portion of the sky not including stars or textures like the sun/moon.
-     * <p>
-     * TODO: Wire this up
      */
     SKY,
     /**

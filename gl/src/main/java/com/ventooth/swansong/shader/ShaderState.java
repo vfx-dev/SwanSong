@@ -157,7 +157,6 @@ public final class ShaderState {
     private static boolean useOldBlockLight = true;
 
     private static int blockEntityId = 0;
-    private static AbstractIntList blockEntityIdStack = new IntArrayList();
     private static int entityId = 0;
 
     private static int renderStage = 0;
@@ -323,10 +322,6 @@ public final class ShaderState {
         return prevCamPosFract;
     }
 
-    public static Vector3ic prevCamPosInt() {
-        return prevCamPosInt;
-    }
-
     public static Vector3dc prevCamPosIntD() {
         return prevCamPosIntD;
     }
@@ -478,24 +473,6 @@ public final class ShaderState {
     }
 
     public static void nextBlockEntity(int newId) {
-        if (newId != blockEntityId) {
-            blockEntityId = newId;
-            updateUniforms();
-        }
-    }
-
-    public static void pushBlockEntity() {
-        if (blockEntityIdStack.size() >= 32) {
-            throw new IllegalStateException("Block entity ID stack overflow!");
-        }
-        blockEntityIdStack.push(blockEntityId);
-    }
-
-    public static void popBlockEntity() {
-        if (blockEntityIdStack.isEmpty()) {
-            throw new IllegalStateException("Tried to pop empty block entity ID stack");
-        }
-        int newId = blockEntityIdStack.popInt();
         if (newId != blockEntityId) {
             blockEntityId = newId;
             updateUniforms();

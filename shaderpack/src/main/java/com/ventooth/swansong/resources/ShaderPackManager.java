@@ -85,10 +85,6 @@ public final class ShaderPackManager {
         setShaderPackByName(initialPackName);
     }
 
-    public static File resolveFile(String name) {
-        return resolvePath(name).toFile();
-    }
-
     public static Path resolvePath(String name) {
         return shaderpacksDir.resolve(name);
     }
@@ -247,14 +243,6 @@ public final class ShaderPackManager {
         log.error("Failed to load shader pack named \"" + currentShaderPackName + "\"");
         setShaderPackByName(DISABLED_SHADER_PACK_NAME);
         return null;
-    }
-
-    public static void saveShaderPackConfig(List<String> dataz) {
-        try {
-            Files.write(shaderpacksDir.resolve(currentShaderPackName + ".txt"), dataz);
-        } catch (IOException e) {
-            log.error("Failed to save shader pack config:", e);
-        }
     }
 
     public static byte @Nullable [] readShaderPackConfig() {
