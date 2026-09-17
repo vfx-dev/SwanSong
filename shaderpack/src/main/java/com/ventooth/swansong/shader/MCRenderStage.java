@@ -87,6 +87,7 @@ public enum MCRenderStage {
      * Block entity geometry.
      */
     BLOCK_ENTITIES,
+    // TODO: remove
     /**
      * End portal, thaumcraft pylon, etc.
      */

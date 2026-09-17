@@ -39,6 +39,7 @@ public abstract class RenderTesseractStarfieldMixin {
                                        float par5,
                                        Operation<Void> original) {
         if (ShaderEngine.graph.isManaged()) {
+            // TODO: remove
             if (ShaderEngine.hasPortalShader()) {
                 ShaderEngine.graph.push(StateGraph.Stack.Portal);
                 ShaderState.pushBlockEntity();

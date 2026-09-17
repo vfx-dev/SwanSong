@@ -132,6 +132,7 @@ public final class ShaderState {
 
     private static final Vector4d entityColor = new Vector4d(0D);
 
+    // TODO: remove
     private static final boolean[] portalEye = new boolean[4];
 
     private static final Vector2i atlasSize = new Vector2i();
@@ -381,6 +382,7 @@ public final class ShaderState {
         return entityColor;
     }
 
+    // TODO: remove
     public static boolean[] portalEye() {
         return portalEye;
     }
@@ -508,6 +510,7 @@ public final class ShaderState {
         }
     }
 
+    // TODO: remove
     public static void portal(int endPortalBlockId) {
         blockEntityId = endPortalBlockId;
         updateUniforms();
@@ -767,6 +770,7 @@ public final class ShaderState {
         updateUniforms();
     }
 
+    // TODO: remove
     public static void updatePortalEyeState(boolean s, boolean t, boolean r, boolean q) {
         portalEye[0] = s;
         portalEye[1] = t;

@@ -64,7 +64,9 @@ public class ShaderBinding {
     public final GBufferShader terrain;
     public final GBufferShader water;
     public final GBufferShader block;
+    // TODO: remove
     public final GBufferShader portal;
+    // TODO: remove
     public final GBufferShader instanced;
 
     public final @Nullable ShadowShader shadow;
@@ -99,7 +101,9 @@ public class ShaderBinding {
             b.terrain(b.gBuffer(shaderPool, ShaderTypes.gbuffers_terrain));
             b.water(b.gBuffer(shaderPool, ShaderTypes.gbuffers_water));
             b.block(b.gBuffer(shaderPool, ShaderTypes.gbuffers_block));
+            // TODO: remove
             b.portal(b.gBuffer(shaderPool, ShaderTypes.gbuffers_portal));
+            // TODO: remove
             b.instanced(b.gBuffer(shaderPool, ShaderTypes.gbuffers_instanced));
 
             b.shadow(b.safeInit(ShadowShader.load(shaderPool, ShaderTypes.shadow, false)));

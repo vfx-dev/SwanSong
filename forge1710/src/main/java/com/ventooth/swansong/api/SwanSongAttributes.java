@@ -12,6 +12,7 @@ package com.ventooth.swansong.api;
 
 import org.jetbrains.annotations.ApiStatus;
 
+// TODO: remove
 @ApiStatus.Experimental
 public final class SwanSongAttributes {
     @ApiStatus.Experimental

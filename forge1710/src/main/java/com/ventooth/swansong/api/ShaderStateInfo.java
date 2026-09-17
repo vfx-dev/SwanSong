@@ -48,6 +48,7 @@ public final class ShaderStateInfo {
         return ShaderEngine.graph.isShadowPass();
     }
 
+    // TODO: remove
     /**
      * @return {@code true} if the instanced rendering pass exists
      */

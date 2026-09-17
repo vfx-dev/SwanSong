@@ -57,10 +57,12 @@ public abstract class TileEldritchObeliskRendererMixin {
             }
 
             GL11.glDisable(GL11.GL_LIGHTING);
+            // TODO: remove
             if (!ShaderEngine.hasPortalShader()) {
                 inrange = false;
             }
 
+            // TODO: remove
             ShaderEngine.graph.push(StateGraph.Stack.Portal);
             ShaderState.pushBlockEntity();
             ShaderState.portal(McShaderIds.endPortalBlockId());
@@ -86,6 +88,7 @@ public abstract class TileEldritchObeliskRendererMixin {
             GL11.glEnable(GL11.GL_LIGHTING);
             ShaderState.nextBlockEntity(McShaderIds.blockEntityId(te));
             ShaderState.popBlockEntity();
+            // TODO: remove
             ShaderEngine.graph.pop(StateGraph.Stack.Portal);
         }
     }

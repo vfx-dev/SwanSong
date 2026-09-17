@@ -40,6 +40,7 @@ public final class McShaderIds {
         return EntityList.getEntityID(entity);
     }
 
+    // TODO: remove
     public static int endPortalBlockId() {
         return blockId(Blocks.end_portal, 0);
     }

@@ -231,6 +231,7 @@ public abstract class RenderGlobalMixin {
                 ShaderEngine.graph.moveToEither(StateGraph.Node.ShadowBlockEntities0,
                                                 StateGraph.Node.ShadowBlockEntities1);
             } else {
+                // TODO: remove
                 if (ShaderEngine.hasInstancedShader()) {
                     ShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntitiesInstanced0,
                                                     StateGraph.Node.RenderEntitiesInstanced1);

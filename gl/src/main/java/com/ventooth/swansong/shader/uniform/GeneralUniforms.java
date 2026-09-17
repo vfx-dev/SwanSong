@@ -50,6 +50,7 @@ public final class GeneralUniforms {
             .addMat4("shadowProjectionInverse", ShaderState::shadowProjectionInverse)
             .addMat4("shadowModelView", ShaderState::shadowModelView)
             .addMat4("shadowModelViewInverse", ShaderState::shadowModelViewInverse)
+            // TODO: remove
             .addBool("swan_portalEyeS", () -> ShaderState.portalEye()[0])
             .addBool("swan_portalEyeT", () -> ShaderState.portalEye()[1])
             .addBool("swan_portalEyeR", () -> ShaderState.portalEye()[2])

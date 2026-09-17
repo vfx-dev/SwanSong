@@ -189,10 +189,12 @@ public class StateGraph {
             use(state.manager.basic);
         });
         edge(RenderWeatherEntities0, RenderEntities0);
+        // TODO: remove
         edge(RenderEntities0, RenderEntitiesInstanced0, () -> {
             updateRenderStage(MCRenderStage.ENTITIES);
             use(state.manager.instanced);
         });
+        // TODO: remove
         edge(RenderEntitiesInstanced0, RenderBlockEntities0, () -> {
             ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
@@ -246,10 +248,12 @@ public class StateGraph {
             use(state.manager.textured_lit);
         });
         edge(RenderWeatherEntities1, RenderEntities1);
+        // TODO: remove
         edge(RenderEntities1, RenderEntitiesInstanced1, () -> {
             updateRenderStage(MCRenderStage.ENTITIES);
             use(state.manager.instanced);
         });
+        // TODO: remove
         edge(RenderEntitiesInstanced1, RenderBlockEntities1, () -> {
             ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
@@ -416,6 +420,7 @@ public class StateGraph {
         RenderChunk0,
         RenderWeatherEntities0,
         RenderEntities0,
+        // TODO: remove
         RenderEntitiesInstanced0,
         RenderBlockEntities0,
         RenderSelectionBox,
@@ -427,6 +432,7 @@ public class StateGraph {
         RenderChunk1,
         RenderWeatherEntities1,
         RenderEntities1,
+        // TODO: remove
         RenderEntitiesInstanced1,
         RenderBlockEntities1,
         RenderLast;
@@ -541,6 +547,7 @@ public class StateGraph {
                 }
             }
         },
+        // TODO: remove
         Portal {
             @Override
             protected void push(Node currentNode) {

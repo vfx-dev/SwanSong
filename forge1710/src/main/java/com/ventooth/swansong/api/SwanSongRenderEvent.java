@@ -19,6 +19,7 @@ public abstract class SwanSongRenderEvent extends SwanSongEvent {
         return false;
     }
 
+    // TODO: remove
     /**
      * Experimental hook for doing instanced rendering.
      * <p>

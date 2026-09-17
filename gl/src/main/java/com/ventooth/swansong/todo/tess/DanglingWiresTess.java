@@ -32,8 +32,10 @@ public class DanglingWiresTess {
 
     public static final @Unmodifiable ObjectList<AttribMapping> attribs;
 
+    // TODO: remove
     public static @Unmodifiable ObjectList<AttribMapping> hostAttribs = ObjectLists.emptyList();
 
+    // TODO: remove
     public static @Unmodifiable ObjectList<AttribMapping> allAttribs() {
         if (hostAttribs.isEmpty()) {
             return attribs;

@@ -56,6 +56,7 @@ public abstract class RenderEndPortalMixin {
                 return;
             }
 
+            // TODO: remove
             if (ShaderEngine.hasPortalShader()) {
                 ShaderState.updatePortalEyeState(false, false, false, true);
                 // Shader support end portals via a gbuffer shader
@@ -72,6 +73,7 @@ public abstract class RenderEndPortalMixin {
             at = @At("RETURN"))
     private void endPortal(TileEntityEndPortal entity, double x, double y, double z, float tickDelta, CallbackInfo ci) {
         if (ShaderEngine.graph.isManaged()) {
+            // TODO: remove
             if (ShaderEngine.hasPortalShader()) {
                 ShaderEngine.graph.pop(StateGraph.Stack.Portal);
             }

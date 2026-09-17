@@ -76,10 +76,12 @@ public final class PlatformHooks {
         ShaderState.worldSampler = McWorldSampler::sample;
         ShaderState.heldItemIdSource = McWorldSampler::heldItemId;
         ShaderState.heldBlockLightSource = McWorldSampler::heldBlockLightValue;
+        // TODO: remove
         DanglingWiresTess.hostAttribs = instancedAttribs();
         UniformCodegen.dumpDirSupplier = PlatformHooks::uniformDumpDir;
     }
 
+    // TODO: remove
     private static ObjectList<AttribMapping> instancedAttribs() {
         val attribs = new ObjectArrayList<AttribMapping>();
         attribs.add(new AttribMapping(Instanced.staticPosition, "inst_Position"));
