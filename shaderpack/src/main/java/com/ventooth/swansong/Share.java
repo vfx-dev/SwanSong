@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Share {
-    public static final String MC_VERSION = "1.7.10";
     private static final String MOD_NAME = "SwanSong";
     public static final Logger log = LogManager.getLogger(MOD_NAME);
 

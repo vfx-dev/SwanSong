@@ -80,7 +80,7 @@ public final class SwanSong {
         @Override
         public void preInit(FMLPreInitializationEvent event) {
             ModJarContainer.init();
-            EnvInfo.init(GLEnvProbe.probe(Share.MC_VERSION, Tags.MOD_VERSION));
+            EnvInfo.init(GLEnvProbe.probe("1.7.10", Tags.MOD_VERSION));
 
             if (EnvInfo.isMacOS()) {
                 Share.log.warn("Current MacOS support not great :(");
