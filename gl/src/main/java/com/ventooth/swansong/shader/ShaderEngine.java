@@ -15,6 +15,7 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.debug.GLSimpleDebug;
+import com.ventooth.swansong.gl.GLSampler;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import com.ventooth.swansong.shader.config.ConfigEntry;
@@ -92,8 +93,7 @@ public final class ShaderEngine {
     private static @Nullable CompositePipeline finalPipeline;
     private static Framebuffer mcFramebuffer;
     private static Texture2D mcTexture;
-    // TODO [SAMPLER]: Move to a better spot
-    private static int blitSrcSampler;
+    private static @Nullable GLSampler blitSrcSampler;
 
     private static final AbstractObjectList<ManagedShader> shaderStack = new ObjectArrayList<>();
 
@@ -535,16 +535,18 @@ public final class ShaderEngine {
         // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
         reloadMinecraftRenderersSafe();
 
-        // TODO [SAMPLER]: Move to a better spot
-        if (!EnvInfo.isMacOS()) {
+        if (EnvInfo.isMacOS()) {
+            blitSrcSampler = null;
+        } else {
             // This whole thing was a workaround for Nvidia screaming over the debug port
             // TL;DR the blit source is sometimes the shadow texture with hardware filtering enabled
             // Which technically breaks the spec, so the sampler gets overridden here
-            blitSrcSampler = GL33.glGenSamplers();
-            GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-            GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
-            GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-            GL33.glSamplerParameteri(blitSrcSampler, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+            blitSrcSampler = new GLSampler();
+            blitSrcSampler.glGenSamplers();
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         }
 
         if (!shaderPackLoaded) {
@@ -586,10 +588,9 @@ public final class ShaderEngine {
             state = null;
         }
 
-        // TODO [SAMPLER]: Move to a better spot
-        if (blitSrcSampler != 0) {
-            GL33.glDeleteSamplers(blitSrcSampler);
-            blitSrcSampler = 0;
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glDeleteSampler();
+            blitSrcSampler = null;
         }
 
         if (shaderPackLoaded) {
@@ -851,9 +852,8 @@ public final class ShaderEngine {
             throw new AssertionError();
         }
 
-        // TODO [SAMPLER]: Move to a better spot
-        if (blitSrcSampler != 0) {
-            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glBindSampler(CompositeTextureData.blitsrc.gpuIndex());
         }
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
@@ -904,8 +904,7 @@ public final class ShaderEngine {
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
-        // TODO [SAMPLER]: Move to a better spot
-        if (blitSrcSampler != 0) {
+        if (blitSrcSampler != null) {
             GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
         }
 
@@ -922,9 +921,8 @@ public final class ShaderEngine {
             return;
         }
 
-        // TODO [SAMPLER]: Move to a better spot
-        if (blitSrcSampler != 0) {
-            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), blitSrcSampler);
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glBindSampler(CompositeTextureData.blitsrc.gpuIndex());
         }
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
@@ -955,8 +953,7 @@ public final class ShaderEngine {
             DebugMarker.TEXTURE_DEPTH_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());
         }
 
-        // TODO [SAMPLER]: Move to a better spot
-        if (blitSrcSampler != 0) {
+        if (blitSrcSampler != null) {
             GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
         }
 
