@@ -20,8 +20,7 @@ public class GLTexture {
         glName = GL11.glGenTextures();
     }
 
-    // TODO: Rename to Delete Textures
-    public void glDeleteShader() {
+    public void glDeleteTextures() {
         GL11.glDeleteTextures(glName);
         glName = 0;
     }

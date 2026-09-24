@@ -258,7 +258,7 @@ public class Texture2D {
     // endregion
 
     public void deinit() {
-        texture.glDeleteShader();
+        texture.glDeleteTextures();
     }
 
     public void bind() {
