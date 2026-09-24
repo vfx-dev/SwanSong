@@ -47,7 +47,6 @@ public class TessellatorShaderTransformer implements TurboClassTransformer {
     private static final String SHADER_TESS_DESC = "L" + SHADER_TESS_INTERNAL + ";";
     private static final String TVS_INTERNAL = "net/minecraft/client/shader/TesselatorVertexState";
     private static final String TVS_DESC = "L" + TVS_INTERNAL + ";";
-    private static final String ENGINE_INTERNAL = "com/ventooth/swansong/shader/ShaderEngine";
 
     @Override
     public String owner() {
@@ -138,8 +137,9 @@ public class TessellatorShaderTransformer implements TurboClassTransformer {
     }
 
     private LabelNode skipIfNotEnabled(InsnList instructions) {
+        instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         val label = new LabelNode();
-        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, ENGINE_INTERNAL, "isInitialized", "()Z", false));
+        instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, TESS_INTERNAL, "swansong$shadersEnabled", "()Z", false));
         instructions.add(new JumpInsnNode(Opcodes.IFEQ, label));
         return label;
     }

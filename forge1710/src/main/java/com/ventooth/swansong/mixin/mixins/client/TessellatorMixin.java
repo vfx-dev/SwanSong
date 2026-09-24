@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client;
 
+import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.tessellator.ShaderTess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,4 +34,12 @@ public abstract class TessellatorMixin {
         }
     }
 
+    /// @return `true` if [ShaderTess] will be used, otherwise `false
+    ///
+    /// @implNote Called from ASM: [com.ventooth.swansong.asm.transformers.TessellatorShaderTransformer]
+    @Unique
+    @SuppressWarnings("unused")
+    private boolean swansong$shadersEnabled() {
+        return ShaderEngine.isInitialized();
+    }
 }

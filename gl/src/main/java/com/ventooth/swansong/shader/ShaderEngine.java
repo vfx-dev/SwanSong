@@ -122,7 +122,6 @@ public final class ShaderEngine {
         return state == null ? null : state.configScreen;
     }
 
-    //CALLED BY ASM!
     public static boolean isInitialized() {
         return state != null;
     }
