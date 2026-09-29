@@ -12,7 +12,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,10 +32,10 @@ public abstract class MinecraftMixin {
                             remap = false),
                    require = 1)
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
-        ShaderEngine.beginRenderAllPre();
-        if (ShaderEngine.isInitialized()) {
+        OldShaderEngine.beginRenderAllPre();
+        if (OldShaderEngine.isInitialized()) {
             ShaderState.updateSubTick(subTick);
-            ShaderEngine.beginRenderAll();
+            OldShaderEngine.beginRenderAll();
         }
         original.call(instance, subTick);
     }
@@ -47,8 +47,8 @@ public abstract class MinecraftMixin {
                    require = 1)
     private void hook_EndFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         original.call(instance, subTick);
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.endRenderAll();
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.endRenderAll();
         }
     }
 
@@ -58,15 +58,15 @@ public abstract class MinecraftMixin {
               require = 1)
     private void hook_ReloadShaderPack(RenderGlobal rg) {
         // We will call loadRenderers() ourselves later when the shader reloads
-        ShaderEngine.scheduleShaderPackReload();
+        OldShaderEngine.scheduleShaderPackReload();
     }
 
     @Inject(method = "updateFramebufferSize",
             at = @At("RETURN"),
             require = 1)
     private void hook_ResizeWindow(CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.scheduleFramebufferResize();
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.scheduleFramebufferResize();
         }
     }
 }

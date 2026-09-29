@@ -13,7 +13,7 @@ package com.ventooth.swansong.compat;
 import com.falsepattern.lib.util.RenderUtil;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.CompatConfig;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -37,12 +37,12 @@ public final class EventHijacker {
                 "renderLastEvent".equals(info.methodName())) {
                 Share.log.info("Hijacked NEI overlay for compat");
                 return (original, event, info1) -> {
-                    if (!ShaderEngine.graph.isManaged()) {
+                    if (!OldShaderEngine.graph.isManaged()) {
                         original.invoke(event);
                         return;
                     }
 
-                    ShaderEngine.graph.push(StateGraph.Stack.NEIOverlay);
+                    OldShaderEngine.graph.push(StateGraph.Stack.NEIOverlay);
 
                     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                     try {
@@ -51,7 +51,7 @@ public final class EventHijacker {
                         GL11.glPopAttrib();
                     }
 
-                    ShaderEngine.graph.pop(StateGraph.Stack.NEIOverlay);
+                    OldShaderEngine.graph.pop(StateGraph.Stack.NEIOverlay);
                 };
             }
         }
@@ -61,12 +61,12 @@ public final class EventHijacker {
                            info.methodName());
 
             return (original, event, info1) -> {
-                if (!ShaderEngine.graph.isManaged()) {
+                if (!OldShaderEngine.graph.isManaged()) {
                     original.invoke(event);
                     return;
                 }
 
-                ShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
+                OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
 
                 // Needed to ensure no texture or lightmap being present
                 RenderUtil.bindEmptyTexture();
@@ -87,7 +87,7 @@ public final class EventHijacker {
                     GL11.glPopAttrib();
                 }
 
-                ShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
+                OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
             };
         }
         // TODO: Config?
@@ -98,12 +98,12 @@ public final class EventHijacker {
 
             // This stuff happens right after entities render on both pass 0 and pass 1
             return (original, event, info1) -> {
-                if (!ShaderEngine.graph.isManaged()) {
+                if (!OldShaderEngine.graph.isManaged()) {
                     original.invoke(event);
                     return;
                 }
 
-                ShaderEngine.graph.push(StateGraph.Stack.DragonAPI);
+                OldShaderEngine.graph.push(StateGraph.Stack.DragonAPI);
 
                 GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                 try {
@@ -112,7 +112,7 @@ public final class EventHijacker {
                     GL11.glPopAttrib();
                 }
 
-                ShaderEngine.graph.pop(StateGraph.Stack.DragonAPI);
+                OldShaderEngine.graph.pop(StateGraph.Stack.DragonAPI);
             };
         }
 

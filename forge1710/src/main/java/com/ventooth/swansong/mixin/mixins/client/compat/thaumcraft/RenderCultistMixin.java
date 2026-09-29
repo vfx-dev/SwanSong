@@ -3,7 +3,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.thaumcraft;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,14 +50,14 @@ public abstract class RenderCultistMixin {
                                            Operation<Void> original) {
         // Only on translucent pass
         if (MinecraftForgeClient.getRenderPass() == 1) {
-            if (ShaderEngine.graph.isManaged()) {
+            if (OldShaderEngine.graph.isManaged()) {
                 // Only on render pass, not on shadow
-                if (ShaderEngine.graph.isRender()) {
+                if (OldShaderEngine.graph.isRender()) {
 
                     // Treat this part as a particle, as to avoid any benign PBR logic
-                    ShaderEngine.graph.push(StateGraph.Stack.EntityParticle);
+                    OldShaderEngine.graph.push(StateGraph.Stack.EntityParticle);
                     original.call(instance, x, y, z, x2, y2, z2, partialTicks, color, texture, speed, distance, width);
-                    ShaderEngine.graph.pop(StateGraph.Stack.EntityParticle);
+                    OldShaderEngine.graph.pop(StateGraph.Stack.EntityParticle);
                 }
             } else {
                 original.call(instance, x, y, z, x2, y2, z2, partialTicks, color, texture, speed, distance, width);

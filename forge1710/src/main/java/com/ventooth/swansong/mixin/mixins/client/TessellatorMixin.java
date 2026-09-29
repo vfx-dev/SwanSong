@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client;
 
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.tessellator.ShaderTess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,6 +40,6 @@ public abstract class TessellatorMixin {
     @Unique
     @SuppressWarnings("unused")
     private boolean swansong$shadersEnabled() {
-        return ShaderEngine.isInitialized();
+        return OldShaderEngine.isInitialized();
     }
 }

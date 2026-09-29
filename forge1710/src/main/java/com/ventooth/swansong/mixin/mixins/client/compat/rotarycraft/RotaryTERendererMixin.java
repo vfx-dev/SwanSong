@@ -14,7 +14,7 @@ import Reika.RotaryCraft.Base.RotaryTERenderer;
 import Reika.RotaryCraft.Base.TileEntity.TileEntityIOMachine;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,17 +29,17 @@ public abstract class RotaryTERendererMixin {
                                       double posY,
                                       double posZ,
                                       Operation<Void> original) {
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             // No rendering on the shadow pass, or if io tick is zero'd out
-            if (ShaderEngine.graph.isShadowPass() || te.iotick <= 0) {
+            if (OldShaderEngine.graph.isShadowPass() || te.iotick <= 0) {
                 return;
             }
 
-            ShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
+            OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
             GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
             original.call(te, posX, posY, posZ);
             GL11.glPopAttrib();
-            ShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
+            OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
         } else {
             original.call(te, posX, posY, posZ);
         }

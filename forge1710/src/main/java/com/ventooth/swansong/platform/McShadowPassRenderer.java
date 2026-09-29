@@ -13,7 +13,7 @@ package com.ventooth.swansong.platform;
 import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
 import com.ventooth.swansong.shader.DrawBuffers;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.ShadowPassRenderer;
 import com.ventooth.swansong.shader.ShadowProperties;
@@ -86,7 +86,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         Minecraft mc = Minecraft.getMinecraft();
         RenderGlobal renderGlobal = mc.renderGlobal;
-        ShaderEngine.graph.moveTo(Node.ShadowBegin);
+        OldShaderEngine.graph.moveTo(Node.ShadowBegin);
         val preShadowPassThirdPersonView = mc.gameSettings.thirdPersonView;
         mc.gameSettings.thirdPersonView = 1;
 
@@ -138,7 +138,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
                     }
                 }
             } catch (RuntimeException e) {
-                ShaderEngine.log.error("Caught error while doing the shadow culling: ", e);
+                OldShaderEngine.log.error("Caught error while doing the shadow culling: ", e);
             }
         }
 
@@ -163,7 +163,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         GLDebugGroups.RENDER_SHADOW_0_TERRAIN.push();
         {
-            ShaderEngine.graph.moveTo(Node.ShadowChunk0);
+            OldShaderEngine.graph.moveTo(Node.ShadowChunk0);
             renderGlobal.renderSortedRenderers(0, numWrs, 0, partialTicks);
         }
         GLDebugGroups.RENDER_SHADOW_0_TERRAIN.pop();
@@ -187,15 +187,15 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
         GL11.glPopMatrix();
         // endregion
 
-        ShaderEngine.unlockShader();
+        OldShaderEngine.unlockShader();
         // shadowtex0 -> [includes all geometry]
         // shadowtex1 -> [excludes transparent geometry]
         //
         // So like, we rendered all the OPAQUE stuff so we blit it over
-        ShaderEngine.blitDepth(buffers.shadowDepthTex0, buffers.shadowDepthTex1);
+        OldShaderEngine.blitDepth(buffers.shadowDepthTex0, buffers.shadowDepthTex1);
         // Needed as blit will drop the FB binding...
         buffers.shadow.bind();
-        ShaderEngine.lockShader();
+        OldShaderEngine.lockShader();
 
         // region Render Translucent
         GL11.glDepthMask(true);
@@ -211,7 +211,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         GLDebugGroups.RENDER_SHADOW_1_TERRAIN.push();
         {
-            ShaderEngine.graph.moveTo(Node.ShadowChunk1);
+            OldShaderEngine.graph.moveTo(Node.ShadowChunk1);
             renderGlobal.renderSortedRenderers(0, numWrs, 1, partialTicks);
         }
         GLDebugGroups.RENDER_SHADOW_1_TERRAIN.pop();
@@ -232,21 +232,21 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
         GL11.glDisable(GL11.GL_BLEND);
         // endregion
 
-        ShaderEngine.graph.moveTo(Node.ShadowLast);
+        OldShaderEngine.graph.moveTo(Node.ShadowLast);
 
         mc.gameSettings.thirdPersonView = preShadowPassThirdPersonView;
 
         if (shadow.depthMipmapEnabled(0)) {
-            ShaderEngine.genMipmap(buffers.shadowDepthTex0);
+            OldShaderEngine.genMipmap(buffers.shadowDepthTex0);
         }
         if (shadow.depthMipmapEnabled(1)) {
-            ShaderEngine.genMipmap(buffers.shadowDepthTex1);
+            OldShaderEngine.genMipmap(buffers.shadowDepthTex1);
         }
         if (shadow.colorMipmapEnabled(0)) {
-            ShaderEngine.genMipmap(buffers.shadowColorTex0);
+            OldShaderEngine.genMipmap(buffers.shadowColorTex0);
         }
         if (shadow.colorMipmapEnabled(1)) {
-            ShaderEngine.genMipmap(buffers.shadowColorTex1);
+            OldShaderEngine.genMipmap(buffers.shadowColorTex1);
         }
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);

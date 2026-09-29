@@ -14,7 +14,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import org.lwjgl.opengl.GL11;
@@ -48,7 +48,7 @@ public abstract class EntityRendererMixin {
                                 target = "Lnet/minecraft/client/renderer/ItemRenderer;renderItemInFirstPerson(F)V"),
                        require = 1)
     private boolean skip_RenderHand(ItemRenderer instance, float subTick) {
-        return !ShaderEngine.isInitialized();
+        return !OldShaderEngine.isInitialized();
     }
 
     @Inject(method = "disableLightmap(D)V",
@@ -69,8 +69,8 @@ public abstract class EntityRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void hook_BeginRenderWorld(CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.beginRenderWorld();
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.beginRenderWorld();
         }
     }
 
@@ -94,7 +94,7 @@ public abstract class EntityRendererMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void state_UpdateCamera(CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             ShaderState.updateCamera(true);
         }
     }
@@ -114,7 +114,7 @@ public abstract class EntityRendererMixin {
                        opcode = Opcodes.GETFIELD),
               require = 2)
     private boolean setupCameraTransform_anaglyph(GameSettings instance) {
-        return ShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
+        return OldShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
     }
 
     @Redirect(method = "renderWorld(FJ)V",
@@ -123,7 +123,7 @@ public abstract class EntityRendererMixin {
                        opcode = Opcodes.GETFIELD),
               require = 3)
     private boolean renderWorld_anaglyph(GameSettings instance) {
-        return ShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
+        return OldShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
     }
 
     @WrapOperation(method = "renderWorld(FJ)V",
@@ -132,10 +132,10 @@ public abstract class EntityRendererMixin {
                             remap = false),
                    require = 1)
     private void hook_RenderLastAndEndRenderWorld(RenderGlobal rg, float subTick, Operation<Void> original) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.preRenderLast();
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.preRenderLast();
             original.call(rg, subTick);
-            ShaderEngine.finishRenderFinal();
+            OldShaderEngine.finishRenderFinal();
         } else {
             original.call(rg, subTick);
         }
@@ -147,7 +147,7 @@ public abstract class EntityRendererMixin {
                                 remap = false),
                        require = 9)
     private boolean state_UpdateFogMode(int pname, int param) {
-        if (ShaderEngine.isInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             if (pname == GL11.GL_FOG_MODE) {
                 ShaderState.updateFogMode(param);
             }
@@ -159,7 +159,7 @@ public abstract class EntityRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void state_UpdateFogColor(float r, float g, float b, float a, CallbackInfoReturnable<FloatBuffer> cir) {
-        if (ShaderEngine.isInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             ShaderState.updateFogColor(r, g, b);
         }
     }
@@ -171,8 +171,8 @@ public abstract class EntityRendererMixin {
                      args = "ldc=clear"),
             require = 1)
     private void renderBegin(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderBegin);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderBegin);
         }
     }
 
@@ -181,8 +181,8 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;renderSky(F)V"),
             require = 1)
     private void renderSky(CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderSkyBasic);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderSkyBasic);
         }
     }
 
@@ -191,8 +191,8 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;renderClouds(F)V"),
             require = 1)
     private void renderClouds(RenderGlobal renderer, float tickDelta, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderClouds);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderClouds);
         }
     }
 
@@ -202,8 +202,8 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void renderChunk0(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderChunk0);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderChunk0);
         }
     }
 
@@ -213,8 +213,8 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void renderSelectionBox(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderSelectionBox);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderSelectionBox);
         }
     }
 
@@ -224,8 +224,8 @@ public abstract class EntityRendererMixin {
                      remap = false),
             require = 1)
     private void renderBlockDamage(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderBlockDamage);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderBlockDamage);
         }
     }
 
@@ -234,8 +234,8 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/particle/EffectRenderer;renderLitParticles(Lnet/minecraft/entity/Entity;F)V"),
             require = 1)
     private void renderParticlesLit(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderParticlesLit);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderParticlesLit);
         }
     }
 
@@ -244,8 +244,8 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/particle/EffectRenderer;renderParticles(Lnet/minecraft/entity/Entity;F)V"),
             require = 1)
     private void renderParticles(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderParticles);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderParticles);
         }
     }
 
@@ -254,12 +254,12 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/EntityRenderer;renderRainSnow(F)V"),
             require = 1)
     private void renderWeather(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             GL11.glEnable(GL11.GL_ALPHA_TEST);
-            ShaderEngine.graph.moveTo(Node.RenderWeather);
+            OldShaderEngine.graph.moveTo(Node.RenderWeather);
         }
     }
 
@@ -271,8 +271,8 @@ public abstract class EntityRendererMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_PreWater(CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderHand0);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderHand0);
         }
     }
 
@@ -284,8 +284,8 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void deferredPipeline(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.runDeferredPipeline();
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.runDeferredPipeline();
         }
     }
 
@@ -294,10 +294,10 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/settings/GameSettings;fancyGraphics:Z"),
             require = 1)
     private void renderChunk1(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             //DepthMask is needed for composites
             GL11.glDepthMask(true);
-            ShaderEngine.graph.moveTo(Node.RenderChunk1);
+            OldShaderEngine.graph.moveTo(Node.RenderChunk1);
         }
     }
 
@@ -307,8 +307,8 @@ public abstract class EntityRendererMixin {
                      remap = false),
             require = 1)
     private void renderLast(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.RenderLast);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.RenderLast);
         }
     }
 
@@ -316,8 +316,8 @@ public abstract class EntityRendererMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private void unmanaged(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
-            ShaderEngine.graph.moveTo(Node.Unmanaged);
+        if (OldShaderEngine.isInitialized()) {
+            OldShaderEngine.graph.moveTo(Node.Unmanaged);
         }
     }
     //endregion

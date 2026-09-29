@@ -15,7 +15,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,7 +59,7 @@ public abstract class RendererLivingEntityMixin {
                                          float yaw,
                                          float subTick,
                                          CallbackInfo ci) {
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             val brightness = entity.getBrightness(subTick);
             val color = this.getColorMultiplier(entity, brightness, subTick);
 
@@ -86,6 +86,6 @@ public abstract class RendererLivingEntityMixin {
                                 target = "Lnet/minecraft/client/renderer/OpenGlHelper;setActiveTexture(I)V"),
                        require = 4)
     private boolean skip_SetActiveTexture(int texture) {
-        return !ShaderEngine.isInitialized();
+        return !OldShaderEngine.isInitialized();
     }
 }

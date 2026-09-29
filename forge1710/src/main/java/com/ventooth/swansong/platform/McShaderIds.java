@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -26,7 +26,7 @@ import net.minecraft.tileentity.TileEntity;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class McShaderIds {
     public static int blockId(Block block, int meta) {
-        return ShaderEngine.remapBlockID(Block.getIdFromBlock(block), meta);
+        return OldShaderEngine.remapBlockID(Block.getIdFromBlock(block), meta);
     }
 
     public static int blockEntityId(TileEntity tileEntity) {

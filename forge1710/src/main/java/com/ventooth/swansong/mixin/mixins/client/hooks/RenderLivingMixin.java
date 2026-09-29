@@ -15,7 +15,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,14 +37,14 @@ public abstract class RenderLivingMixin {
                                    Operation<Entity> original,
                                    @Share("graph_pushed") LocalBooleanRef graphPushed) {
         graphPushed.set(false);
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             val leashedEntity = original.call(instance);
             if (leashedEntity == null) {
                 return null;
             }
 
             RenderUtil.bindEmptyTexture();
-            ShaderEngine.graph.push(StateGraph.Stack.Leash);
+            OldShaderEngine.graph.push(StateGraph.Stack.Leash);
             graphPushed.set(true);
 
             return leashedEntity;
@@ -58,7 +58,7 @@ public abstract class RenderLivingMixin {
             require = 1)
     private void graph_PopLeash(CallbackInfo ci, @Share("graph_pushed") LocalBooleanRef graphPushed) {
         if (graphPushed.get()) {
-            ShaderEngine.graph.pop(StateGraph.Stack.Leash);
+            OldShaderEngine.graph.pop(StateGraph.Stack.Leash);
             graphPushed.set(false);
         }
     }

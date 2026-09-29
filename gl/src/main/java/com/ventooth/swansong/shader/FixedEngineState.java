@@ -78,9 +78,9 @@ class FixedEngineState {
         val loader = new ShaderLoader(pack, dimension);
         loader.inExpectedShaders = ShaderTypes.general;
         loader.inParams = ShaderLoaderInParams.builder()
-                                              .handDepth(ShaderEngine.host.handDepth())
-                                              .renderQuality(ShaderEngine.host.renderQuality())
-                                              .shadowQuality(ShaderEngine.host.shadowQuality())
+                                              .handDepth(OldShaderEngine.host.handDepth())
+                                              .renderQuality(OldShaderEngine.host.renderQuality())
+                                              .shadowQuality(OldShaderEngine.host.shadowQuality())
                                               .build();
         loader.inShaderConfig = ShaderPackManager.readShaderPackConfig();
         loader.inEnvInfo = EnvInfo.get();
@@ -142,10 +142,10 @@ class FixedEngineState {
         b.noiseTexPath = outParams.noiseTexture;
         b.noiseTexSize = outParams.noiseTextureResolution;
 
-        ShaderEngine.host.onEngineInit();
+        OldShaderEngine.host.onEngineInit();
 
         // TODO: Check if the shader actually needs center depth before populating, this call is not free.
-        if (ShaderEngine.host.allowDepthOfField()) {
+        if (OldShaderEngine.host.allowDepthOfField()) {
             b.depthSampler = new DepthSampler();
             b.depthSampler.init();
         }
@@ -161,7 +161,7 @@ class FixedEngineState {
             b.manager = ShaderBinding.init(shaderPool, dimension);
 
             if (b.manager.shadow != null) {
-                b.shadow = ShadowProperties.from(outParams, (float) ShaderEngine.host.shadowQuality());
+                b.shadow = ShadowProperties.from(outParams, (float) OldShaderEngine.host.shadowQuality());
             }
             ShaderState.applyParams(outParams);
         } catch (ShaderException e) {
@@ -252,7 +252,7 @@ class FixedEngineState {
             depthSampler.deinit();
         }
 
-        ShaderEngine.host.onEngineDeinit();
+        OldShaderEngine.host.onEngineDeinit();
         manager.deinit();
     }
 }

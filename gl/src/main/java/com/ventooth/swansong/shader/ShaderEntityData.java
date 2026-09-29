@@ -82,7 +82,7 @@ public final class ShaderEntityData {
     }
 
     public void pushEntityBlock(int blockID, int renderType, int meta) {
-        pushRaw((ShaderEngine.remapBlockID(blockID, meta) & 0xFFFF) | ((renderType & 0xFFFF) << 16), meta);
+        pushRaw((OldShaderEngine.remapBlockID(blockID, meta) & 0xFFFF) | ((renderType & 0xFFFF) << 16), meta);
     }
 
     public long getPackedEntityData() {

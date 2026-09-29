@@ -11,7 +11,7 @@
 package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.shader.MCRenderStage;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.client.IRenderHandler;
 
-import static com.ventooth.swansong.shader.ShaderEngine.graph;
+import static com.ventooth.swansong.shader.OldShaderEngine.graph;
 import static com.ventooth.swansong.platform.SkyBoxRenderer.preSkyList;
 
 public final class WorldProviderRenderer {
@@ -40,7 +40,7 @@ public final class WorldProviderRenderer {
     public static IRenderHandler wrapSkyRenderer(@NotNull WorldProvider worldProvider,
                                                  @Nullable IRenderHandler oldRenderer) {
         if (oldRenderer == null) {
-            return ShaderEngine.isInitialized() ? SKY_RENDER_HANDLER : null;
+            return OldShaderEngine.isInitialized() ? SKY_RENDER_HANDLER : null;
         }
         return oldRenderer;
     }

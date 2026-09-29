@@ -64,8 +64,9 @@ import java.util.Map;
 // [GLShader/GLProgram] -> Containers for OpenGL handles
 // Loose, open, no magic or implicit behaviour, simple wrappers on top of the opengl functions
 
+@Deprecated // TODO: Migrate to use 'new' ShaderEngine
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShaderEngine {
+public final class OldShaderEngine {
     public static final boolean DO_GRAPH_LOG = false;
     public static final Logger log = Share.getLogger();
 
@@ -98,7 +99,7 @@ public final class ShaderEngine {
     private static final AbstractObjectList<ManagedShader> shaderStack = new ObjectArrayList<>();
 
     /**
-     * Currently only valid for Lifecycle events, prefer use of {@link ShaderEngine#isInitialized}
+     * Currently only valid for Lifecycle events, prefer use of {@link OldShaderEngine#isInitialized}
      */
     private static boolean shaderPackLoaded = false;
 
@@ -378,7 +379,7 @@ public final class ShaderEngine {
      * Called to reload the shader
      */
     public static void scheduleShaderPackReload() {
-        ShaderEngine.log.debug("Scheduled ShaderPack Reload");
+        OldShaderEngine.log.debug("Scheduled ShaderPack Reload");
         needsShaderPackReload = true;
     }
 
@@ -387,7 +388,7 @@ public final class ShaderEngine {
      */
     public static void scheduleFramebufferResize() {
         assert state != null : "Not Initialized";
-        ShaderEngine.log.debug("Scheduled Framebuffer Resize");
+        OldShaderEngine.log.debug("Scheduled Framebuffer Resize");
         needsFramebufferResize = true;
     }
 
@@ -419,8 +420,8 @@ public final class ShaderEngine {
         } catch (RuntimeException e) {
             report.endTime = System.nanoTime();
             report.print();
-            ShaderEngine.log.error("Caught internal error while loading shaderpack!");
-            ShaderEngine.log.error("Please report this as a bug:", e);
+            OldShaderEngine.log.error("Caught internal error while loading shaderpack!");
+            OldShaderEngine.log.error("Please report this as a bug:", e);
             deinit();
             ShaderPackManager.setShaderPackByName(ShaderPackManager.DISABLED_SHADER_PACK_NAME);
             reloadMinecraftRenderersSafe();
@@ -634,7 +635,7 @@ public final class ShaderEngine {
             }
         }
 
-        ShaderEngine.log.debug("Resized Framebuffer: {}x{}", width, height);
+        OldShaderEngine.log.debug("Resized Framebuffer: {}x{}", width, height);
     }
 
     private static void initFramebuffers(int width, int height, @Nullable Report report) {
@@ -687,7 +688,7 @@ public final class ShaderEngine {
                                                                  report);
         }
 
-        ShaderEngine.log.debug("Initialized Framebuffers");
+        OldShaderEngine.log.debug("Initialized Framebuffers");
     }
 
     private static void deinitFramebuffers() {
@@ -716,7 +717,7 @@ public final class ShaderEngine {
             }
         }
 
-        ShaderEngine.log.debug("Deinitialized Framebuffers");
+        OldShaderEngine.log.debug("Deinitialized Framebuffers");
     }
 
     public static void beginRenderWorld() {

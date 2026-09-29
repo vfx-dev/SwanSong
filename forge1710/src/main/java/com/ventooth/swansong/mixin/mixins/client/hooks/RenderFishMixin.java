@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.falsepattern.lib.util.RenderUtil;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,11 +31,11 @@ public abstract class RenderFishMixin {
                             ordinal = 1),
                    require = 1)
     private int hook_WrapLeash(Tessellator tess, Operation<Integer> original) {
-        if (ShaderEngine.graph.isManaged()) {
-            ShaderEngine.graph.push(StateGraph.Stack.Leash);
+        if (OldShaderEngine.graph.isManaged()) {
+            OldShaderEngine.graph.push(StateGraph.Stack.Leash);
             RenderUtil.bindEmptyTexture();
             val ret = original.call(tess);
-            ShaderEngine.graph.pop(StateGraph.Stack.Leash);
+            OldShaderEngine.graph.pop(StateGraph.Stack.Leash);
             return ret;
         } else {
             return original.call(tess);

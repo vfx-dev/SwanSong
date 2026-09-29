@@ -20,17 +20,16 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.ventooth.swansong.shader.ShaderEngine.lockShader;
-import static com.ventooth.swansong.shader.ShaderEngine.popShader;
-import static com.ventooth.swansong.shader.ShaderEngine.pushShader;
-import static com.ventooth.swansong.shader.ShaderEngine.shaderData;
-import static com.ventooth.swansong.shader.ShaderEngine.state;
-import static com.ventooth.swansong.shader.ShaderEngine.unlockShader;
-import static com.ventooth.swansong.shader.ShaderEngine.use;
+import static com.ventooth.swansong.shader.OldShaderEngine.lockShader;
+import static com.ventooth.swansong.shader.OldShaderEngine.popShader;
+import static com.ventooth.swansong.shader.OldShaderEngine.pushShader;
+import static com.ventooth.swansong.shader.OldShaderEngine.shaderData;
+import static com.ventooth.swansong.shader.OldShaderEngine.state;
+import static com.ventooth.swansong.shader.OldShaderEngine.unlockShader;
+import static com.ventooth.swansong.shader.OldShaderEngine.use;
 import static com.ventooth.swansong.shader.ShaderState.popRenderStage;
 import static com.ventooth.swansong.shader.ShaderState.pushRenderStage;
 import static com.ventooth.swansong.shader.ShaderState.updateRenderStage;
-import static com.ventooth.swansong.shader.StateGraph.Node.*;
 import static com.ventooth.swansong.shader.StateGraph.Node.BeginFrame;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBegin;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockDamage;
@@ -61,6 +60,7 @@ import static com.ventooth.swansong.shader.StateGraph.Node.ShadowEntities1;
 import static com.ventooth.swansong.shader.StateGraph.Node.ShadowLast;
 import static com.ventooth.swansong.shader.StateGraph.Node.Unmanaged;
 
+// TODO: Do we prefix this with 'shader'?
 @SuppressWarnings("Convert2MethodRef")
 public class StateGraph {
     private static final EnumMap<Node, EnumMap<Node, Runnable>> graph = new EnumMap<>(Node.class);
@@ -218,7 +218,7 @@ public class StateGraph {
             use(state.manager.weather);
         });
         edge(RenderWeather, RenderHand0, () -> {
-            ShaderEngine.renderHand();
+            OldShaderEngine.renderHand();
         });
         edge(RenderHand0, RenderChunk1, () -> {
             updateRenderStage(MCRenderStage.TERRAIN_TRANSLUCENT);
@@ -264,7 +264,7 @@ public class StateGraph {
         });
         edge(RenderLast, RenderBegin, () -> {
             use(null);
-            ShaderEngine.clearColorBufs();
+            OldShaderEngine.clearColorBufs();
         });
     }
 
@@ -323,7 +323,7 @@ public class StateGraph {
             throw err;
         }
         code.run();
-        if (ShaderEngine.DO_GRAPH_LOG) {
+        if (OldShaderEngine.DO_GRAPH_LOG) {
             graphLog.add(to);
         }
         current = to;

@@ -14,7 +14,7 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.mixin.interfaces.ShadersTextureAtlasSprite;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderSamplers;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.sufrace.PBRTexture2D;
@@ -145,7 +145,7 @@ public final class PBRTextureEngine {
 
     public static void bindPbrTex(@Nullable PBRTextureHolder pbrHolder) {
         assert isInitialized : "Not Initialized";
-        assert ShaderEngine.graph.isManaged() : "Not in managed mode";
+        assert OldShaderEngine.graph.isManaged() : "Not in managed mode";
 
         // Probably dealing with the lightmap
         if (!isDefaultTexUnit) {

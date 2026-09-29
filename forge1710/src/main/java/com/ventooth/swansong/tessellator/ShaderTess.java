@@ -12,7 +12,7 @@ package com.ventooth.swansong.tessellator;
 
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.mixin.mixins.client.TessellatorAccessor;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderEntityData;
 import com.ventooth.swansong.todo.tess.DanglingWiresTess;
 import lombok.val;
@@ -46,7 +46,7 @@ public class ShaderTess {
 
     //FalseTweaks mixin lands here
     public static int vertexStrideInt() {
-        return ShaderEngine.isInitialized() ? 20 : 8;
+        return OldShaderEngine.isInitialized() ? 20 : 8;
     }
 
     public static int vertexStrideByte() {

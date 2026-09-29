@@ -17,7 +17,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.api.ShaderStateInfo;
 import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Dynamic;
@@ -58,14 +58,14 @@ public abstract class RendererLivingEntityMixin_CustomPlayerModels {
                                      @Share("pass_ref") LocalIntRef passRef) {
         //separated out here because intellij screams due to the unsafe cast when inlined
         val self = (RendererLivingEntity) (Object) this;
-        if (ShaderEngine.graph.isManaged() &&
+        if (OldShaderEngine.graph.isManaged() &&
             RendererLivingEntityExt.isSpiderEyes(self, entity, modelBase, passRef.get())) {
             if (ShaderStateInfo.shadowPassActive()) {
                 return;
             }
-            ShaderEngine.graph.push(StateGraph.Stack.SpiderEyes);
+            OldShaderEngine.graph.push(StateGraph.Stack.SpiderEyes);
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);
-            ShaderEngine.graph.pop(StateGraph.Stack.SpiderEyes);
+            OldShaderEngine.graph.pop(StateGraph.Stack.SpiderEyes);
         } else {
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);
         }
@@ -89,6 +89,6 @@ public abstract class RendererLivingEntityMixin_CustomPlayerModels {
                                               float scale,
                                               RendererLivingEntity renderer,
                                               int callLoc) {
-        return !ShaderEngine.isInitialized();
+        return !OldShaderEngine.isInitialized();
     }
 }

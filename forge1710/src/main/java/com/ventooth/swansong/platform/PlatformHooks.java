@@ -22,7 +22,7 @@ import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.gl.ShaderHax;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.Report;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
 import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
@@ -60,9 +60,9 @@ public final class PlatformHooks {
         BlockIDRemapper.blockIdLookup = PlatformHooks::findBlockId;
         ShaderPackManager.localizerFactory = MinecraftPackLocalizer::new;
         ShaderPackManager.referencePack = DefaultShaderPack.INSTANCE;
-        ShaderEngine.shadowPass = new McShadowPassRenderer();
+        OldShaderEngine.shadowPass = new McShadowPassRenderer();
         ensureJnaAvailable();
-        ShaderEngine.host = new McHostRenderer();
+        OldShaderEngine.host = new McHostRenderer();
         ShaderState.host = new McHostWorld();
         ShaderState.worldSampler = McWorldSampler::sample;
         ShaderState.heldItemIdSource = McWorldSampler::heldItemId;
@@ -109,7 +109,7 @@ public final class PlatformHooks {
 
     private static void onShaderSettingsChanged() {
         ShadersConfig.CurrentShaderPack = ShaderPackManager.getCurrentShaderPackName();
-        ShaderEngine.scheduleShaderPackReload();
+        OldShaderEngine.scheduleShaderPackReload();
         Configs.syncConfigFile();
     }
 

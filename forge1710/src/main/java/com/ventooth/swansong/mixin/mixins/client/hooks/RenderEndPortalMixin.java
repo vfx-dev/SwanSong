@@ -11,7 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.ventooth.swansong.api.ShaderStateInfo;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
@@ -47,7 +47,7 @@ public abstract class RenderEndPortalMixin {
                                              double posZ,
                                              float subTick,
                                              CallbackInfo ci) {
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             ci.cancel();
             if (ShaderStateInfo.shadowPassActive()) {
                 // Don't render anything

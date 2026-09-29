@@ -12,7 +12,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.ventooth.swansong.platform.McShaderIds;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,14 +35,14 @@ public abstract class ItemRendererMixin {
                        remap = false,
                        require = 2)
     private boolean skip_DepthMask(boolean flag) {
-        return !ShaderEngine.isInitialized() && flag;
+        return !OldShaderEngine.isInitialized() && flag;
     }
 
     @Inject(method = "updateEquippedItem",
             at = @At("RETURN"),
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
-        if (ShaderEngine.isInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             ShaderState.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }
     }

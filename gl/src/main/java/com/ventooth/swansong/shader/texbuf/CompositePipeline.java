@@ -16,7 +16,7 @@ import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
 import com.ventooth.swansong.shader.DrawBuffers;
 import com.ventooth.swansong.shader.Report;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShadersCompositeMesh;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.sufrace.Framebuffer;
@@ -367,8 +367,8 @@ public class CompositePipeline implements Runnable {
 
         @Override
         public void run() {
-            ShaderEngine.useCompositeShader(shader);
-            ShaderEngine.bindCompositeTextures(inputs);
+            OldShaderEngine.useCompositeShader(shader);
+            OldShaderEngine.bindCompositeTextures(inputs);
 
             GLDebugGroups.RENDER_COMPOSITE_DRAW.push();
             ShadersCompositeMesh.drawWithColor();
@@ -383,7 +383,7 @@ public class CompositePipeline implements Runnable {
         @Override
         public void run() {
             GLDebugGroups.push(GLDebugGroups.GEN_COMPOSITE_MIPS);
-            ShaderEngine.genMipmaps(mipInputs);
+            OldShaderEngine.genMipmaps(mipInputs);
             GLDebugGroups.pop(GLDebugGroups.GEN_COMPOSITE_MIPS);
         }
     }
@@ -395,7 +395,7 @@ public class CompositePipeline implements Runnable {
 
         @Override
         public void run() {
-            ShaderEngine.blitColors(src, dst);
+            OldShaderEngine.blitColors(src, dst);
         }
     }
 
@@ -407,12 +407,12 @@ public class CompositePipeline implements Runnable {
         @Override
         public void run() {
             GLDebugGroups.RENDER_COMPOSITE_FINAL.push();
-            ShaderEngine.useCompositeShader(shader);
-            ShaderEngine.bindCompositeTextures(inputs);
-            val anaglyph = ShaderEngine.host.anaglyphOffset();
+            OldShaderEngine.useCompositeShader(shader);
+            OldShaderEngine.bindCompositeTextures(inputs);
+            val anaglyph = OldShaderEngine.host.anaglyphOffset();
             GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.push();
             if (anaglyph != 0) {
-                ShadersCompositeMesh.drawWithAnaglyphField(ShaderEngine.host.anaglyphField());
+                ShadersCompositeMesh.drawWithAnaglyphField(OldShaderEngine.host.anaglyphField());
             } else {
                 ShadersCompositeMesh.drawWithColor();
             }

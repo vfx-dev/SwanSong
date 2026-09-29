@@ -12,7 +12,7 @@ package com.ventooth.swansong.gui;
 
 import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.resources.ShaderPackManager;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +57,7 @@ public final class GuiShaders extends GuiScreen {
         val shaderListWidth = width - btnWidth - 20;
         this.slots = new GuiSlotShaders(shaderListWidth, height, baseY, height - 50, 16);
 
-        GuiButtonShaders.addButtons(this.buttonList, btnX, baseY, stepY, btnWidth, btnHeight, ShaderEngine.locale());
+        GuiButtonShaders.addButtons(this.buttonList, btnX, baseY, stepY, btnWidth, btnHeight, OldShaderEngine.locale());
 
         val btnFolderWidth = Math.min(150, shaderListWidth / 2 - 10);
         buttonList.add(new GuiButton(BUTTON_ID_BROWSE,
@@ -73,7 +73,7 @@ public final class GuiShaders extends GuiScreen {
                                      btnHeight,
                                      I18n.format("gui.swansong.shaders.exit")));
 
-        configScreen = ShaderEngine.configScreen();
+        configScreen = OldShaderEngine.configScreen();
         optionsButton = new GuiButton(BUTTON_ID_OPTIONS,
                                       btnX,
                                       height - 25,
@@ -137,7 +137,7 @@ public final class GuiShaders extends GuiScreen {
 
     @Override
     public void updateScreen() {
-        configScreen = ShaderEngine.configScreen();
+        configScreen = OldShaderEngine.configScreen();
         optionsButton.enabled = configScreen != null;
 
         updateTimer--;

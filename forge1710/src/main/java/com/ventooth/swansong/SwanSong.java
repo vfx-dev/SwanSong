@@ -19,7 +19,7 @@ import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.platform.ThreadedScreenshot;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.ModJarContainer;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderTypes;
 import com.ventooth.swansong.zoom.FunkyZoom;
 import lombok.NoArgsConstructor;
@@ -120,7 +120,7 @@ public final class SwanSong {
                 }
             }
             ShaderTypes.validateRegistry();
-            ShaderEngine.firstInit();
+            OldShaderEngine.firstInit();
         }
 
         @SubscribeEvent
@@ -129,16 +129,16 @@ public final class SwanSong {
                 return;
             }
             text.right.add("§b" + Tags.MOD_NAME + " §9" + Tags.MOD_VERSION);
-            if (!ShaderEngine.isInitialized()) {
+            if (!OldShaderEngine.isInitialized()) {
                 text.right.add("§4Shaders disabled");
                 return;
             }
             text.right.add("§bPack §9" + ShaderPackManager.currentShaderPackName);
-            text.right.add("§bShadows " + (ShaderEngine.shadowPassExists() ? "§aEnabled" : "§4Disabled"));
-            text.right.add("§bShader switches: " + "§r" + ShaderEngine.prevFrameShaderSwitches);
-            if (ShaderEngine.DO_GRAPH_LOG) {
+            text.right.add("§bShadows " + (OldShaderEngine.shadowPassExists() ? "§aEnabled" : "§4Disabled"));
+            text.right.add("§bShader switches: " + "§r" + OldShaderEngine.prevFrameShaderSwitches);
+            if (OldShaderEngine.DO_GRAPH_LOG) {
                 text.right.add("Graph log:");
-                for (val node : ShaderEngine.graphLog) {
+                for (val node : OldShaderEngine.graphLog) {
                     text.right.add(node.name());
                 }
             }
@@ -147,7 +147,7 @@ public final class SwanSong {
         @SubscribeEvent
         public void onDimensionChange(EntityJoinWorldEvent event) {
             if (event.world.isRemote && event.entity instanceof EntityPlayerSP) {
-                ShaderEngine.scheduleShaderPackReload();
+                OldShaderEngine.scheduleShaderPackReload();
             }
         }
 
@@ -157,7 +157,7 @@ public final class SwanSong {
                 Keyboard.isKeyDown(Keyboard.KEY_F3) &&
                 Keyboard.getEventKeyState() &&
                 !Keyboard.isRepeatEvent()) {
-                ShaderEngine.scheduleShaderPackReload();
+                OldShaderEngine.scheduleShaderPackReload();
             }
         }
     }

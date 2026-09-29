@@ -11,7 +11,7 @@
 package com.ventooth.swansong.api;
 
 
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.AvailableSince("1.3.0")
@@ -24,27 +24,27 @@ public final class ShaderStateInfo {
      * @return True if the engine is currently initialized
      */
     public static boolean isInitialized() {
-        return ShaderEngine.isInitialized();
+        return OldShaderEngine.isInitialized();
     }
 
     /**
      * @return True if the engine is currently expecting to render something
      */
     public static boolean isRendering() {
-        return ShaderEngine.graph.isManaged();
+        return OldShaderEngine.graph.isManaged();
     }
 
     /**
      * @return True if the current shader pack has a shadow pass
      */
     public static boolean shadowPassExists() {
-        return ShaderEngine.shadowPassExists();
+        return OldShaderEngine.shadowPassExists();
     }
 
     /**
      * @return True if we're currently rendering the shadow pass. False otherwise. Undefined if {@link #shadowPassExists()} is false.
      */
     public static boolean shadowPassActive() {
-        return ShaderEngine.graph.isShadowPass();
+        return OldShaderEngine.graph.isShadowPass();
     }
 }

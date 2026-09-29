@@ -199,7 +199,7 @@ public class DrawBuffers {
     }
 
     public static Texture2D wrapMinecraftTexture() {
-        val host = ShaderEngine.host;
+        val host = OldShaderEngine.host;
         val gl = new GLTexture();
         gl.glName = host.mainFramebufferTexture();
         return new Texture2D("Minecraft",
@@ -210,14 +210,14 @@ public class DrawBuffers {
     }
 
     public static Framebuffer wrapMinecraft() {
-        return Framebuffer.wrap("Minecraft", ShaderEngine.host.mainFramebufferId());
+        return Framebuffer.wrap("Minecraft", OldShaderEngine.host.mainFramebufferId());
     }
 
     public static boolean isMinecraftUpToDate(Framebuffer fb, Texture2D texture) {
         if (fb == null) {
             return false;
         }
-        val host = ShaderEngine.host;
+        val host = OldShaderEngine.host;
         return fb.framebuffer.glName == host.mainFramebufferId() &&
                texture.glName() == host.mainFramebufferTexture() &&
                texture.width() == host.mainFramebufferWidth() &&

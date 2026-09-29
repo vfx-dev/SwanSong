@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import lombok.val;
 
 import net.minecraft.command.CommandBase;
@@ -41,11 +41,11 @@ public final class DebugCommandClient extends CommandBase {
         this.optionMap = new LinkedHashMap<>();
         this.optionMap.put("tex", TexDumper::dumpAllMc);
         this.optionMap.put("fb_reset", () -> {
-            if (ShaderEngine.isInitialized()) {
-                ShaderEngine.scheduleFramebufferResize();
+            if (OldShaderEngine.isInitialized()) {
+                OldShaderEngine.scheduleFramebufferResize();
             }
         });
-        this.optionMap.put("sh_reset", ShaderEngine::scheduleShaderPackReload);
+        this.optionMap.put("sh_reset", OldShaderEngine::scheduleShaderPackReload);
 
         this.optionList = new ArrayList<>(optionMap.keySet());
     }

@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.dragonapi;
 import Reika.DragonAPI.Libraries.Rendering.ReikaRenderHelper;
 
 import com.falsepattern.lib.util.RenderUtil;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,7 +27,7 @@ public abstract class ReikaRenderHelperMixin {
             at = @At("RETURN"),
             require = 1)
     private static void fix_bindEmptyTex(CallbackInfo ci) {
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             RenderUtil.bindEmptyTexture();
         }
     }
@@ -37,7 +37,7 @@ public abstract class ReikaRenderHelperMixin {
             at = @At("RETURN"),
             require = 2)
     private static void fix_disableLighting(CallbackInfo ci) {
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
         }
     }
@@ -47,7 +47,7 @@ public abstract class ReikaRenderHelperMixin {
             require = 1)
     private static void fix_enableLighting(CallbackInfo ci) {
         // TODO: This may break stuff.
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit,
                                                   OpenGlHelper.lastBrightnessX,
                                                   OpenGlHelper.lastBrightnessY);

@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.thaumcraft;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.ventooth.swansong.api.ShaderStateInfo;
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -47,7 +47,7 @@ public abstract class TileEldritchObeliskRendererMixin {
             return;
         }
 
-        if (ShaderEngine.graph.isManaged()) {
+        if (OldShaderEngine.graph.isManaged()) {
             inrange = false;
             if (ShaderStateInfo.shadowPassActive()) {
                 return;

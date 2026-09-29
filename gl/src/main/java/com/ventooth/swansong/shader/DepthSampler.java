@@ -117,7 +117,7 @@ public final class DepthSampler {
     /**
      * @return The latest center depth sample
      *
-     * @apiNote Should be called in {@link ShaderEngine#beginRenderAll()} before anything else renders
+     * @apiNote Should be called in {@link OldShaderEngine#beginRenderAll()} before anything else renders
      */
     public float getSample() {
         try {

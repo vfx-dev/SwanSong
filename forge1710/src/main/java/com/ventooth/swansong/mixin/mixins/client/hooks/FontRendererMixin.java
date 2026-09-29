@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
-import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,8 +28,8 @@ public abstract class FontRendererMixin {
             at = @At("HEAD"),
             require = 3)
     private void graph_PushText(CallbackInfoReturnable<Integer> cir) {
-        if (ShaderEngine.graph.isManaged()) {
-            ShaderEngine.graph.push(StateGraph.Stack.Text);
+        if (OldShaderEngine.graph.isManaged()) {
+            OldShaderEngine.graph.push(StateGraph.Stack.Text);
         }
     }
 
@@ -39,8 +39,8 @@ public abstract class FontRendererMixin {
             at = @At("RETURN"),
             require = 3)
     private void graph_PopText(CallbackInfoReturnable<Integer> cir) {
-        if (ShaderEngine.graph.isManaged()) {
-            ShaderEngine.graph.pop(StateGraph.Stack.Text);
+        if (OldShaderEngine.graph.isManaged()) {
+            OldShaderEngine.graph.pop(StateGraph.Stack.Text);
         }
     }
 }
