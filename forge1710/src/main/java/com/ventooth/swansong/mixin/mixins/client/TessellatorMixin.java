@@ -40,6 +40,7 @@ public abstract class TessellatorMixin {
     @Unique
     @SuppressWarnings("unused")
     private boolean swansong$shadersEnabled() {
+        // TODO: Stuff like rendering the stars on renderGlobal init will just never get the shader attributes in the call list.
         return OldShaderEngine.isInitialized();
     }
 }
