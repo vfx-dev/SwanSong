@@ -16,13 +16,15 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.WorldProviderRenderer;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
-import com.ventooth.swansong.platform.WorldProviderRenderer;
+import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -75,8 +77,12 @@ public abstract class RenderGlobalMixin {
             cancellable = true,
             require = 1)
     private static void hook_BeginAABBOutline(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            if (OldShaderEngine.graph.isShadowPass()) {
+        val engine = ArchaicShaderEngine.global();
+
+        if (engine.graph()
+                  .isManaged()) {
+            if (engine.graph()
+                      .isShadowPass()) {
                 // We don't allow any rendering of bounding boxes in the shadow pass.
                 ci.cancel();
                 return;
@@ -85,7 +91,8 @@ public abstract class RenderGlobalMixin {
             // Note, we're NOT globally resetting the light map or texture
             // Because some mod might actually want to use it when rendering a bounding box
             // Doubtful, but possible none the less.
-            OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
+            engine.graph()
+                  .push(StateGraph.Stack.AABBOutline);
         }
     }
 
@@ -93,8 +100,12 @@ public abstract class RenderGlobalMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private static void hook_EndAABBOutline(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
+        val engine = ArchaicShaderEngine.global();
+
+        if (engine.graph()
+                  .isManaged()) {
+            engine.graph()
+                  .pop(StateGraph.Stack.AABBOutline);
         }
     }
 
@@ -103,7 +114,8 @@ public abstract class RenderGlobalMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;drawOutlinedBoundingBox(Lnet/minecraft/util/AxisAlignedBB;I)V"),
             require = 1)
     private static void fix_TexLightSelectionBox(CallbackInfo ci) {
-        if (OldShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.global()
+                               .isInitialized()) {
             // Needed to ensure no texture or lightmap being present
             RenderUtil.bindEmptyTexture();
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
@@ -124,8 +136,12 @@ public abstract class RenderGlobalMixin {
             remap = false,
             require = 1)
     private void hook_BeginBlockDestroyProgress(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.push(StateGraph.Stack.BlockDestroyProgress);
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (engine.graph()
+                  .isManaged()) {
+            engine.graph()
+                  .push(StateGraph.Stack.BlockDestroyProgress);
         }
     }
 
@@ -134,8 +150,12 @@ public abstract class RenderGlobalMixin {
             remap = false,
             require = 1)
     private void hook_EndBlockDestroyProgress(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.BlockDestroyProgress);
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (engine.graph()
+                  .isManaged()) {
+            engine.graph()
+                  .pop(StateGraph.Stack.BlockDestroyProgress);
         }
     }
 
@@ -155,15 +175,18 @@ public abstract class RenderGlobalMixin {
                      args = "ldc=global"),
             require = 1)
     private void beginWeatherEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        if (OldShaderEngine.isInitialized()) {
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (engine.isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            if (OldShaderEngine.graph.isShadowPass()) {
+            if (engine.graph()
+                      .isShadowPass()) {
                 // We don't draw em
             } else {
-                OldShaderEngine.graph.moveToEither(StateGraph.Node.RenderWeatherEntities0,
-                                                   StateGraph.Node.RenderWeatherEntities1);
+                engine.graph()
+                      .moveToEither(StateGraph.Node.RenderWeatherEntities0, StateGraph.Node.RenderWeatherEntities1);
             }
         }
     }
@@ -173,7 +196,10 @@ public abstract class RenderGlobalMixin {
                        target = "Lnet/minecraft/client/multiplayer/WorldClient;weatherEffects:Ljava/util/List;"),
               require = 1)
     private List<?> noWeatherEffectsInShadowPass(WorldClient instance) {
-        if (OldShaderEngine.graph.isShadowPass()) {
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (engine.graph()
+                  .isShadowPass()) {
             return Collections.emptyList();
         } else {
             return instance.weatherEffects;
@@ -187,14 +213,19 @@ public abstract class RenderGlobalMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_BeginEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        if (OldShaderEngine.isInitialized()) {
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (engine.isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            if (OldShaderEngine.graph.isShadowPass()) {
-                OldShaderEngine.graph.moveToEither(StateGraph.Node.ShadowEntities0, StateGraph.Node.ShadowEntities1);
+            if (engine.graph()
+                      .isShadowPass()) {
+                engine.graph()
+                      .moveToEither(StateGraph.Node.ShadowEntities0, StateGraph.Node.ShadowEntities1);
             } else {
-                OldShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntities0, StateGraph.Node.RenderEntities1);
+                engine.graph()
+                      .moveToEither(StateGraph.Node.RenderEntities0, StateGraph.Node.RenderEntities1);
             }
         }
     }
@@ -207,7 +238,8 @@ public abstract class RenderGlobalMixin {
                                     Entity entity,
                                     float subTick,
                                     @Share("render_pass") LocalIntRef renderPass) {
-        if (OldShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.of(thiz())
+                               .isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
@@ -221,16 +253,20 @@ public abstract class RenderGlobalMixin {
                      target = "Lnet/minecraft/client/renderer/RenderHelper;enableStandardItemLighting()V"),
             require = 1)
     private void hook_BeginBlockEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        if (OldShaderEngine.isInitialized()) {
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (ArchaicShaderEngine.of(thiz())
+                               .isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            if (OldShaderEngine.graph.isShadowPass()) {
-                OldShaderEngine.graph.moveToEither(StateGraph.Node.ShadowBlockEntities0,
-                                                   StateGraph.Node.ShadowBlockEntities1);
+            if (engine.graph()
+                      .isShadowPass()) {
+                engine.graph()
+                      .moveToEither(StateGraph.Node.ShadowBlockEntities0, StateGraph.Node.ShadowBlockEntities1);
             } else {
-                OldShaderEngine.graph.moveToEither(StateGraph.Node.RenderBlockEntities0,
-                                                   StateGraph.Node.RenderBlockEntities1);
+                engine.graph()
+                      .moveToEither(StateGraph.Node.RenderBlockEntities0, StateGraph.Node.RenderBlockEntities1);
             }
         }
     }
@@ -240,10 +276,18 @@ public abstract class RenderGlobalMixin {
                                 target = "Lnet/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher;renderTileEntity(Lnet/minecraft/tileentity/TileEntity;F)V"),
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
-        if (OldShaderEngine.isInitialized()) {
+        val engine = ArchaicShaderEngine.of(thiz());
+
+        if (engine.isInitialized()) {
             ShaderState.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
             RenderUtil.bindEmptyTexture();
         }
         return true;
+    }
+
+    @Unique
+    @SuppressWarnings("AddedMixinMembersNamePattern")
+    private RenderGlobal thiz() {
+        return (RenderGlobal) ((Object) this);
     }
 }

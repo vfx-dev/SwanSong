@@ -13,8 +13,9 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.falsepattern.lib.util.RenderUtil;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.ventooth.swansong.api.ShaderStateInfo;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,7 +40,8 @@ public abstract class RenderMixin {
                                          float yaw,
                                          float subTick,
                                          Operation<Void> original) {
-        if (OldShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.of(entity)
+                               .isInitialized()) {
             // TODO: Toggle for skipping the entity shadows if we do or don't have a shadow pass?
             if (ShaderStateInfo.shadowPassExists()) {
                 return;
@@ -59,8 +61,9 @@ public abstract class RenderMixin {
                      target = "Lnet/minecraft/client/renderer/entity/Render;getFontRendererFromRenderManager()Lnet/minecraft/client/gui/FontRenderer;"),
             cancellable = true,
             require = 1)
-    private void wrap_EntityNameTag(CallbackInfo ci) {
-        if (OldShaderEngine.isInitialized()) {
+    private void wrap_EntityNameTag(CallbackInfo ci, @Local(argsOnly = true) Entity entity) {
+        if (ArchaicShaderEngine.of(entity)
+                               .isInitialized()) {
             // Don't render in shadow pass
             if (ShaderStateInfo.shadowPassActive()) {
                 ci.cancel();

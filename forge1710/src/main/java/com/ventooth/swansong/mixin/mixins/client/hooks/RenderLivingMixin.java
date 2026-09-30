@@ -13,9 +13,10 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.falsepattern.lib.util.RenderUtil;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,15 +37,18 @@ public abstract class RenderLivingMixin {
     private Entity graph_PushLeash(EntityLiving instance,
                                    Operation<Entity> original,
                                    @Share("graph_pushed") LocalBooleanRef graphPushed) {
+        val engine = ArchaicShaderEngine.of(instance);
         graphPushed.set(false);
-        if (OldShaderEngine.graph.isManaged()) {
+        if (engine.graph()
+                  .isManaged()) {
             val leashedEntity = original.call(instance);
             if (leashedEntity == null) {
                 return null;
             }
 
             RenderUtil.bindEmptyTexture();
-            OldShaderEngine.graph.push(StateGraph.Stack.Leash);
+            engine.graph()
+                  .push(StateGraph.Stack.Leash);
             graphPushed.set(true);
 
             return leashedEntity;
@@ -56,9 +60,13 @@ public abstract class RenderLivingMixin {
     @Inject(method = "func_110827_b",
             at = @At("RETURN"),
             require = 1)
-    private void graph_PopLeash(CallbackInfo ci, @Share("graph_pushed") LocalBooleanRef graphPushed) {
+    private void graph_PopLeash(CallbackInfo ci,
+                                @Share("graph_pushed") LocalBooleanRef graphPushed,
+                                @Local(argsOnly = true) EntityLiving entity) {
         if (graphPushed.get()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.Leash);
+            ArchaicShaderEngine.of(entity)
+                               .graph()
+                               .pop(StateGraph.Stack.Leash);
             graphPushed.set(false);
         }
     }

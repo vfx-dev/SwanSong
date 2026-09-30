@@ -21,5 +21,10 @@ import net.minecraft.client.renderer.RenderGlobal;
 public abstract class RenderGlobalMixin implements RenderGlobalExt {
     @Unique
     // TODO: Proper shader engine init logic?
-    private ArchaicShaderEngine swan$shaderEngine = new ArchaicShaderEngine();
+    private ArchaicShaderEngine swan$Engine = new ArchaicShaderEngine();
+
+    @Override
+    public ArchaicShaderEngine swan$engine() {
+        return swan$Engine;
+    }
 }
