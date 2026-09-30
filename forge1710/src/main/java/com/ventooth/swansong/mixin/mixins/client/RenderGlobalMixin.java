@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client;
 
+import com.ventooth.swansong.mixin.extensions.RenderGlobalExt;
 import com.ventooth.swansong.mixin.interfaces.ShaderRenderGlobal;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.OldShaderEngine;
@@ -20,7 +21,7 @@ import org.spongepowered.asm.mixin.Unique;
 import net.minecraft.client.renderer.RenderGlobal;
 
 @Mixin(RenderGlobal.class)
-public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
+public abstract class RenderGlobalMixin implements ShaderRenderGlobal, RenderGlobalExt {
     @Unique
     // TODO: Proper shader engine init logic?
     private ArchaicShaderEngine swan$shaderEngine = new ArchaicShaderEngine();

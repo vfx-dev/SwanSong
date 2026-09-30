@@ -13,9 +13,7 @@ package com.ventooth.swansong.mixin.interfaces;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 
-/// An extension of [net.minecraft.client.renderer.RenderGlobal] that attaches the [ArchaicShaderEngine] to it.
-///
-/// TODO: What split do we want between the 'engine' and not? Read/Write? Stateful?
+@Deprecated
 public interface ShaderRenderGlobal {
     /// @return `true` if a **Shader Pack** is loaded, otherwise `false`
     boolean swan$shadersInitialized();

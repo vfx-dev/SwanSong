@@ -14,8 +14,17 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 // TODO: Migrate stuff from 'OldShaderEngine' here
+// TODO: Add delegate methods for stuff like `.graph().isManaged()` etc
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class ShaderEngine {
+    public boolean isInitialized() {
+        return OldShaderEngine.isInitialized();
+    }
+
+    public boolean shadowPassExists() {
+        return OldShaderEngine.shadowPassExists();
+    }
+
     public StateGraph graph() {
         return OldShaderEngine.graph;
     }
