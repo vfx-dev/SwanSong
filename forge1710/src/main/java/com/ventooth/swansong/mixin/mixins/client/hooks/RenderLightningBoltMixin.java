@@ -11,8 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.falsepattern.lib.util.RenderUtil;
-import com.ventooth.swansong.mixin.interfaces.ShaderRenderGlobalHolder;
-import lombok.val;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,13 +21,12 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLightningBolt;
 
 @Mixin(RenderLightningBolt.class)
-public abstract class RenderLightningBoltMixin implements ShaderRenderGlobalHolder {
+public abstract class RenderLightningBoltMixin {
     @Inject(method = "doRender(Lnet/minecraft/entity/effect/EntityLightningBolt;DDDFF)V",
             at = @At("HEAD"),
             require = 1)
     private void fixStolenLightning(CallbackInfo ci) {
-        val srg = swan$shaderRenderGlobal();
-        if (srg.swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             RenderUtil.bindEmptyTexture();
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
         }

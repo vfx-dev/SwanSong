@@ -15,7 +15,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.ventooth.swansong.mixin.interfaces.ShaderRenderGlobalHolder;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
@@ -29,7 +28,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 
 @Mixin(RenderLiving.class)
-public abstract class RenderLivingMixin implements ShaderRenderGlobalHolder {
+public abstract class RenderLivingMixin {
     @WrapOperation(method = "func_110827_b",
                    at = @At(value = "INVOKE",
                             target = "Lnet/minecraft/entity/EntityLiving;getLeashedToEntity()Lnet/minecraft/entity/Entity;"),
@@ -37,16 +36,15 @@ public abstract class RenderLivingMixin implements ShaderRenderGlobalHolder {
     private Entity graph_PushLeash(EntityLiving instance,
                                    Operation<Entity> original,
                                    @Share("graph_pushed") LocalBooleanRef graphPushed) {
-        val srg = swan$shaderRenderGlobal();
         graphPushed.set(false);
-        if (srg.swan$shadersActive()) {
+        if (OldShaderEngine.graph.isManaged()) {
             val leashedEntity = original.call(instance);
             if (leashedEntity == null) {
                 return null;
             }
 
             RenderUtil.bindEmptyTexture();
-            srg.swan$shaderStateGraph().push(StateGraph.Stack.Leash);
+            OldShaderEngine.graph.push(StateGraph.Stack.Leash);
             graphPushed.set(true);
 
             return leashedEntity;
@@ -59,9 +57,8 @@ public abstract class RenderLivingMixin implements ShaderRenderGlobalHolder {
             at = @At("RETURN"),
             require = 1)
     private void graph_PopLeash(CallbackInfo ci, @Share("graph_pushed") LocalBooleanRef graphPushed) {
-        val srg = swan$shaderRenderGlobal();
         if (graphPushed.get()) {
-            srg.swan$shaderStateGraph().pop(StateGraph.Stack.Leash);
+            OldShaderEngine.graph.pop(StateGraph.Stack.Leash);
             graphPushed.set(false);
         }
     }

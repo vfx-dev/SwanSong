@@ -11,10 +11,9 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.ventooth.swansong.mixin.interfaces.ShaderRenderGlobalHolder;
 import com.ventooth.swansong.platform.McShaderIds;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
-import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +24,7 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.item.ItemStack;
 
 @Mixin(ItemRenderer.class)
-public abstract class ItemRendererMixin implements ShaderRenderGlobalHolder {
+public abstract class ItemRendererMixin {
     @Shadow
     private ItemStack itemToRender;
 
@@ -36,15 +35,14 @@ public abstract class ItemRendererMixin implements ShaderRenderGlobalHolder {
                        remap = false,
                        require = 2)
     private boolean skip_DepthMask(boolean flag) {
-        return !swan$shaderRenderGlobal().swan$shadersInitialized() && flag;
+        return !OldShaderEngine.isInitialized() && flag;
     }
 
     @Inject(method = "updateEquippedItem",
             at = @At("RETURN"),
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
-        val srg = swan$shaderRenderGlobal();
-        if (srg.swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             ShaderState.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }
     }
