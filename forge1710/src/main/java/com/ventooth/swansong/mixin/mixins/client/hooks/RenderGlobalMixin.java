@@ -16,21 +16,18 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
-import com.ventooth.swansong.mixin.interfaces.ShaderRenderGlobal;
 import com.ventooth.swansong.platform.McShaderIds;
-import com.ventooth.swansong.platform.WorldProviderRenderer;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph;
-import lombok.val;
+import com.ventooth.swansong.platform.WorldProviderRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -46,7 +43,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Mixin(RenderGlobal.class)
-public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
+public abstract class RenderGlobalMixin {
     /**
      * @author FalsePattern
      * @reason Nobody used this, so we don't handle it. The overwrite makes it break if someone actually uses it (to make it diagnosable)
@@ -78,9 +75,8 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
             cancellable = true,
             require = 1)
     private static void hook_BeginAABBOutline(CallbackInfo ci) {
-        val srg = swan$shaderRenderGlobal();
-        if (srg.swan$shadersActive()) {
-            if (srg.swan$shadowPassActive()) {
+        if (OldShaderEngine.graph.isManaged()) {
+            if (OldShaderEngine.graph.isShadowPass()) {
                 // We don't allow any rendering of bounding boxes in the shadow pass.
                 ci.cancel();
                 return;
@@ -89,8 +85,7 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
             // Note, we're NOT globally resetting the light map or texture
             // Because some mod might actually want to use it when rendering a bounding box
             // Doubtful, but possible none the less.
-            srg.swan$shaderStateGraph()
-               .push(StateGraph.Stack.AABBOutline);
+            OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
         }
     }
 
@@ -98,10 +93,8 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
             at = @At(value = "RETURN"),
             require = 1)
     private static void hook_EndAABBOutline(CallbackInfo ci) {
-        val srg = swan$shaderRenderGlobal();
-        if (srg.swan$shadersActive()) {
-            srg.swan$shaderStateGraph()
-               .pop(StateGraph.Stack.AABBOutline);
+        if (OldShaderEngine.graph.isManaged()) {
+            OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
         }
     }
 
@@ -110,8 +103,7 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;drawOutlinedBoundingBox(Lnet/minecraft/util/AxisAlignedBB;I)V"),
             require = 1)
     private static void fix_TexLightSelectionBox(CallbackInfo ci) {
-        val srg = swan$shaderRenderGlobal();
-        if (srg.swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             // Needed to ensure no texture or lightmap being present
             RenderUtil.bindEmptyTexture();
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
@@ -132,8 +124,8 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
             remap = false,
             require = 1)
     private void hook_BeginBlockDestroyProgress(CallbackInfo ci) {
-        if (swan$shadersActive()) {
-            swan$shaderStateGraph().push(StateGraph.Stack.BlockDestroyProgress);
+        if (OldShaderEngine.graph.isManaged()) {
+            OldShaderEngine.graph.push(StateGraph.Stack.BlockDestroyProgress);
         }
     }
 
@@ -142,8 +134,8 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
             remap = false,
             require = 1)
     private void hook_EndBlockDestroyProgress(CallbackInfo ci) {
-        if (swan$shadersActive()) {
-            swan$shaderStateGraph().pop(StateGraph.Stack.BlockDestroyProgress);
+        if (OldShaderEngine.graph.isManaged()) {
+            OldShaderEngine.graph.pop(StateGraph.Stack.BlockDestroyProgress);
         }
     }
 
@@ -163,15 +155,15 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                      args = "ldc=global"),
             require = 1)
     private void beginWeatherEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        if (swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            if (swan$shadowPassActive()) {
+            if (OldShaderEngine.graph.isShadowPass()) {
                 // We don't draw em
             } else {
-                swan$shaderStateGraph().moveToEither(StateGraph.Node.RenderWeatherEntities0,
-                                                     StateGraph.Node.RenderWeatherEntities1);
+                OldShaderEngine.graph.moveToEither(StateGraph.Node.RenderWeatherEntities0,
+                                                   StateGraph.Node.RenderWeatherEntities1);
             }
         }
     }
@@ -181,7 +173,7 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                        target = "Lnet/minecraft/client/multiplayer/WorldClient;weatherEffects:Ljava/util/List;"),
               require = 1)
     private List<?> noWeatherEffectsInShadowPass(WorldClient instance) {
-        if (swan$shadowPassActive()) {
+        if (OldShaderEngine.graph.isShadowPass()) {
             return Collections.emptyList();
         } else {
             return instance.weatherEffects;
@@ -195,14 +187,14 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_BeginEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        if (swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            if (swan$shadowPassActive()) {
-                swan$shaderStateGraph().moveToEither(StateGraph.Node.ShadowEntities0, StateGraph.Node.ShadowEntities1);
+            if (OldShaderEngine.graph.isShadowPass()) {
+                OldShaderEngine.graph.moveToEither(StateGraph.Node.ShadowEntities0, StateGraph.Node.ShadowEntities1);
             } else {
-                swan$shaderStateGraph().moveToEither(StateGraph.Node.RenderEntities0, StateGraph.Node.RenderEntities1);
+                OldShaderEngine.graph.moveToEither(StateGraph.Node.RenderEntities0, StateGraph.Node.RenderEntities1);
             }
         }
     }
@@ -215,7 +207,7 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                                     Entity entity,
                                     float subTick,
                                     @Share("render_pass") LocalIntRef renderPass) {
-        if (swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
@@ -229,16 +221,16 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                      target = "Lnet/minecraft/client/renderer/RenderHelper;enableStandardItemLighting()V"),
             require = 1)
     private void hook_BeginBlockEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        if (swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            if (swan$shadowPassActive()) {
-                swan$shaderStateGraph().moveToEither(StateGraph.Node.ShadowBlockEntities0,
-                                                     StateGraph.Node.ShadowBlockEntities1);
+            if (OldShaderEngine.graph.isShadowPass()) {
+                OldShaderEngine.graph.moveToEither(StateGraph.Node.ShadowBlockEntities0,
+                                                   StateGraph.Node.ShadowBlockEntities1);
             } else {
-                swan$shaderStateGraph().moveToEither(StateGraph.Node.RenderBlockEntities0,
-                                                     StateGraph.Node.RenderBlockEntities1);
+                OldShaderEngine.graph.moveToEither(StateGraph.Node.RenderBlockEntities0,
+                                                   StateGraph.Node.RenderBlockEntities1);
             }
         }
     }
@@ -248,16 +240,10 @@ public abstract class RenderGlobalMixin implements ShaderRenderGlobal {
                                 target = "Lnet/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher;renderTileEntity(Lnet/minecraft/tileentity/TileEntity;F)V"),
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
-        if (swan$shadersInitialized()) {
+        if (OldShaderEngine.isInitialized()) {
             ShaderState.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
             RenderUtil.bindEmptyTexture();
         }
         return true;
-    }
-
-    @Unique
-    private static ShaderRenderGlobal swan$shaderRenderGlobal() {
-        //noinspection CastToIncompatibleInterface
-        return (ShaderRenderGlobal) Minecraft.getMinecraft().renderGlobal;
     }
 }
