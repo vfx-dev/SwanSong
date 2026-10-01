@@ -239,8 +239,7 @@ public abstract class RenderGlobalMixin implements RenderGlobalExt {
                                     Entity entity,
                                     float subTick,
                                     @Share("render_pass") LocalIntRef renderPass) {
-        if (swan$engine()
-                               .isInitialized()) {
+        if (swan$engine().isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
@@ -256,8 +255,7 @@ public abstract class RenderGlobalMixin implements RenderGlobalExt {
     private void hook_BeginBlockEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
         val engine = swan$engine();
 
-        if (swan$engine()
-                               .isInitialized()) {
+        if (swan$engine().isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
