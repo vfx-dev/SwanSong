@@ -35,7 +35,7 @@ public abstract class ItemRendererMixin {
                        remap = false,
                        require = 2)
     private boolean skip_DepthMask(boolean flag) {
-        return !ArchaicShaderEngine.global()
+        return !ArchaicShaderEngine.get()
                                    .isInitialized() && flag;
     }
 
@@ -43,7 +43,7 @@ public abstract class ItemRendererMixin {
             at = @At("RETURN"),
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
-        if (ArchaicShaderEngine.global()
+        if (ArchaicShaderEngine.get()
                                .isInitialized()) {
             ShaderState.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }

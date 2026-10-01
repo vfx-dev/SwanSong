@@ -13,7 +13,6 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.falsepattern.lib.util.RenderUtil;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
@@ -22,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderFish;
-import net.minecraft.entity.projectile.EntityFishHook;
 
 @Mixin(value = RenderFish.class,
        priority = 1100)// Because of NotFine and the MCP:F patches...
@@ -32,10 +30,8 @@ public abstract class RenderFishMixin {
                             target = "Lnet/minecraft/client/renderer/Tessellator;draw()I",
                             ordinal = 1),
                    require = 1)
-    private int hook_WrapLeash(Tessellator tess,
-                               Operation<Integer> original,
-                               @Local(argsOnly = true) EntityFishHook entity) {
-        val engine = ArchaicShaderEngine.of(entity);
+    private int hook_WrapLeash(Tessellator tess, Operation<Integer> original) {
+        val engine = ArchaicShaderEngine.get();
         if (engine.graph()
                   .isManaged()) {
             engine.graph()

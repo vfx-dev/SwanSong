@@ -13,7 +13,6 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.falsepattern.lib.util.RenderUtil;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
@@ -37,7 +36,7 @@ public abstract class RenderLivingMixin {
     private Entity graph_PushLeash(EntityLiving instance,
                                    Operation<Entity> original,
                                    @Share("graph_pushed") LocalBooleanRef graphPushed) {
-        val engine = ArchaicShaderEngine.of(instance);
+        val engine = ArchaicShaderEngine.get();
         graphPushed.set(false);
         if (engine.graph()
                   .isManaged()) {
@@ -60,11 +59,9 @@ public abstract class RenderLivingMixin {
     @Inject(method = "func_110827_b",
             at = @At("RETURN"),
             require = 1)
-    private void graph_PopLeash(CallbackInfo ci,
-                                @Share("graph_pushed") LocalBooleanRef graphPushed,
-                                @Local(argsOnly = true) EntityLiving entity) {
+    private void graph_PopLeash(CallbackInfo ci, @Share("graph_pushed") LocalBooleanRef graphPushed) {
         if (graphPushed.get()) {
-            ArchaicShaderEngine.of(entity)
+            ArchaicShaderEngine.get()
                                .graph()
                                .pop(StateGraph.Stack.Leash);
             graphPushed.set(false);

@@ -16,6 +16,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.ventooth.swansong.mixin.extensions.RenderGlobalExt;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.platform.WorldProviderRenderer;
@@ -45,7 +46,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Mixin(RenderGlobal.class)
-public abstract class RenderGlobalMixin {
+public abstract class RenderGlobalMixin implements RenderGlobalExt {
     /**
      * @author FalsePattern
      * @reason Nobody used this, so we don't handle it. The overwrite makes it break if someone actually uses it (to make it diagnosable)
@@ -77,7 +78,7 @@ public abstract class RenderGlobalMixin {
             cancellable = true,
             require = 1)
     private static void hook_BeginAABBOutline(CallbackInfo ci) {
-        val engine = ArchaicShaderEngine.global();
+        val engine = ArchaicShaderEngine.get();
 
         if (engine.graph()
                   .isManaged()) {
@@ -100,7 +101,7 @@ public abstract class RenderGlobalMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private static void hook_EndAABBOutline(CallbackInfo ci) {
-        val engine = ArchaicShaderEngine.global();
+        val engine = ArchaicShaderEngine.get();
 
         if (engine.graph()
                   .isManaged()) {
@@ -114,7 +115,7 @@ public abstract class RenderGlobalMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;drawOutlinedBoundingBox(Lnet/minecraft/util/AxisAlignedBB;I)V"),
             require = 1)
     private static void fix_TexLightSelectionBox(CallbackInfo ci) {
-        if (ArchaicShaderEngine.global()
+        if (ArchaicShaderEngine.get()
                                .isInitialized()) {
             // Needed to ensure no texture or lightmap being present
             RenderUtil.bindEmptyTexture();
@@ -136,7 +137,7 @@ public abstract class RenderGlobalMixin {
             remap = false,
             require = 1)
     private void hook_BeginBlockDestroyProgress(CallbackInfo ci) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
         if (engine.graph()
                   .isManaged()) {
@@ -150,7 +151,7 @@ public abstract class RenderGlobalMixin {
             remap = false,
             require = 1)
     private void hook_EndBlockDestroyProgress(CallbackInfo ci) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
         if (engine.graph()
                   .isManaged()) {
@@ -175,7 +176,7 @@ public abstract class RenderGlobalMixin {
                      args = "ldc=global"),
             require = 1)
     private void beginWeatherEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
         if (engine.isInitialized()) {
             // Reset Render Pass
@@ -196,7 +197,7 @@ public abstract class RenderGlobalMixin {
                        target = "Lnet/minecraft/client/multiplayer/WorldClient;weatherEffects:Ljava/util/List;"),
               require = 1)
     private List<?> noWeatherEffectsInShadowPass(WorldClient instance) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
         if (engine.graph()
                   .isShadowPass()) {
@@ -213,7 +214,7 @@ public abstract class RenderGlobalMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_BeginEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
         if (engine.isInitialized()) {
             // Reset Render Pass
@@ -238,7 +239,7 @@ public abstract class RenderGlobalMixin {
                                     Entity entity,
                                     float subTick,
                                     @Share("render_pass") LocalIntRef renderPass) {
-        if (ArchaicShaderEngine.of(thiz())
+        if (swan$engine()
                                .isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
@@ -253,9 +254,9 @@ public abstract class RenderGlobalMixin {
                      target = "Lnet/minecraft/client/renderer/RenderHelper;enableStandardItemLighting()V"),
             require = 1)
     private void hook_BeginBlockEntities(CallbackInfo ci, @Share("render_pass") LocalIntRef renderPass) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
-        if (ArchaicShaderEngine.of(thiz())
+        if (swan$engine()
                                .isInitialized()) {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
@@ -276,7 +277,7 @@ public abstract class RenderGlobalMixin {
                                 target = "Lnet/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher;renderTileEntity(Lnet/minecraft/tileentity/TileEntity;F)V"),
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
-        val engine = ArchaicShaderEngine.of(thiz());
+        val engine = swan$engine();
 
         if (engine.isInitialized()) {
             ShaderState.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));

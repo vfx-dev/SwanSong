@@ -11,7 +11,6 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.falsepattern.lib.util.RenderUtil;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,15 +19,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLightningBolt;
-import net.minecraft.entity.effect.EntityLightningBolt;
 
 @Mixin(RenderLightningBolt.class)
 public abstract class RenderLightningBoltMixin {
     @Inject(method = "doRender(Lnet/minecraft/entity/effect/EntityLightningBolt;DDDFF)V",
             at = @At("HEAD"),
             require = 1)
-    private void fixStolenLightning(CallbackInfo ci, @Local(argsOnly = true) EntityLightningBolt entity) {
-        if (ArchaicShaderEngine.of(entity)
+    private void fixStolenLightning(CallbackInfo ci) {
+        if (ArchaicShaderEngine.get()
                                .isInitialized()) {
             RenderUtil.bindEmptyTexture();
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);

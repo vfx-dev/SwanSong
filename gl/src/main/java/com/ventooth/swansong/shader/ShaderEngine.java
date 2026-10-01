@@ -21,10 +21,6 @@ public abstract class ShaderEngine {
         return OldShaderEngine.isInitialized();
     }
 
-    public boolean shadowPassExists() {
-        return OldShaderEngine.shadowPassExists();
-    }
-
     public StateGraph graph() {
         return OldShaderEngine.graph;
     }
