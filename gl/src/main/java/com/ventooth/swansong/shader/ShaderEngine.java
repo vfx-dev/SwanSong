@@ -13,8 +13,6 @@ package com.ventooth.swansong.shader;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import com.ventooth.swansong.sufrace.Texture2D;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +20,13 @@ import java.util.List;
 
 // TODO: Migrate stuff from 'OldShaderEngine' here
 // TODO: Add delegate methods for stuff like `.graph().isManaged()` etc
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class ShaderEngine {
+public abstract class ShaderEngine<STATE extends ShaderState> {
+    public ShaderEngine(STATE state) {
+        this.state = state;
+    }
+
+    protected STATE state;
+
     protected boolean isInitializedImpl() {
         return OldShaderEngine.isInitialized();
     }
@@ -34,6 +37,10 @@ public abstract class ShaderEngine {
 
     public StateGraph graph() {
         return OldShaderEngine.graph;
+    }
+
+    public STATE state() {
+        return state;
     }
 
     public void beginRenderAllPre() {

@@ -12,12 +12,17 @@ package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.mixin.extensions.RenderGlobalExt;
 import com.ventooth.swansong.shader.ShaderEngine;
+import com.ventooth.swansong.shader.ShaderState;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.Minecraft;
 
-public class ArchaicShaderEngine extends ShaderEngine {
+public class ArchaicShaderEngine extends ShaderEngine<ArchaicShaderState> {
+    public ArchaicShaderEngine() {
+        super(new ArchaicShaderState());
+    }
+
     /// TODO: Currently we have a 'middle' state where the engine may be either null or not-initialized.
     ///  As far as the hooks care, both of these mean: 'no ShaderPack loaded'.
     ///  Later this method should be renamed to 'isShaderPackLoaded()` for clarity.
