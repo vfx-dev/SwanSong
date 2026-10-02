@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.7] - 2026-10-02
+
+### Added
+
+- Basic MacOS support, very few shaders will work. They are limited to GLSL 120 for the time being.
+
+### Fixed
+
+- Operator precedence in uniform compilation, Complementary Shaders now work.
+
 ## [1.3.6] - 2026-08-09
 
 ### Fixed
