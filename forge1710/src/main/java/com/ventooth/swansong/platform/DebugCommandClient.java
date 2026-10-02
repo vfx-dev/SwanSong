@@ -41,11 +41,17 @@ public final class DebugCommandClient extends CommandBase {
         this.optionMap = new LinkedHashMap<>();
         this.optionMap.put("tex", TexDumper::dumpAllMc);
         this.optionMap.put("fb_reset", () -> {
-            if (OldShaderEngine.isInitialized()) {
-                OldShaderEngine.scheduleFramebufferResize();
+            if (ArchaicShaderEngine.isInitialized()) {
+                ArchaicShaderEngine.get()
+                                   .scheduleShaderPackReload();
             }
         });
-        this.optionMap.put("sh_reset", OldShaderEngine::scheduleShaderPackReload);
+        this.optionMap.put("sh_reset", () -> {
+            val engine = ArchaicShaderEngine.getNullable();
+            if (engine != null) {
+                engine.scheduleShaderPackReload();
+            }
+        });
 
         this.optionList = new ArrayList<>(optionMap.keySet());
     }

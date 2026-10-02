@@ -60,8 +60,10 @@ public final class PlatformHooks {
         BlockIDRemapper.blockIdLookup = PlatformHooks::findBlockId;
         ShaderPackManager.localizerFactory = MinecraftPackLocalizer::new;
         ShaderPackManager.referencePack = DefaultShaderPack.INSTANCE;
+        // TODO: Integrate into ArchaicShaderEngine
         OldShaderEngine.shadowPass = new McShadowPassRenderer();
         ensureJnaAvailable();
+        // TODO: Integrate into ArchaicShaderEngine
         OldShaderEngine.host = new McHostRenderer();
         ShaderState.host = new McHostWorld();
         ShaderState.worldSampler = McWorldSampler::sample;
@@ -109,7 +111,8 @@ public final class PlatformHooks {
 
     private static void onShaderSettingsChanged() {
         ShadersConfig.CurrentShaderPack = ShaderPackManager.getCurrentShaderPackName();
-        OldShaderEngine.scheduleShaderPackReload();
+        ArchaicShaderEngine.get()
+                           .scheduleShaderPackReload();
         Configs.syncConfigFile();
     }
 

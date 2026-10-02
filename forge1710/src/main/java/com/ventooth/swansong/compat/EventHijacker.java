@@ -13,10 +13,12 @@ package com.ventooth.swansong.compat;
 import com.falsepattern.lib.util.RenderUtil;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.CompatConfig;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -37,12 +39,14 @@ public final class EventHijacker {
                 "renderLastEvent".equals(info.methodName())) {
                 Share.log.info("Hijacked NEI overlay for compat");
                 return (original, event, info1) -> {
-                    if (!OldShaderEngine.graph.isManaged()) {
+                    val engine = ArchaicShaderEngine.get();
+
+                    if (!engine.graph().isManaged()) {
                         original.invoke(event);
                         return;
                     }
 
-                    OldShaderEngine.graph.push(StateGraph.Stack.NEIOverlay);
+                    engine.graph().push(StateGraph.Stack.NEIOverlay);
 
                     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                     try {
@@ -51,7 +55,7 @@ public final class EventHijacker {
                         GL11.glPopAttrib();
                     }
 
-                    OldShaderEngine.graph.pop(StateGraph.Stack.NEIOverlay);
+                    engine.graph().pop(StateGraph.Stack.NEIOverlay);
                 };
             }
         }
@@ -61,12 +65,14 @@ public final class EventHijacker {
                            info.methodName());
 
             return (original, event, info1) -> {
-                if (!OldShaderEngine.graph.isManaged()) {
+                val engine = ArchaicShaderEngine.get();
+
+                if (!engine.graph().isManaged()) {
                     original.invoke(event);
                     return;
                 }
 
-                OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
+                engine.graph().push(StateGraph.Stack.AABBOutline);
 
                 // Needed to ensure no texture or lightmap being present
                 RenderUtil.bindEmptyTexture();
@@ -87,7 +93,7 @@ public final class EventHijacker {
                     GL11.glPopAttrib();
                 }
 
-                OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
+                engine.graph().pop(StateGraph.Stack.AABBOutline);
             };
         }
         // TODO: Config?
@@ -98,12 +104,14 @@ public final class EventHijacker {
 
             // This stuff happens right after entities render on both pass 0 and pass 1
             return (original, event, info1) -> {
-                if (!OldShaderEngine.graph.isManaged()) {
+                val engine = ArchaicShaderEngine.get();
+
+                if (!engine.graph().isManaged()) {
                     original.invoke(event);
                     return;
                 }
 
-                OldShaderEngine.graph.push(StateGraph.Stack.DragonAPI);
+                engine.graph().push(StateGraph.Stack.DragonAPI);
 
                 GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                 try {
@@ -112,7 +120,7 @@ public final class EventHijacker {
                     GL11.glPopAttrib();
                 }
 
-                OldShaderEngine.graph.pop(StateGraph.Stack.DragonAPI);
+                engine.graph().pop(StateGraph.Stack.DragonAPI);
             };
         }
 

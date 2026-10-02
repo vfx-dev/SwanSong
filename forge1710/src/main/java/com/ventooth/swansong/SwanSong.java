@@ -12,15 +12,14 @@ package com.ventooth.swansong;
 
 import com.ventooth.swansong.config.ModuleConfig;
 import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.gl.GLEnvProbe;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.DebugCommandClient;
 import com.ventooth.swansong.platform.DebugCommandServer;
-import com.ventooth.swansong.gl.GLEnvProbe;
 import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.platform.ThreadedScreenshot;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.ModJarContainer;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderTypes;
 import com.ventooth.swansong.zoom.FunkyZoom;
 import lombok.NoArgsConstructor;
@@ -121,7 +120,7 @@ public final class SwanSong {
                 }
             }
             ShaderTypes.validateRegistry();
-            OldShaderEngine.firstInit();
+            ArchaicShaderEngine.get().firstInit();
         }
 
         @SubscribeEvent

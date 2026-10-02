@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,7 @@ import net.minecraft.client.renderer.Tessellator;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SkyBoxRenderer {
     public static void preSkyList() {
-        if (!OldShaderEngine.isInitialized()) {
+        if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
         ShaderState.setUpPosition();

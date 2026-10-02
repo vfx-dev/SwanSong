@@ -139,7 +139,8 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
                     }
                 }
             } catch (RuntimeException e) {
-                OldShaderEngine.log.error("Caught error while doing the shadow culling: ", e);
+                engine.log()
+                      .error("Caught error while doing the shadow culling: ", e);
             }
         }
 

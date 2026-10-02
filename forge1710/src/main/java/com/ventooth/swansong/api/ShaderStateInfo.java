@@ -11,7 +11,8 @@
 package com.ventooth.swansong.api;
 
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
+import lombok.val;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.AvailableSince("1.3.0")
@@ -24,27 +25,43 @@ public final class ShaderStateInfo {
      * @return True if the engine is currently initialized
      */
     public static boolean isInitialized() {
-        return OldShaderEngine.isInitialized();
+        return ArchaicShaderEngine.isInitialized();
     }
 
     /**
      * @return True if the engine is currently expecting to render something
      */
     public static boolean isRendering() {
-        return OldShaderEngine.graph.isManaged();
+        val engine = ArchaicShaderEngine.getNullable();
+        if (engine == null) {
+            return false;
+        }
+        return engine.graph()
+                     .isManaged();
     }
 
     /**
      * @return True if the current shader pack has a shadow pass
      */
     public static boolean shadowPassExists() {
-        return OldShaderEngine.shadowPassExists();
+        val engine = ArchaicShaderEngine.getNullable();
+        if (engine == null) {
+            return false;
+        }
+        return engine.shadowPassExists();
     }
 
     /**
+     * TODO: Hell you MEAN undefined if shadow pass doesn't exist?? Then how can it be active!!?
+     *
      * @return True if we're currently rendering the shadow pass. False otherwise. Undefined if {@link #shadowPassExists()} is false.
      */
     public static boolean shadowPassActive() {
-        return OldShaderEngine.graph.isShadowPass();
+        val engine = ArchaicShaderEngine.getNullable();
+        if (engine == null) {
+            return false;
+        }
+        return engine.graph()
+                     .isShadowPass();
     }
 }

@@ -11,7 +11,6 @@
 package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.shader.MCRenderStage;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import lombok.AllArgsConstructor;
@@ -40,7 +39,7 @@ public final class WorldProviderRenderer {
     public static IRenderHandler wrapSkyRenderer(@NotNull WorldProvider worldProvider,
                                                  @Nullable IRenderHandler oldRenderer) {
         if (oldRenderer == null) {
-            return OldShaderEngine.isInitialized() ? SKY_RENDER_HANDLER : null;
+            return ArchaicShaderEngine.isInitialized() ? SKY_RENDER_HANDLER : null;
         }
         return oldRenderer;
     }
