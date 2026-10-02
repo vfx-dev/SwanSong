@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.rotarycraft;
 import Reika.RotaryCraft.Auxiliary.IORenderer;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,17 +29,17 @@ public abstract class IORendererMixin {
                                       double posY,
                                       double posZ,
                                       Operation<Void> original) {
-        if (OldShaderEngine.graph.isManaged()) {
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
             // No rendering on the shadow pass
-            if (OldShaderEngine.graph.isShadowPass()) {
+            if (ArchaicShaderEngine.get().graph().isShadowPass()) {
                 return;
             }
 
-            OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
+            ArchaicShaderEngine.get().graph().push(StateGraph.Stack.AABBOutline);
             GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
             original.call(te, posX, posY, posZ);
             GL11.glPopAttrib();
-            OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
+            ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.AABBOutline);
         } else {
             original.call(te, posX, posY, posZ);
         }

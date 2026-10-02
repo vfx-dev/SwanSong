@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -24,6 +24,6 @@ public abstract class BlockMixin {
                     constant = @Constant(floatValue = 0.2f),
                     require = 1)
     public float state_ambientOcclusionLevel(float constant) {
-        return OldShaderEngine.isInitialized() ? ShaderState.blockAoLight() : constant;
+        return ArchaicShaderEngine.get().isInitialized() ? ShaderState.blockAoLight() : constant;
     }
 }

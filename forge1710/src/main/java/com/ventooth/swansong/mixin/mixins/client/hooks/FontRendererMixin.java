@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,8 +29,13 @@ public abstract class FontRendererMixin {
             at = @At("HEAD"),
             require = 3)
     private void graph_PushText(CallbackInfoReturnable<Integer> cir) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.push(StateGraph.Stack.Text);
+        // BUG: Init order issues
+        if (!OldShaderEngine.isInitialized()) {
+            return;
+        }
+
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().push(StateGraph.Stack.Text);
         }
     }
 
@@ -39,8 +45,13 @@ public abstract class FontRendererMixin {
             at = @At("RETURN"),
             require = 3)
     private void graph_PopText(CallbackInfoReturnable<Integer> cir) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.Text);
+        // BUG: Init order issues
+        if (!OldShaderEngine.isInitialized()) {
+            return;
+        }
+
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.Text);
         }
     }
 }

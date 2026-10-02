@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client.compat.thaumcraft;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,8 +26,8 @@ public abstract class RenderEventHandlerMixin {
             at = @At("HEAD"),
             require = 1)
     private void preBlockHighlight(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.push(StateGraph.Stack.BlockHighlightTextured);
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().push(StateGraph.Stack.BlockHighlightTextured);
             GL11.glDepthMask(true);
         }
     }
@@ -35,8 +35,8 @@ public abstract class RenderEventHandlerMixin {
             at = @At("RETURN"),
             require = 1)
     private void postBlockHighlight(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.BlockHighlightTextured);
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.BlockHighlightTextured);
             GL11.glDepthMask(false);
         }
     }

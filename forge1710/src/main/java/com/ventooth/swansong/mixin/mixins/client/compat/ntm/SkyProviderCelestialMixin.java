@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.compat.ntm;
 import com.hbm.dim.SkyProviderCelestial;
 import com.hbm.render.shader.Shader;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,7 +40,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
             remap = false,
             require = 1)
     private void preCelestialRotate(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
             ShaderState.preCelestialRotate();
         }
     }
@@ -53,7 +53,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
             remap = false,
             require = 1)
     private void postCelestialRotate(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
             ShaderState.postCelestialRotate();
         }
     }
@@ -69,7 +69,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
             remap = false,
             require = 1)
     private void shiftPlanetStop1(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
             planetShader.stop();
         }
     }
@@ -80,7 +80,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                        remap = false,
                        require = 1)
     private boolean shiftPlanetStop2(Shader instance) {
-        return !OldShaderEngine.graph.isManaged();
+        return !ArchaicShaderEngine.get().graph().isManaged();
     }
 
     @WrapWithCondition(method = "renderSun",
@@ -94,7 +94,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                       remap = false)),
                        require = 2)
     private boolean noDrawSunSquare1(Tessellator instance) {
-        return !OldShaderEngine.graph.isManaged();
+        return !ArchaicShaderEngine.get().graph().isManaged();
     }
 
     @WrapWithCondition(method = "renderSun",
@@ -108,7 +108,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                       remap = false)),
                        require = 4)
     private boolean noDrawSunSquare2(Tessellator instance, double x, double y, double z) {
-        return !OldShaderEngine.graph.isManaged();
+        return !ArchaicShaderEngine.get().graph().isManaged();
     }
 
     @WrapWithCondition(method = "renderSun",
@@ -122,7 +122,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                       remap = false)),
               require = 4)
     private boolean noDrawSunSquare3(Tessellator instance, double x, double y, double z, double u, double v) {
-        return !OldShaderEngine.graph.isManaged();
+        return !ArchaicShaderEngine.get().graph().isManaged();
     }
 
     @Redirect(method = "renderSun",
@@ -136,7 +136,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                       remap = false)),
               require = 2)
     private int noDrawSunSquare4(Tessellator instance) {
-        return OldShaderEngine.graph.isManaged() ? 0 : instance.draw();
+        return ArchaicShaderEngine.get().graph().isManaged() ? 0 : instance.draw();
     }
 
     @WrapWithCondition(method = "render",
@@ -147,6 +147,6 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                         target = "Lnet/minecraft/world/WorldProvider;isSkyColored()Z")),
               require = 1)
     private boolean disableHorizon(int list) {
-        return !OldShaderEngine.graph.isManaged();
+        return !ArchaicShaderEngine.get().graph().isManaged();
     }
 }

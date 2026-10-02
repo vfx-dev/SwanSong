@@ -11,7 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.compat.ntm;
 
 import com.hbm.render.shader.Shader;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,8 +26,8 @@ public class ShaderMixin {
                      target = "Lorg/lwjgl/opengl/GL20;glUseProgram(I)V"),
             require = 1)
     private void push(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.push(StateGraph.Stack.ExternalShader);
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().push(StateGraph.Stack.ExternalShader);
         }
     }
 
@@ -37,8 +37,8 @@ public class ShaderMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void pop(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.ExternalShader);
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.ExternalShader);
         }
     }
 }

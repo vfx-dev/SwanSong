@@ -17,7 +17,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.api.ShaderStateInfo;
 import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,16 +45,20 @@ public abstract class RendererLivingEntityMixin_Vanilla {
                                      float scale,
                                      Operation<Void> original,
                                      @Share("pass_ref") LocalIntRef passRef) {
+        val engine = ArchaicShaderEngine.get();
+
         //separated out here because intellij screams due to the unsafe cast when inlined
         val self = (RendererLivingEntity) (Object) this;
-        if (OldShaderEngine.graph.isManaged() &&
-            RendererLivingEntityExt.isSpiderEyes(self, entity, modelBase, passRef.get())) {
+        if (engine.graph()
+                  .isManaged() && RendererLivingEntityExt.isSpiderEyes(self, entity, modelBase, passRef.get())) {
             if (ShaderStateInfo.shadowPassActive()) {
                 return;
             }
-            OldShaderEngine.graph.push(StateGraph.Stack.SpiderEyes);
+            engine.graph()
+                  .push(StateGraph.Stack.SpiderEyes);
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-            OldShaderEngine.graph.pop(StateGraph.Stack.SpiderEyes);
+            engine.graph()
+                  .pop(StateGraph.Stack.SpiderEyes);
         } else {
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         }
@@ -74,6 +78,7 @@ public abstract class RendererLivingEntityMixin_Vanilla {
                                               float netHeadYaw,
                                               float headPitch,
                                               float scale) {
-        return !OldShaderEngine.isInitialized();
+        return !ArchaicShaderEngine.get()
+                                   .isInitialized();
     }
 }

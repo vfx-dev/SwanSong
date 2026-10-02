@@ -12,7 +12,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,10 +32,10 @@ public abstract class MinecraftMixin {
                             remap = false),
                    require = 1)
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
-        OldShaderEngine.beginRenderAllPre();
-        if (OldShaderEngine.isInitialized()) {
+        ArchaicShaderEngine.get().beginRenderAllPre();
+        if (ArchaicShaderEngine.get().isInitialized()) {
             ShaderState.updateSubTick(subTick);
-            OldShaderEngine.beginRenderAll();
+            ArchaicShaderEngine.get().beginRenderAll();
         }
         original.call(instance, subTick);
     }
@@ -47,8 +47,8 @@ public abstract class MinecraftMixin {
                    require = 1)
     private void hook_EndFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         original.call(instance, subTick);
-        if (OldShaderEngine.isInitialized()) {
-            OldShaderEngine.endRenderAll();
+        if (ArchaicShaderEngine.get().isInitialized()) {
+            ArchaicShaderEngine.get().endRenderAll();
         }
     }
 
@@ -58,15 +58,15 @@ public abstract class MinecraftMixin {
               require = 1)
     private void hook_ReloadShaderPack(RenderGlobal rg) {
         // We will call loadRenderers() ourselves later when the shader reloads
-        OldShaderEngine.scheduleShaderPackReload();
+        ArchaicShaderEngine.get().scheduleShaderPackReload();
     }
 
     @Inject(method = "updateFramebufferSize",
             at = @At("RETURN"),
             require = 1)
     private void hook_ResizeWindow(CallbackInfo ci) {
-        if (OldShaderEngine.isInitialized()) {
-            OldShaderEngine.scheduleFramebufferResize();
+        if (ArchaicShaderEngine.get().isInitialized()) {
+            ArchaicShaderEngine.get().scheduleFramebufferResize();
         }
     }
 }

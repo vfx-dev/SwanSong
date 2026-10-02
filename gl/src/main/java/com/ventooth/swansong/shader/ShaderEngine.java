@@ -24,4 +24,40 @@ public abstract class ShaderEngine {
     public StateGraph graph() {
         return OldShaderEngine.graph;
     }
+
+    public void beginRenderAllPre() {
+        OldShaderEngine.beginRenderAllPre();
+    }
+
+    public void beginRenderAll() {
+        OldShaderEngine.beginRenderAll();
+    }
+
+    public void endRenderAll() {
+        OldShaderEngine.endRenderAll();
+    }
+
+    public void scheduleShaderPackReload() {
+        OldShaderEngine.scheduleShaderPackReload();
+    }
+
+    public void scheduleFramebufferResize() {
+        OldShaderEngine.scheduleFramebufferResize();
+    }
+
+    public void runDeferredPipeline() {
+        OldShaderEngine.runDeferredPipeline();
+    }
+
+    public void beginRenderWorld() {
+        OldShaderEngine.beginRenderWorld();
+    }
+
+    public void preRenderLast() {
+        OldShaderEngine.preRenderLast();
+    }
+
+    public void finishRenderFinal() {
+        OldShaderEngine.finishRenderFinal();
+    }
 }

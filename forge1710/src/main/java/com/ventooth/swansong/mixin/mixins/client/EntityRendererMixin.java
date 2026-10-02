@@ -11,8 +11,8 @@
 package com.ventooth.swansong.mixin.mixins.client;
 
 import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShadowPassRenderer;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +29,8 @@ public abstract class EntityRendererMixin {
                        target = "Lnet/minecraft/client/renderer/culling/Frustrum;setPosition(DDD)V"),
               require = 1)
     private void grabFrustrum(Frustrum instance, double x, double y, double z) {
-        if (OldShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.get()
+                               .isInitialized()) {
             McShadowPassRenderer.mcFrustrum = instance;
         }
         instance.setPosition(x, y, z);
@@ -42,7 +43,8 @@ public abstract class EntityRendererMixin {
                        remap = false),
               require = 1)
     private void resizeViewport(int x, int y, int width, int height) {
-        if (OldShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.get()
+                               .isInitialized()) {
             val q = ShadersConfig.RenderQuality.get();
             GL11.glViewport(x, y, (int) (width * q), (int) (height * q));
         } else {

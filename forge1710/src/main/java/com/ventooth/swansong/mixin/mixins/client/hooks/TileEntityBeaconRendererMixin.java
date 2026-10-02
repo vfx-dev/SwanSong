@@ -10,8 +10,9 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
+import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,8 +26,11 @@ public abstract class TileEntityBeaconRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void hook_BeginBeacon(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.push(StateGraph.Stack.Beacon);
+        val engine = ArchaicShaderEngine.get();
+        if (engine.graph()
+                  .isManaged()) {
+            engine.graph()
+                  .push(StateGraph.Stack.Beacon);
         }
     }
 
@@ -34,8 +38,11 @@ public abstract class TileEntityBeaconRendererMixin {
             at = @At("RETURN"),
             require = 1)
     private void hook_EndBeacon(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.Beacon);
+        val engine = ArchaicShaderEngine.get();
+        if (engine.graph()
+                  .isManaged()) {
+            engine.graph()
+                  .pop(StateGraph.Stack.Beacon);
         }
     }
 }

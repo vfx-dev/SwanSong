@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,7 +40,7 @@ public abstract class ModelRendererMixin {
             return;
         }
 
-        if (swansong$compiledWithShaderTess != OldShaderEngine.isInitialized()) {
+        if (swansong$compiledWithShaderTess != ArchaicShaderEngine.get().isInitialized()) {
             if (this.displayList != 0) {
                 GLAllocation.deleteDisplayLists(this.displayList);
                 this.displayList = 0;
@@ -55,6 +55,6 @@ public abstract class ModelRendererMixin {
             at = @At("RETURN"),
             require = 1)
     private void hook_MarkDisplayListState(float scale, CallbackInfo ci) {
-        swansong$compiledWithShaderTess = OldShaderEngine.isInitialized();
+        swansong$compiledWithShaderTess = ArchaicShaderEngine.get().isInitialized();
     }
 }

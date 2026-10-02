@@ -16,6 +16,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.ventooth.swansong.mixin.interfaces.PBRAtlas;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.pbr.PBRTextureEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,7 +50,14 @@ public abstract class TextureManagerMixin {
     private void pbr_CaptureTex(CallbackInfo ci,
                                 @Local Object object,
                                 @Share("pbr_holder") LocalRef<@Nullable PBRTextureHolder> pbr_holder) {
-        if (OldShaderEngine.graph.isManaged()) {
+        // BUG: Init order issues
+        if (!OldShaderEngine.isInitialized()) {
+            return;
+        }
+
+        if (ArchaicShaderEngine.get()
+                               .graph()
+                               .isManaged()) {
             if (object instanceof PBRTextureHolder pbrHolder) {
                 pbr_holder.set(pbrHolder);
             } else {
@@ -62,7 +70,14 @@ public abstract class TextureManagerMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private void pbr_BindTex(CallbackInfo ci, @Share("pbr_holder") LocalRef<@Nullable PBRTextureHolder> pbr_holder) {
-        if (OldShaderEngine.graph.isManaged()) {
+        // BUG: Init order issues
+        if (!OldShaderEngine.isInitialized()) {
+            return;
+        }
+
+        if (ArchaicShaderEngine.get()
+                               .graph()
+                               .isManaged()) {
             PBRTextureEngine.bindPbrTex(pbr_holder.get());
         }
     }

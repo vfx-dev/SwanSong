@@ -11,7 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.compat.avaritia;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import fox.spiteful.avaritia.render.ShaderHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,11 +25,11 @@ public abstract class ShaderHelperMixin {
                                 target = "Lorg/lwjgl/opengl/ARBShaderObjects;glUseProgramObjectARB(I)V"),
                        require = 1)
     private static boolean fix_CosmicShader(int programObj) {
-        if (OldShaderEngine.graph.isManaged()) {
+        if (ArchaicShaderEngine.get().graph().isManaged()) {
             if (programObj != 0) {
-                OldShaderEngine.graph.push(StateGraph.Stack.ExternalShader);
+                ArchaicShaderEngine.get().graph().push(StateGraph.Stack.ExternalShader);
             } else {
-                OldShaderEngine.graph.pop(StateGraph.Stack.ExternalShader);
+                ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.ExternalShader);
             }
             return false;
         } else {

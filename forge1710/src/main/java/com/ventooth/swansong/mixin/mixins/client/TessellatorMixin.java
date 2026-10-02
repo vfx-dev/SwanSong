@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.mixin.mixins.client;
 
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.tessellator.ShaderTess;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,6 +42,13 @@ public abstract class TessellatorMixin {
     @SuppressWarnings("unused")
     private boolean swansong$shadersEnabled() {
         // TODO: Stuff like rendering the stars on renderGlobal init will just never get the shader attributes in the call list.
-        return OldShaderEngine.isInitialized();
+        //  at which point we'd get an NPE :(
+        if (!OldShaderEngine.isInitialized()) {
+            return false;
+        }
+
+
+        return ArchaicShaderEngine.get()
+                                  .isInitialized();
     }
 }

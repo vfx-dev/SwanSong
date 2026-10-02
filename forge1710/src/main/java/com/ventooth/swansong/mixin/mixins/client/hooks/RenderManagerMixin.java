@@ -11,8 +11,9 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.falsepattern.lib.util.RenderUtil;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
+import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,14 +29,18 @@ public abstract class RenderManagerMixin {
             cancellable = true,
             require = 1)
     private static void hook_BeginDebugAABBThing(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            if (OldShaderEngine.graph.isShadowPass()) {
+        val engine = ArchaicShaderEngine.get();
+        if (engine.graph()
+                  .isManaged()) {
+            if (engine.graph()
+                      .isShadowPass()) {
                 // We don't allow any rendering of DEBUG bounding boxes in the shadow pass.
                 ci.cancel();
                 return;
             }
 
-            OldShaderEngine.graph.push(StateGraph.Stack.AABBOutline);
+            engine.graph()
+                  .push(StateGraph.Stack.AABBOutline);
 
             // Needed to ensure no texture or lightmap being present
             RenderUtil.bindEmptyTexture();
@@ -47,8 +52,11 @@ public abstract class RenderManagerMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private static void hook_EndDebugAABBThing(CallbackInfo ci) {
-        if (OldShaderEngine.graph.isManaged()) {
-            OldShaderEngine.graph.pop(StateGraph.Stack.AABBOutline);
+        val engine = ArchaicShaderEngine.get();
+        if (engine.graph()
+                  .isManaged()) {
+            engine.graph()
+                  .pop(StateGraph.Stack.AABBOutline);
         }
     }
 }
