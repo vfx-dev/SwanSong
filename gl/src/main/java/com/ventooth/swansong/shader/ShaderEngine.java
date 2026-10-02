@@ -10,8 +10,13 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.sufrace.Texture2D;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 // TODO: Migrate stuff from 'OldShaderEngine' here
 // TODO: Add delegate methods for stuff like `.graph().isManaged()` etc
@@ -59,5 +64,41 @@ public abstract class ShaderEngine {
 
     public void finishRenderFinal() {
         OldShaderEngine.finishRenderFinal();
+    }
+
+    public boolean shadowPassExists() {
+        return OldShaderEngine.shadowPassExists();
+    }
+
+    public boolean doGraphLog() {
+        return OldShaderEngine.DO_GRAPH_LOG;
+    }
+
+    public List<StateGraph.Node> graphLog() {
+        return OldShaderEngine.graphLog;
+    }
+
+    public int prevFrameShaderSwitches() {
+        return OldShaderEngine.prevFrameShaderSwitches;
+    }
+
+    public void unlockShader() {
+        OldShaderEngine.unlockShader();
+    }
+
+    public void lockShader() {
+        OldShaderEngine.lockShader();
+    }
+
+    public void blitDepth(Texture2D srcTex, Texture2D dstTex) {
+        OldShaderEngine.blitDepth(srcTex, dstTex);
+    }
+
+    public void genMipmap(@Nullable Texture2D tex) {
+        OldShaderEngine.genMipmap(tex);
+    }
+    
+    public Logger log() {
+        return OldShaderEngine.log;
     }
 }

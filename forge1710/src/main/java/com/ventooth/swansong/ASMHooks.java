@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong;
 
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.SkyBoxRenderer;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
@@ -21,21 +22,27 @@ import net.minecraft.client.Minecraft;
 @SuppressWarnings("unused") // Used from ASM
 public class ASMHooks {
     public static void glEnable(int cap) {
-        if (cap == GL11.GL_TEXTURE_2D && OldShaderEngine.graph.isSky()) {
-            OldShaderEngine.graph.moveTo(StateGraph.Node.RenderSkyTextured);
+        val engine = ArchaicShaderEngine.getNullable();
+        if (engine != null) {
+            if (cap == GL11.GL_TEXTURE_2D && engine.graph().isSky()) {
+                engine.graph().moveTo(StateGraph.Node.RenderSkyTextured);
+            }
         }
         GL11.glEnable(cap);
     }
 
     public static void glDisable(int cap) {
-        if (cap == GL11.GL_TEXTURE_2D && OldShaderEngine.graph.isSky()) {
-            OldShaderEngine.graph.moveTo(StateGraph.Node.RenderSkyBasic);
+        val engine = ArchaicShaderEngine.getNullable();
+        if (engine != null) {
+            if (cap == GL11.GL_TEXTURE_2D && engine.graph().isSky()) {
+                engine.graph().moveTo(StateGraph.Node.RenderSkyBasic);
+            }
         }
         GL11.glDisable(cap);
     }
 
     public static void glCallList(int list) {
-        if (OldShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             val rg = Minecraft.getMinecraft().renderGlobal;
             if (list == rg.glSkyList) {
                 SkyBoxRenderer.preSkyList();

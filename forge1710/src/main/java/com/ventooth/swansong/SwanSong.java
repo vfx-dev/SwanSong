@@ -12,6 +12,7 @@ package com.ventooth.swansong;
 
 import com.ventooth.swansong.config.ModuleConfig;
 import com.ventooth.swansong.config.ShadersConfig;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.DebugCommandClient;
 import com.ventooth.swansong.platform.DebugCommandServer;
 import com.ventooth.swansong.gl.GLEnvProbe;
@@ -129,16 +130,18 @@ public final class SwanSong {
                 return;
             }
             text.right.add("§b" + Tags.MOD_NAME + " §9" + Tags.MOD_VERSION);
-            if (!OldShaderEngine.isInitialized()) {
+            val engine = ArchaicShaderEngine.getNullable();
+
+            if (engine == null) {
                 text.right.add("§4Shaders disabled");
                 return;
             }
             text.right.add("§bPack §9" + ShaderPackManager.currentShaderPackName);
-            text.right.add("§bShadows " + (OldShaderEngine.shadowPassExists() ? "§aEnabled" : "§4Disabled"));
-            text.right.add("§bShader switches: " + "§r" + OldShaderEngine.prevFrameShaderSwitches);
-            if (OldShaderEngine.DO_GRAPH_LOG) {
+            text.right.add("§bShadows " + (engine.shadowPassExists() ? "§aEnabled" : "§4Disabled"));
+            text.right.add("§bShader switches: " + "§r" + engine.prevFrameShaderSwitches());
+            if (engine.doGraphLog()) {
                 text.right.add("Graph log:");
-                for (val node : OldShaderEngine.graphLog) {
+                for (val node : engine.graphLog()) {
                     text.right.add(node.name());
                 }
             }
@@ -147,7 +150,7 @@ public final class SwanSong {
         @SubscribeEvent
         public void onDimensionChange(EntityJoinWorldEvent event) {
             if (event.world.isRemote && event.entity instanceof EntityPlayerSP) {
-                OldShaderEngine.scheduleShaderPackReload();
+                ArchaicShaderEngine.get().scheduleShaderPackReload();
             }
         }
 
@@ -157,7 +160,7 @@ public final class SwanSong {
                 Keyboard.isKeyDown(Keyboard.KEY_F3) &&
                 Keyboard.getEventKeyState() &&
                 !Keyboard.isRepeatEvent()) {
-                OldShaderEngine.scheduleShaderPackReload();
+                ArchaicShaderEngine.get().scheduleShaderPackReload();
             }
         }
     }

@@ -68,6 +68,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
     @Override
     public void renderShadowPass(ShadowProperties shadow, DrawBuffers buffers) {
+        val engine = ArchaicShaderEngine.get(); // TODO: Should be provided as an arg?
 
         if (frustrum == null || ch == null) {
             frustrum = new Frustrum();
@@ -86,7 +87,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         Minecraft mc = Minecraft.getMinecraft();
         RenderGlobal renderGlobal = mc.renderGlobal;
-        OldShaderEngine.graph.moveTo(Node.ShadowBegin);
+        engine.graph().moveTo(Node.ShadowBegin);
         val preShadowPassThirdPersonView = mc.gameSettings.thirdPersonView;
         mc.gameSettings.thirdPersonView = 1;
 
@@ -163,7 +164,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         GLDebugGroups.RENDER_SHADOW_0_TERRAIN.push();
         {
-            OldShaderEngine.graph.moveTo(Node.ShadowChunk0);
+            engine.graph().moveTo(Node.ShadowChunk0);
             renderGlobal.renderSortedRenderers(0, numWrs, 0, partialTicks);
         }
         GLDebugGroups.RENDER_SHADOW_0_TERRAIN.pop();
@@ -187,15 +188,15 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
         GL11.glPopMatrix();
         // endregion
 
-        OldShaderEngine.unlockShader();
+        engine.unlockShader();
         // shadowtex0 -> [includes all geometry]
         // shadowtex1 -> [excludes transparent geometry]
         //
         // So like, we rendered all the OPAQUE stuff so we blit it over
-        OldShaderEngine.blitDepth(buffers.shadowDepthTex0, buffers.shadowDepthTex1);
+        engine.blitDepth(buffers.shadowDepthTex0, buffers.shadowDepthTex1);
         // Needed as blit will drop the FB binding...
         buffers.shadow.bind();
-        OldShaderEngine.lockShader();
+        engine.lockShader();
 
         // region Render Translucent
         GL11.glDepthMask(true);
@@ -211,7 +212,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         GLDebugGroups.RENDER_SHADOW_1_TERRAIN.push();
         {
-            OldShaderEngine.graph.moveTo(Node.ShadowChunk1);
+            engine.graph().moveTo(Node.ShadowChunk1);
             renderGlobal.renderSortedRenderers(0, numWrs, 1, partialTicks);
         }
         GLDebugGroups.RENDER_SHADOW_1_TERRAIN.pop();
@@ -232,21 +233,21 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
         GL11.glDisable(GL11.GL_BLEND);
         // endregion
 
-        OldShaderEngine.graph.moveTo(Node.ShadowLast);
+        engine.graph().moveTo(Node.ShadowLast);
 
         mc.gameSettings.thirdPersonView = preShadowPassThirdPersonView;
 
         if (shadow.depthMipmapEnabled(0)) {
-            OldShaderEngine.genMipmap(buffers.shadowDepthTex0);
+            engine.genMipmap(buffers.shadowDepthTex0);
         }
         if (shadow.depthMipmapEnabled(1)) {
-            OldShaderEngine.genMipmap(buffers.shadowDepthTex1);
+            engine.genMipmap(buffers.shadowDepthTex1);
         }
         if (shadow.colorMipmapEnabled(0)) {
-            OldShaderEngine.genMipmap(buffers.shadowColorTex0);
+            engine.genMipmap(buffers.shadowColorTex0);
         }
         if (shadow.colorMipmapEnabled(1)) {
-            OldShaderEngine.genMipmap(buffers.shadowColorTex1);
+            engine.genMipmap(buffers.shadowColorTex1);
         }
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
