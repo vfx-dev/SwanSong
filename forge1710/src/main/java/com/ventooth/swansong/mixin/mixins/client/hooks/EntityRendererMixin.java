@@ -95,7 +95,7 @@ public abstract class EntityRendererMixin {
             require = 1)
     private void state_UpdateCamera(CallbackInfo ci) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderStateOld.updateCamera(true);
+            ArchaicShaderEngine.get().state().updateCamera(true);
         }
     }
 
@@ -149,7 +149,7 @@ public abstract class EntityRendererMixin {
     private boolean state_UpdateFogMode(int pname, int param) {
         if (ArchaicShaderEngine.isInitialized()) {
             if (pname == GL11.GL_FOG_MODE) {
-                ShaderStateOld.updateFogMode(param);
+                ArchaicShaderEngine.get().state().updateFogMode(param);
             }
         }
         return true;
@@ -160,7 +160,7 @@ public abstract class EntityRendererMixin {
             require = 1)
     private void state_UpdateFogColor(float r, float g, float b, float a, CallbackInfoReturnable<FloatBuffer> cir) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderStateOld.updateFogColor(r, g, b);
+            ArchaicShaderEngine.get().state().updateFogColor(r, g, b);
         }
     }
 

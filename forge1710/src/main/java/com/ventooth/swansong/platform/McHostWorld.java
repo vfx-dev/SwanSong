@@ -20,28 +20,28 @@ public final class McHostWorld implements HostWorld {
     @Override
     public double cameraX() {
         val e = Minecraft.getMinecraft().renderViewEntity;
-        val t = ShaderStateOld.getSubTick();
+        val t = ArchaicShaderEngine.get().state().getSubTick();
         return e == null ? 0 : e.lastTickPosX + (e.posX - e.lastTickPosX) * t;
     }
 
     @Override
     public double cameraY() {
         val e = Minecraft.getMinecraft().renderViewEntity;
-        val t = ShaderStateOld.getSubTick();
+        val t = ArchaicShaderEngine.get().state().getSubTick();
         return e == null ? 0 : e.lastTickPosY + (e.posY - e.lastTickPosY) * t;
     }
 
     @Override
     public double cameraZ() {
         val e = Minecraft.getMinecraft().renderViewEntity;
-        val t = ShaderStateOld.getSubTick();
+        val t = ArchaicShaderEngine.get().state().getSubTick();
         return e == null ? 0 : e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * t;
     }
 
     @Override
     public double celestialAngle() {
         val world = Minecraft.getMinecraft().theWorld;
-        return world == null ? 0 : world.getCelestialAngle(ShaderStateOld.getSubTick());
+        return world == null ? 0 : world.getCelestialAngle(ArchaicShaderEngine.get().state().getSubTick());
     }
 
     @Override

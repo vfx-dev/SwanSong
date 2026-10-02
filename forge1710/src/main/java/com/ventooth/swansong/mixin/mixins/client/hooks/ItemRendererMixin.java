@@ -43,7 +43,7 @@ public abstract class ItemRendererMixin {
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderStateOld.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
+            ArchaicShaderEngine.get().state().setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }
     }
 }

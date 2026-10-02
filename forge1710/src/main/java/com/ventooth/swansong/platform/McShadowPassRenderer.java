@@ -77,7 +77,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         GLDebugGroups.RENDER_SHADOW.push();
 
-        val partialTicks = ShaderStateOld.getSubTick();
+        val partialTicks = ArchaicShaderEngine.get().state().getSubTick();
         val entityRenderer = Minecraft.getMinecraft().entityRenderer;
 
         // Set to zero before pushing attribs
@@ -97,10 +97,9 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         entityRenderer.setupCameraTransform(partialTicks, 2);
 
-        ShaderStateOld.setCameraShadow(shadow.resolution,
-                                       shadow.distance,
-                                       shadow.fov,
-                                       shadow.intervalSize);
+        ArchaicShaderEngine.get()
+                           .state()
+                           .setCameraShadow(shadow.resolution, shadow.distance, shadow.fov, shadow.intervalSize);
         ActiveRenderInfo.updateRenderInfo(mc.thePlayer, false);
 
         buffers.shadow.bindDraw();
@@ -113,7 +112,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         // region Shadow culling stuff
         val viewEntity = mc.renderViewEntity;
-        ch.shadowModelViewMatrix.set(ShaderStateOld.shadowModelView());
+        ch.shadowModelViewMatrix.set(ArchaicShaderEngine.get().state().shadowModelView());
 
         ch.begin();
 

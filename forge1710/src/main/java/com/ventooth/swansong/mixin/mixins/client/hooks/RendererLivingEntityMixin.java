@@ -65,7 +65,7 @@ public abstract class RendererLivingEntityMixin {
 
             if (entity.hurtTime > 0 || entity.deathTime > 0) {
                 // If the entity is hurt, apply red tint
-                ShaderStateOld.updateEntityColor(brightness, 0F, 0F, 0.4F);
+                ArchaicShaderEngine.get().state().updateEntityColor(brightness, 0F, 0F, 0.4F);
             } else if ((color >> 24 & 0xFF) > 0) {
                 val a = (float) (color >> 24 & 0xFF) / 255F;
                 val r = (float) (color >> 16 & 0xFF) / 255F;
@@ -73,10 +73,10 @@ public abstract class RendererLivingEntityMixin {
                 val b = (float) (color & 0xFF) / 255F;
 
                 // If the entity color alpha is more than zero, apply that instead
-                ShaderStateOld.updateEntityColor(r, g, b, 1F - a);
+                ArchaicShaderEngine.get().state().updateEntityColor(r, g, b, 1F - a);
             } else {
                 // Otherwise ensure the color is reset (entity color is additive)
-                ShaderStateOld.resetEntityColor();
+                ArchaicShaderEngine.get().state().resetEntityColor();
             }
         }
     }

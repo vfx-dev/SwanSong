@@ -30,7 +30,7 @@ public final class McWorldSampler {
         if (world == null) {
             return WorldSample.EMPTY;
         }
-        val partialTick = ShaderStateOld.getSubTick();
+        val partialTick = ArchaicShaderEngine.get().state().getSubTick();
         val viewEntity = mc.renderViewEntity;
         val playerEntity = mc.thePlayer;
 
@@ -56,7 +56,7 @@ public final class McWorldSampler {
         }
 
         val skyColor = world.getSkyColor(viewEntity, partialTick);
-        val camPos = ShaderStateOld.camPosInt();
+        val camPos = ArchaicShaderEngine.get().state().camPosInt();
 
         return new WorldSample(eyeInWater,
                                nightVision,

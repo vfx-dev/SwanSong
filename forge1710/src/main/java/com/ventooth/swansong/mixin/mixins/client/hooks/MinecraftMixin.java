@@ -34,7 +34,7 @@ public abstract class MinecraftMixin {
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         ArchaicShaderEngine.get().beginRenderAllPre();
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderStateOld.updateSubTick(subTick);
+            ArchaicShaderEngine.get().state().updateSubTick(subTick);
             ArchaicShaderEngine.get().beginRenderAll();
         }
         original.call(instance, subTick);

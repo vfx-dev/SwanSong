@@ -168,10 +168,12 @@ public final class PBRTextureEngine {
             norm = pbrTex.norm();
             spec = pbrTex.spec();
 
+            val state = ArchaicShaderEngine.get()
+                                           .state();
             if (pbrHolder.swan$isAtlas()) {
-                ShaderStateOld.updateAtlasSize(pbrHolder.swan$width(), pbrHolder.swan$height());
+                state.updateAtlasSize(pbrHolder.swan$width(), pbrHolder.swan$height());
             } else {
-                ShaderStateOld.updateAtlasSize(0, 0);
+                state.updateAtlasSize(0, 0);
             }
         }
 

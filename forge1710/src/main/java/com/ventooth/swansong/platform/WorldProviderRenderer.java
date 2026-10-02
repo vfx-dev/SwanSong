@@ -184,11 +184,11 @@ public final class WorldProviderRenderer {
             GL11.glColor4f(1.0F, 1.0F, 1.0F, f6);
             GL11.glTranslatef(f7, f8, f9);
             GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);
-            ShaderStateOld.preCelestialRotate();
+            ArchaicShaderEngine.get().state().preCelestialRotate();
             GL11.glRotatef(world.getCelestialAngle(partialTickTime) * 360.0F, 1.0F, 0.0F, 0.0F);
-            ShaderStateOld.postCelestialRotate();
+            ArchaicShaderEngine.get().state().postCelestialRotate();
             f10 = 30.0F;
-            ShaderStateOld.updateRenderStage(MCRenderStage.SUN);
+            ArchaicShaderEngine.get().state().updateRenderStage(MCRenderStage.SUN);
             mc.renderEngine.bindTexture(RenderGlobal.locationSunPng);
             tess.startDrawingQuads();
             tess.addVertexWithUV(-f10, 100.0D, -f10, 0.0D, 0.0D);
@@ -197,7 +197,7 @@ public final class WorldProviderRenderer {
             tess.addVertexWithUV(-f10, 100.0D, f10, 0.0D, 1.0D);
             tess.draw();
             f10 = 20.0F;
-            ShaderStateOld.updateRenderStage(MCRenderStage.MOON);
+            ArchaicShaderEngine.get().state().updateRenderStage(MCRenderStage.MOON);
             mc.renderEngine.bindTexture(RenderGlobal.locationMoonPhasesPng);
             int k = world.getMoonPhase();
             int l = k % 4;
@@ -218,7 +218,7 @@ public final class WorldProviderRenderer {
 
             if (f18 > 0.0F) {
                 GL11.glColor4f(f18, f18, f18, f18);
-                ShaderStateOld.updateRenderStage(MCRenderStage.STARS);
+                ArchaicShaderEngine.get().state().updateRenderStage(MCRenderStage.STARS);
                 GL11.glCallList(mc.renderGlobal.starGLCallList);
             }
 

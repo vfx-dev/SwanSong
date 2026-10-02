@@ -65,9 +65,13 @@ public final class PlatformHooks {
         ensureJnaAvailable();
         // TODO: Integrate into ArchaicShaderEngine
         OldShaderEngine.host = new McHostRenderer();
+        // TODO: Integrate into ShaderState
         ShaderStateOld.host = new McHostWorld();
+        // TODO: Integrate into ShaderState
         ShaderStateOld.worldSampler = McWorldSampler::sample;
+        // TODO: Integrate into ShaderState
         ShaderStateOld.heldItemIdSource = McWorldSampler::heldItemId;
+        // TODO: Integrate into ShaderState
         ShaderStateOld.heldBlockLightSource = McWorldSampler::heldBlockLightValue;
         UniformCodegen.dumpDirSupplier = PlatformHooks::uniformDumpDir;
     }

@@ -15,6 +15,7 @@ import com.hbm.render.shader.Shader;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderStateOld;
+import lombok.val;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,8 +41,9 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
             remap = false,
             require = 1)
     private void preCelestialRotate(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().graph().isManaged()) {
-            ShaderStateOld.preCelestialRotate();
+        val engine = ArchaicShaderEngine.get();
+        if (engine.graph().isManaged()) {
+            engine.state().preCelestialRotate();
         }
     }
 
@@ -53,8 +55,9 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
             remap = false,
             require = 1)
     private void postCelestialRotate(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().graph().isManaged()) {
-            ShaderStateOld.postCelestialRotate();
+        val engine = ArchaicShaderEngine.get();
+        if (engine.graph().isManaged()) {
+            engine.state().postCelestialRotate();
         }
     }
 
@@ -76,7 +79,7 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
 
     @WrapWithCondition(method = "renderCelestials",
                        at = @At(value = "INVOKE",
-                       target = "Lcom/hbm/render/shader/Shader;stop()V"),
+                                target = "Lcom/hbm/render/shader/Shader;stop()V"),
                        remap = false,
                        require = 1)
     private boolean shiftPlanetStop2(Shader instance) {
@@ -89,40 +92,46 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                        slice = @Slice(from = @At(value = "CONSTANT",
                                                  args = "intValue=3553",
                                                  ordinal = 0),
-                             to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
-                                      remap = false)),
+                                      to = @At(value = "FIELD",
+                                               target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                               remap = false)),
                        require = 2)
     private boolean noDrawSunSquare1(Tessellator instance) {
-        return !ArchaicShaderEngine.get().graph().isManaged();
+        return !ArchaicShaderEngine.get()
+                                   .graph()
+                                   .isManaged();
     }
 
     @WrapWithCondition(method = "renderSun",
                        at = @At(value = "INVOKE",
                                 target = "Lnet/minecraft/client/renderer/Tessellator;addVertex(DDD)V"),
                        slice = @Slice(from = @At(value = "CONSTANT",
-                                        args = "intValue=3553",
-                                        ordinal = 0),
-                             to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
-                                      remap = false)),
+                                                 args = "intValue=3553",
+                                                 ordinal = 0),
+                                      to = @At(value = "FIELD",
+                                               target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                               remap = false)),
                        require = 4)
     private boolean noDrawSunSquare2(Tessellator instance, double x, double y, double z) {
-        return !ArchaicShaderEngine.get().graph().isManaged();
+        return !ArchaicShaderEngine.get()
+                                   .graph()
+                                   .isManaged();
     }
 
     @WrapWithCondition(method = "renderSun",
-              at = @At(value = "INVOKE",
-                       target = "Lnet/minecraft/client/renderer/Tessellator;addVertexWithUV(DDDDD)V"),
-              slice = @Slice(from = @At(value = "CONSTANT",
-                                        args = "intValue=3553",
-                                        ordinal = 0),
-                             to = @At(value = "FIELD",
-                                      target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
-                                      remap = false)),
-              require = 4)
+                       at = @At(value = "INVOKE",
+                                target = "Lnet/minecraft/client/renderer/Tessellator;addVertexWithUV(DDDDD)V"),
+                       slice = @Slice(from = @At(value = "CONSTANT",
+                                                 args = "intValue=3553",
+                                                 ordinal = 0),
+                                      to = @At(value = "FIELD",
+                                               target = "Lcom/hbm/dim/CelestialBody;texture:Lnet/minecraft/util/ResourceLocation;",
+                                               remap = false)),
+                       require = 4)
     private boolean noDrawSunSquare3(Tessellator instance, double x, double y, double z, double u, double v) {
-        return !ArchaicShaderEngine.get().graph().isManaged();
+        return !ArchaicShaderEngine.get()
+                                   .graph()
+                                   .isManaged();
     }
 
     @Redirect(method = "renderSun",
@@ -136,17 +145,21 @@ public abstract class SkyProviderCelestialMixin extends IRenderHandler {
                                       remap = false)),
               require = 2)
     private int noDrawSunSquare4(Tessellator instance) {
-        return ArchaicShaderEngine.get().graph().isManaged() ? 0 : instance.draw();
+        return ArchaicShaderEngine.get()
+                                  .graph()
+                                  .isManaged() ? 0 : instance.draw();
     }
 
     @WrapWithCondition(method = "render",
-              at = @At(value = "INVOKE",
-                       target = "Lorg/lwjgl/opengl/GL11;glCallList(I)V",
-                       remap = false),
-              slice = @Slice(from = @At(value = "INVOKE",
-                                        target = "Lnet/minecraft/world/WorldProvider;isSkyColored()Z")),
-              require = 1)
+                       at = @At(value = "INVOKE",
+                                target = "Lorg/lwjgl/opengl/GL11;glCallList(I)V",
+                                remap = false),
+                       slice = @Slice(from = @At(value = "INVOKE",
+                                                 target = "Lnet/minecraft/world/WorldProvider;isSkyColored()Z")),
+                       require = 1)
     private boolean disableHorizon(int list) {
-        return !ArchaicShaderEngine.get().graph().isManaged();
+        return !ArchaicShaderEngine.get()
+                                   .graph()
+                                   .isManaged();
     }
 }

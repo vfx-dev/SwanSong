@@ -245,7 +245,7 @@ public abstract class RenderGlobalMixin {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            ShaderStateOld.nextEntity(McShaderIds.entityId(entity));
+            ArchaicShaderEngine.get().state().nextEntity(McShaderIds.entityId(entity));
         }
         return true;
     }
@@ -278,7 +278,7 @@ public abstract class RenderGlobalMixin {
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderStateOld.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
+            ArchaicShaderEngine.get().state().nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
             RenderUtil.bindEmptyTexture();
         }
         return true;

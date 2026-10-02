@@ -116,7 +116,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.5F),
                     require = 6)
     public float state_blockSingleLightLevel05(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderBlockBed(Lnet/minecraft/block/Block;III)Z",
@@ -128,7 +128,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.6F),
                     expect = 6)
     public float state_blockSingleLightLevel06(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderBlockBed(Lnet/minecraft/block/Block;III)Z",
@@ -140,7 +140,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.8F),
                     expect = 6)
     public float state_blockSingleLightLevel08(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = "renderPistonExtension(Lnet/minecraft/block/Block;IIIZ)Z",
@@ -149,21 +149,21 @@ public abstract class MixinRenderBlocks {
                                               target = "Lnet/minecraft/client/renderer/RenderBlocks;uvRotateEast:I")),
                     expect = 4)
     public float state_pistonBlockLightLevel05(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = "renderPistonExtension(Lnet/minecraft/block/Block;IIIZ)Z",
                     constant = @Constant(floatValue = 0.6F),
                     expect = 12)
     public float state_pistonBlockLightLevel06(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = "renderPistonExtension(Lnet/minecraft/block/Block;IIIZ)Z",
                     constant = @Constant(floatValue = 0.8F),
                     expect = 4)
     public float state_pistonBlockLightLevel08(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderStandardBlockWithAmbientOcclusionPartial(Lnet/minecraft/block/Block;IIIFFF)Z",
@@ -171,7 +171,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.5F),
                     expect = 12)
     public float state_multipleBlockLightLevel05(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderStandardBlockWithAmbientOcclusionPartial(Lnet/minecraft/block/Block;IIIFFF)Z",
@@ -179,7 +179,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.6F),
                     expect = 24)
     public float state_multipleBlockLightLevel06(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
 
     @ModifyConstant(method = {"renderStandardBlockWithAmbientOcclusionPartial(Lnet/minecraft/block/Block;IIIFFF)Z",
@@ -187,7 +187,7 @@ public abstract class MixinRenderBlocks {
                     constant = @Constant(floatValue = 0.8F),
                     expect = 24)
     public float state_multipleBlockLightLevel08(float constant) {
-        return ArchaicShaderEngine.isInitialized() ? ShaderStateOld.blockLightLevel(constant) : constant;
+        return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
     // endregion
 }

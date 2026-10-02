@@ -25,8 +25,8 @@ public final class SkyBoxRenderer {
         if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
-        ShaderStateOld.setUpPosition();
-        val fogColor = ShaderStateOld.fogColor();
+        ArchaicShaderEngine.get().state().setUpPosition();
+        val fogColor = ArchaicShaderEngine.get().state().fogColor();
         GL11.glColor3d(fogColor.x(), fogColor.y(), fogColor.z());
 
         Tessellator tess = Tessellator.instance;
@@ -36,8 +36,7 @@ public final class SkyBoxRenderer {
         double xzn = -xzp;
         double xzm = -xzq;
         double top = 16f;
-        double bot = -ShaderStateOld.camPos()
-                                    .y();
+        double bot = -ArchaicShaderEngine.get().state().camPos().y();
 
         tess.startDrawingQuads();
         // horizon
@@ -83,7 +82,7 @@ public final class SkyBoxRenderer {
 
         tess.draw();
 
-        val skyColor = ShaderStateOld.skyColor();
+        val skyColor = ArchaicShaderEngine.get().state().skyColor();
         GL11.glColor3d(skyColor.x(), skyColor.y(), skyColor.z());
     }
 }
