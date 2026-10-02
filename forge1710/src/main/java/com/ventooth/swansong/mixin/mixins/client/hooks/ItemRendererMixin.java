@@ -35,16 +35,14 @@ public abstract class ItemRendererMixin {
                        remap = false,
                        require = 2)
     private boolean skip_DepthMask(boolean flag) {
-        return !ArchaicShaderEngine.get()
-                                   .isInitialized() && flag;
+        return !ArchaicShaderEngine.isInitialized() && flag;
     }
 
     @Inject(method = "updateEquippedItem",
             at = @At("RETURN"),
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get()
-                               .isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ShaderState.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }
     }

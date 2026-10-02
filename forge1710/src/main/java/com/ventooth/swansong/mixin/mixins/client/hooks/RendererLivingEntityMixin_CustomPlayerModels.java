@@ -89,6 +89,6 @@ public abstract class RendererLivingEntityMixin_CustomPlayerModels {
                                               float scale,
                                               RendererLivingEntity renderer,
                                               int callLoc) {
-        return !ArchaicShaderEngine.get().isInitialized();
+        return !ArchaicShaderEngine.isInitialized();
     }
 }

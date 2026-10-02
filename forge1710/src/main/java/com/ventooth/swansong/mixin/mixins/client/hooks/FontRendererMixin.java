@@ -29,8 +29,7 @@ public abstract class FontRendererMixin {
             at = @At("HEAD"),
             require = 3)
     private void graph_PushText(CallbackInfoReturnable<Integer> cir) {
-        // BUG: Init order issues
-        if (!OldShaderEngine.isInitialized()) {
+        if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
 
@@ -45,8 +44,7 @@ public abstract class FontRendererMixin {
             at = @At("RETURN"),
             require = 3)
     private void graph_PopText(CallbackInfoReturnable<Integer> cir) {
-        // BUG: Init order issues
-        if (!OldShaderEngine.isInitialized()) {
+        if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
 

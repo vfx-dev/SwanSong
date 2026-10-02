@@ -24,6 +24,6 @@ public abstract class BlockMixin {
                     constant = @Constant(floatValue = 0.2f),
                     require = 1)
     public float state_ambientOcclusionLevel(float constant) {
-        return ArchaicShaderEngine.get().isInitialized() ? ShaderState.blockAoLight() : constant;
+        return ArchaicShaderEngine.isInitialized() ? ShaderState.blockAoLight() : constant;
     }
 }

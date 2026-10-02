@@ -40,7 +40,7 @@ public abstract class ModelRendererMixin {
             return;
         }
 
-        if (swansong$compiledWithShaderTess != ArchaicShaderEngine.get().isInitialized()) {
+        if (swansong$compiledWithShaderTess != ArchaicShaderEngine.isInitialized()) {
             if (this.displayList != 0) {
                 GLAllocation.deleteDisplayLists(this.displayList);
                 this.displayList = 0;
@@ -55,6 +55,6 @@ public abstract class ModelRendererMixin {
             at = @At("RETURN"),
             require = 1)
     private void hook_MarkDisplayListState(float scale, CallbackInfo ci) {
-        swansong$compiledWithShaderTess = ArchaicShaderEngine.get().isInitialized();
+        swansong$compiledWithShaderTess = ArchaicShaderEngine.isInitialized();
     }
 }

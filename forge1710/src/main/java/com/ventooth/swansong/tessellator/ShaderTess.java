@@ -46,8 +46,7 @@ public class ShaderTess {
 
     //FalseTweaks mixin lands here
     public static int vertexStrideInt() {
-        return ArchaicShaderEngine.get()
-                                  .isInitialized() ? 20 : 8;
+        return ArchaicShaderEngine.isInitialized() ? 20 : 8;
     }
 
     public static int vertexStrideByte() {

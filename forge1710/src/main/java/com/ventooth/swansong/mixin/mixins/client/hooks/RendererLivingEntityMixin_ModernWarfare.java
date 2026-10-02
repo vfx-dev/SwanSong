@@ -91,7 +91,6 @@ public abstract class RendererLivingEntityMixin_ModernWarfare {
                                               float netHeadYaw,
                                               float headPitch,
                                               float scale) {
-        return !ArchaicShaderEngine.get()
-                                   .isInitialized();
+        return !ArchaicShaderEngine.isInitialized();
     }
 }

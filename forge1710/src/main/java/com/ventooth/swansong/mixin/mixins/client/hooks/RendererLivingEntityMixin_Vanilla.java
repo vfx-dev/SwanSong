@@ -78,7 +78,7 @@ public abstract class RendererLivingEntityMixin_Vanilla {
                                               float netHeadYaw,
                                               float headPitch,
                                               float scale) {
-        return !ArchaicShaderEngine.get()
-                                   .isInitialized();
+        // TODO: Does this make the vanilla hurt tint not work if shaders are off??
+        return !ArchaicShaderEngine.isInitialized();
     }
 }

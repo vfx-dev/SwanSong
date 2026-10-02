@@ -50,8 +50,7 @@ public abstract class TextureManagerMixin {
     private void pbr_CaptureTex(CallbackInfo ci,
                                 @Local Object object,
                                 @Share("pbr_holder") LocalRef<@Nullable PBRTextureHolder> pbr_holder) {
-        // BUG: Init order issues
-        if (!OldShaderEngine.isInitialized()) {
+        if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
 
@@ -70,8 +69,7 @@ public abstract class TextureManagerMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private void pbr_BindTex(CallbackInfo ci, @Share("pbr_holder") LocalRef<@Nullable PBRTextureHolder> pbr_holder) {
-        // BUG: Init order issues
-        if (!OldShaderEngine.isInitialized()) {
+        if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
 

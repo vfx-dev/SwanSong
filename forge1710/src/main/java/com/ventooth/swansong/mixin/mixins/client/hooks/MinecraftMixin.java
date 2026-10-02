@@ -33,7 +33,7 @@ public abstract class MinecraftMixin {
                    require = 1)
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         ArchaicShaderEngine.get().beginRenderAllPre();
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ShaderState.updateSubTick(subTick);
             ArchaicShaderEngine.get().beginRenderAll();
         }
@@ -47,7 +47,7 @@ public abstract class MinecraftMixin {
                    require = 1)
     private void hook_EndFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         original.call(instance, subTick);
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().endRenderAll();
         }
     }
@@ -65,7 +65,7 @@ public abstract class MinecraftMixin {
             at = @At("RETURN"),
             require = 1)
     private void hook_ResizeWindow(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().scheduleFramebufferResize();
         }
     }

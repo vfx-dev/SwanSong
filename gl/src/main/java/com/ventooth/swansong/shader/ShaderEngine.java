@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 // TODO: Add delegate methods for stuff like `.graph().isManaged()` etc
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class ShaderEngine {
-    public boolean isInitialized() {
+    protected boolean isInitializedImpl() {
         return OldShaderEngine.isInitialized();
     }
 

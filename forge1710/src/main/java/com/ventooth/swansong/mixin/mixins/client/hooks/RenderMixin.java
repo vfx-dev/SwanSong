@@ -40,8 +40,7 @@ public abstract class RenderMixin {
                                          float yaw,
                                          float subTick,
                                          Operation<Void> original) {
-        if (ArchaicShaderEngine.get()
-                               .isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             // TODO: Toggle for skipping the entity shadows if we do or don't have a shadow pass?
             if (ShaderStateInfo.shadowPassExists()) {
                 return;
@@ -62,8 +61,7 @@ public abstract class RenderMixin {
             cancellable = true,
             require = 1)
     private void wrap_EntityNameTag(CallbackInfo ci, @Local(argsOnly = true) Entity entity) {
-        if (ArchaicShaderEngine.get()
-                               .isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             // Don't render in shadow pass
             if (ShaderStateInfo.shadowPassActive()) {
                 ci.cancel();

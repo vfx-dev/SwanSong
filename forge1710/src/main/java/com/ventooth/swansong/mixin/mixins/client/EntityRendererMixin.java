@@ -29,8 +29,7 @@ public abstract class EntityRendererMixin {
                        target = "Lnet/minecraft/client/renderer/culling/Frustrum;setPosition(DDD)V"),
               require = 1)
     private void grabFrustrum(Frustrum instance, double x, double y, double z) {
-        if (ArchaicShaderEngine.get()
-                               .isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             McShadowPassRenderer.mcFrustrum = instance;
         }
         instance.setPosition(x, y, z);
@@ -43,8 +42,7 @@ public abstract class EntityRendererMixin {
                        remap = false),
               require = 1)
     private void resizeViewport(int x, int y, int width, int height) {
-        if (ArchaicShaderEngine.get()
-                               .isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             val q = ShadersConfig.RenderQuality.get();
             GL11.glViewport(x, y, (int) (width * q), (int) (height * q));
         } else {

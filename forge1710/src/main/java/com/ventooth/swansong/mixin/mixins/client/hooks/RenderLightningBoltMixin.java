@@ -26,8 +26,7 @@ public abstract class RenderLightningBoltMixin {
             at = @At("HEAD"),
             require = 1)
     private void fixStolenLightning(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get()
-                               .isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             RenderUtil.bindEmptyTexture();
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
         }

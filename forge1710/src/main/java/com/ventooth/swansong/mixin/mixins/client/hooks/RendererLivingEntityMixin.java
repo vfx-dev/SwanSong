@@ -86,6 +86,6 @@ public abstract class RendererLivingEntityMixin {
                                 target = "Lnet/minecraft/client/renderer/OpenGlHelper;setActiveTexture(I)V"),
                        require = 4)
     private boolean skip_SetActiveTexture(int texture) {
-        return !ArchaicShaderEngine.get().isInitialized();
+        return !ArchaicShaderEngine.isInitialized();
     }
 }

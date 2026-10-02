@@ -41,14 +41,8 @@ public abstract class TessellatorMixin {
     @Unique
     @SuppressWarnings("unused")
     private boolean swansong$shadersEnabled() {
+        // TODO: Measure overhead, do we want to instead latch this on 'startDrawing()'?
         // TODO: Stuff like rendering the stars on renderGlobal init will just never get the shader attributes in the call list.
-        //  at which point we'd get an NPE :(
-        if (!OldShaderEngine.isInitialized()) {
-            return false;
-        }
-
-
-        return ArchaicShaderEngine.get()
-                                  .isInitialized();
+        return ArchaicShaderEngine.isInitialized();
     }
 }

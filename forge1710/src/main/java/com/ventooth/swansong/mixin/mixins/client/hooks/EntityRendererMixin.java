@@ -48,7 +48,7 @@ public abstract class EntityRendererMixin {
                                 target = "Lnet/minecraft/client/renderer/ItemRenderer;renderItemInFirstPerson(F)V"),
                        require = 1)
     private boolean skip_RenderHand(ItemRenderer instance, float subTick) {
-        return !ArchaicShaderEngine.get().isInitialized();
+        return !ArchaicShaderEngine.isInitialized();
     }
 
     @Inject(method = "disableLightmap(D)V",
@@ -69,7 +69,7 @@ public abstract class EntityRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void hook_BeginRenderWorld(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().beginRenderWorld();
         }
     }
@@ -94,7 +94,7 @@ public abstract class EntityRendererMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void state_UpdateCamera(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ShaderState.updateCamera(true);
         }
     }
@@ -114,7 +114,7 @@ public abstract class EntityRendererMixin {
                        opcode = Opcodes.GETFIELD),
               require = 2)
     private boolean setupCameraTransform_anaglyph(GameSettings instance) {
-        return ArchaicShaderEngine.get().isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
+        return ArchaicShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
     }
 
     @Redirect(method = "renderWorld(FJ)V",
@@ -123,7 +123,7 @@ public abstract class EntityRendererMixin {
                        opcode = Opcodes.GETFIELD),
               require = 3)
     private boolean renderWorld_anaglyph(GameSettings instance) {
-        return ArchaicShaderEngine.get().isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
+        return ArchaicShaderEngine.isInitialized() && ((ShaderGameSettings) instance).swan$anaglyph() != 0;
     }
 
     @WrapOperation(method = "renderWorld(FJ)V",
@@ -132,7 +132,7 @@ public abstract class EntityRendererMixin {
                             remap = false),
                    require = 1)
     private void hook_RenderLastAndEndRenderWorld(RenderGlobal rg, float subTick, Operation<Void> original) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().preRenderLast();
             original.call(rg, subTick);
             ArchaicShaderEngine.get().finishRenderFinal();
@@ -147,7 +147,7 @@ public abstract class EntityRendererMixin {
                                 remap = false),
                        require = 9)
     private boolean state_UpdateFogMode(int pname, int param) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             if (pname == GL11.GL_FOG_MODE) {
                 ShaderState.updateFogMode(param);
             }
@@ -159,7 +159,7 @@ public abstract class EntityRendererMixin {
             at = @At("HEAD"),
             require = 1)
     private void state_UpdateFogColor(float r, float g, float b, float a, CallbackInfoReturnable<FloatBuffer> cir) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ShaderState.updateFogColor(r, g, b);
         }
     }
@@ -171,7 +171,7 @@ public abstract class EntityRendererMixin {
                      args = "ldc=clear"),
             require = 1)
     private void renderBegin(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderBegin);
         }
     }
@@ -181,7 +181,7 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;renderSky(F)V"),
             require = 1)
     private void renderSky(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderSkyBasic);
         }
     }
@@ -191,7 +191,7 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/RenderGlobal;renderClouds(F)V"),
             require = 1)
     private void renderClouds(RenderGlobal renderer, float tickDelta, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderClouds);
         }
     }
@@ -202,7 +202,7 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void renderChunk0(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderChunk0);
         }
     }
@@ -213,7 +213,7 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void renderSelectionBox(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderSelectionBox);
         }
     }
@@ -224,7 +224,7 @@ public abstract class EntityRendererMixin {
                      remap = false),
             require = 1)
     private void renderBlockDamage(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderBlockDamage);
         }
     }
@@ -234,7 +234,7 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/particle/EffectRenderer;renderLitParticles(Lnet/minecraft/entity/Entity;F)V"),
             require = 1)
     private void renderParticlesLit(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderParticlesLit);
         }
     }
@@ -244,7 +244,7 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/particle/EffectRenderer;renderParticles(Lnet/minecraft/entity/Entity;F)V"),
             require = 1)
     private void renderParticles(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderParticles);
         }
     }
@@ -254,7 +254,7 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/renderer/EntityRenderer;renderRainSnow(F)V"),
             require = 1)
     private void renderWeather(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             GL11.glEnable(GL11.GL_DEPTH_TEST);
             GL11.glEnable(GL11.GL_BLEND);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -271,7 +271,7 @@ public abstract class EntityRendererMixin {
                      shift = At.Shift.AFTER),
             require = 1)
     private void hook_PreWater(CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderHand0);
         }
     }
@@ -284,7 +284,7 @@ public abstract class EntityRendererMixin {
                      ordinal = 0),
             require = 1)
     private void deferredPipeline(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().runDeferredPipeline();
         }
     }
@@ -294,7 +294,7 @@ public abstract class EntityRendererMixin {
                      target = "Lnet/minecraft/client/settings/GameSettings;fancyGraphics:Z"),
             require = 1)
     private void renderChunk1(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             //DepthMask is needed for composites
             GL11.glDepthMask(true);
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderChunk1);
@@ -307,7 +307,7 @@ public abstract class EntityRendererMixin {
                      remap = false),
             require = 1)
     private void renderLast(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.RenderLast);
         }
     }
@@ -316,7 +316,7 @@ public abstract class EntityRendererMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private void unmanaged(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.Unmanaged);
         }
     }
