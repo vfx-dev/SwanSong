@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.WorldSample;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public final class McWorldSampler {
         if (world == null) {
             return WorldSample.EMPTY;
         }
-        val partialTick = ShaderState.getSubTick();
+        val partialTick = ShaderStateOld.getSubTick();
         val viewEntity = mc.renderViewEntity;
         val playerEntity = mc.thePlayer;
 
@@ -56,7 +56,7 @@ public final class McWorldSampler {
         }
 
         val skyColor = world.getSkyColor(viewEntity, partialTick);
-        val camPos = ShaderState.camPosInt();
+        val camPos = ShaderStateOld.camPosInt();
 
         return new WorldSample(eyeInWater,
                                nightVision,

@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -25,8 +25,8 @@ public final class SkyBoxRenderer {
         if (!ArchaicShaderEngine.isInitialized()) {
             return;
         }
-        ShaderState.setUpPosition();
-        val fogColor = ShaderState.fogColor();
+        ShaderStateOld.setUpPosition();
+        val fogColor = ShaderStateOld.fogColor();
         GL11.glColor3d(fogColor.x(), fogColor.y(), fogColor.z());
 
         Tessellator tess = Tessellator.instance;
@@ -36,8 +36,8 @@ public final class SkyBoxRenderer {
         double xzn = -xzp;
         double xzm = -xzq;
         double top = 16f;
-        double bot = -ShaderState.camPos()
-                                 .y();
+        double bot = -ShaderStateOld.camPos()
+                                    .y();
 
         tess.startDrawingQuads();
         // horizon
@@ -83,7 +83,7 @@ public final class SkyBoxRenderer {
 
         tess.draw();
 
-        val skyColor = ShaderState.skyColor();
+        val skyColor = ShaderStateOld.skyColor();
         GL11.glColor3d(skyColor.x(), skyColor.y(), skyColor.z());
     }
 }

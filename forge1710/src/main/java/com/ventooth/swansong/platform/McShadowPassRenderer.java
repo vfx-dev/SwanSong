@@ -13,8 +13,7 @@ package com.ventooth.swansong.platform;
 import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
 import com.ventooth.swansong.shader.DrawBuffers;
-import com.ventooth.swansong.shader.OldShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.ShadowPassRenderer;
 import com.ventooth.swansong.shader.ShadowProperties;
 import com.ventooth.swansong.shader.StateGraph.Node;
@@ -78,7 +77,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         GLDebugGroups.RENDER_SHADOW.push();
 
-        val partialTicks = ShaderState.getSubTick();
+        val partialTicks = ShaderStateOld.getSubTick();
         val entityRenderer = Minecraft.getMinecraft().entityRenderer;
 
         // Set to zero before pushing attribs
@@ -98,10 +97,10 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         entityRenderer.setupCameraTransform(partialTicks, 2);
 
-        ShaderState.setCameraShadow(shadow.resolution,
-                                    shadow.distance,
-                                    shadow.fov,
-                                    shadow.intervalSize);
+        ShaderStateOld.setCameraShadow(shadow.resolution,
+                                       shadow.distance,
+                                       shadow.fov,
+                                       shadow.intervalSize);
         ActiveRenderInfo.updateRenderInfo(mc.thePlayer, false);
 
         buffers.shadow.bindDraw();
@@ -114,7 +113,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         // region Shadow culling stuff
         val viewEntity = mc.renderViewEntity;
-        ch.shadowModelViewMatrix.set(ShaderState.shadowModelView());
+        ch.shadowModelViewMatrix.set(ShaderStateOld.shadowModelView());
 
         ch.begin();
 

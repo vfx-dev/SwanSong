@@ -16,7 +16,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -65,7 +65,7 @@ public abstract class RendererLivingEntityMixin {
 
             if (entity.hurtTime > 0 || entity.deathTime > 0) {
                 // If the entity is hurt, apply red tint
-                ShaderState.updateEntityColor(brightness, 0F, 0F, 0.4F);
+                ShaderStateOld.updateEntityColor(brightness, 0F, 0F, 0.4F);
             } else if ((color >> 24 & 0xFF) > 0) {
                 val a = (float) (color >> 24 & 0xFF) / 255F;
                 val r = (float) (color >> 16 & 0xFF) / 255F;
@@ -73,10 +73,10 @@ public abstract class RendererLivingEntityMixin {
                 val b = (float) (color & 0xFF) / 255F;
 
                 // If the entity color alpha is more than zero, apply that instead
-                ShaderState.updateEntityColor(r, g, b, 1F - a);
+                ShaderStateOld.updateEntityColor(r, g, b, 1F - a);
             } else {
                 // Otherwise ensure the color is reset (entity color is additive)
-                ShaderState.resetEntityColor();
+                ShaderStateOld.resetEntityColor();
             }
         }
     }

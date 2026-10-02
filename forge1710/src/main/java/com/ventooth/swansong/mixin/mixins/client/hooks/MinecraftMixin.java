@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,7 +34,7 @@ public abstract class MinecraftMixin {
     private void hook_BeginFrame(FMLCommonHandler instance, float subTick, Operation<Void> original) {
         ArchaicShaderEngine.get().beginRenderAllPre();
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderState.updateSubTick(subTick);
+            ShaderStateOld.updateSubTick(subTick);
             ArchaicShaderEngine.get().beginRenderAll();
         }
         original.call(instance, subTick);

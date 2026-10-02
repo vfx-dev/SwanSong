@@ -16,7 +16,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.ventooth.swansong.api.ShaderStateInfo;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,7 +47,7 @@ public abstract class RenderMixin {
             }
 
             // Might render right after the entity was hit
-            ShaderState.resetEntityColor();
+            ShaderStateOld.resetEntityColor();
             // Just in case, ensure lighting is full bright
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
         }
@@ -69,7 +69,7 @@ public abstract class RenderMixin {
             }
 
             // Might render right after the entity was hit
-            ShaderState.resetEntityColor();
+            ShaderStateOld.resetEntityColor();
             // No texture for the initial box
             RenderUtil.bindEmptyTexture();
         }

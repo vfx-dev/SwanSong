@@ -15,7 +15,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import org.lwjgl.opengl.GL11;
 import org.objectweb.asm.Opcodes;
@@ -95,7 +95,7 @@ public abstract class EntityRendererMixin {
             require = 1)
     private void state_UpdateCamera(CallbackInfo ci) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderState.updateCamera(true);
+            ShaderStateOld.updateCamera(true);
         }
     }
 
@@ -149,7 +149,7 @@ public abstract class EntityRendererMixin {
     private boolean state_UpdateFogMode(int pname, int param) {
         if (ArchaicShaderEngine.isInitialized()) {
             if (pname == GL11.GL_FOG_MODE) {
-                ShaderState.updateFogMode(param);
+                ShaderStateOld.updateFogMode(param);
             }
         }
         return true;
@@ -160,7 +160,7 @@ public abstract class EntityRendererMixin {
             require = 1)
     private void state_UpdateFogColor(float r, float g, float b, float a, CallbackInfoReturnable<FloatBuffer> cir) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderState.updateFogColor(r, g, b);
+            ShaderStateOld.updateFogColor(r, g, b);
         }
     }
 

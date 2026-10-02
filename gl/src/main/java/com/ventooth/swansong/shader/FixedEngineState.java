@@ -163,7 +163,7 @@ class FixedEngineState {
             if (b.manager.shadow != null) {
                 b.shadow = ShadowProperties.from(outParams, (float) OldShaderEngine.host.shadowQuality());
             }
-            ShaderState.applyParams(outParams);
+            ShaderStateOld.applyParams(outParams);
         } catch (ShaderException e) {
             throw new AssertionError(e);
         }

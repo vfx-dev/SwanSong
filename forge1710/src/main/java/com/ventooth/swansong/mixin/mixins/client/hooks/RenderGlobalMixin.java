@@ -19,12 +19,11 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.platform.WorldProviderRenderer;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -246,7 +245,7 @@ public abstract class RenderGlobalMixin {
             // Reset Render Pass
             ForgeHooksClient.setRenderPass(renderPass.get());
 
-            ShaderState.nextEntity(McShaderIds.entityId(entity));
+            ShaderStateOld.nextEntity(McShaderIds.entityId(entity));
         }
         return true;
     }
@@ -279,7 +278,7 @@ public abstract class RenderGlobalMixin {
                        require = 1)
     private boolean hook_NextBlockEntity(TileEntityRendererDispatcher instance, TileEntity tileEntity, float subTick) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderState.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
+            ShaderStateOld.nextBlockEntity(McShaderIds.blockEntityId(tileEntity));
             RenderUtil.bindEmptyTexture();
         }
         return true;

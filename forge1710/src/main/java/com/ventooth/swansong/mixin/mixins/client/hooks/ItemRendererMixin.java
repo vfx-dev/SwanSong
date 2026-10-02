@@ -13,7 +13,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,7 +43,7 @@ public abstract class ItemRendererMixin {
             require = 1)
     private void state_UpdateHeldItem(CallbackInfo ci) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ShaderState.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
+            ShaderStateOld.setHeldItemTranslucent(McShaderIds.isItemTranslucent(itemToRender));
         }
     }
 }

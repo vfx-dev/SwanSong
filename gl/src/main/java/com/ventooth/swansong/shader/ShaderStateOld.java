@@ -37,8 +37,9 @@ import java.nio.DoubleBuffer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
+@Deprecated
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShaderState {
+public final class ShaderStateOld {
     private static final DoubleBuffer tempDoubleBuf = BufferUtils.createDoubleBuffer(16);
 
     private static final double LOG_HALF = Math.log(0.5);
@@ -420,7 +421,7 @@ public final class ShaderState {
     // endregion
 
     public static void updateSubTick(float subTick) {
-        ShaderState.subTick = subTick;
+        ShaderStateOld.subTick = subTick;
     }
 
     public static float getSubTick() {

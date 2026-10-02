@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.shader.uniform;
 
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -30,73 +30,73 @@ import java.util.function.Supplier;
 public final class GeneralUniforms {
     //@formatter:off
     private final static List<Uniform<?>> LIVE_UNIFORMS = new GeneralUniformListBuilder()
-            .addInt("fogMode", ShaderState::fogMode)
-            .addVec3("fogColor", ShaderState::fogColor)
-            .addVec3("skyColor", ShaderState::skyColor)
-            .addVec4("entityColor", ShaderState::entityColor)
-            .addInt("entityId", ShaderState::entityId)
-            .addInt("blockEntityId", ShaderState::blockEntityId)
-            .addVec3("sunPosition", ShaderState::sunPosition)
-            .addVec3("moonPosition", ShaderState::moonPosition)
-            .addVec3("shadowLightPosition", ShaderState::shadowLightPosition)
-            .addVec3("upPosition", ShaderState::upPos)
-            .addMat4("gbufferProjection", ShaderState::projectionMat)
-            .addMat4("gbufferModelViewInverse", ShaderState::modelViewMatInv)
-            .addMat4("gbufferPreviousProjection", ShaderState::prevProjectionMat)
-            .addMat4("gbufferModelView", ShaderState::modelViewMat)
-            .addMat4("gbufferProjectionInverse", ShaderState::projectionMatInv)
-            .addMat4("gbufferPreviousModelView", ShaderState::prevModelViewMat)
-            .addMat4("shadowProjection", ShaderState::shadowProjection)
-            .addMat4("shadowProjectionInverse", ShaderState::shadowProjectionInverse)
-            .addMat4("shadowModelView", ShaderState::shadowModelView)
-            .addMat4("shadowModelViewInverse", ShaderState::shadowModelViewInverse)
-            .addInt("renderStage", ShaderState::renderStage)
-            .addVec2i("atlasSize", ShaderState::atlasSize)
+            .addInt("fogMode", ShaderStateOld::fogMode)
+            .addVec3("fogColor", ShaderStateOld::fogColor)
+            .addVec3("skyColor", ShaderStateOld::skyColor)
+            .addVec4("entityColor", ShaderStateOld::entityColor)
+            .addInt("entityId", ShaderStateOld::entityId)
+            .addInt("blockEntityId", ShaderStateOld::blockEntityId)
+            .addVec3("sunPosition", ShaderStateOld::sunPosition)
+            .addVec3("moonPosition", ShaderStateOld::moonPosition)
+            .addVec3("shadowLightPosition", ShaderStateOld::shadowLightPosition)
+            .addVec3("upPosition", ShaderStateOld::upPos)
+            .addMat4("gbufferProjection", ShaderStateOld::projectionMat)
+            .addMat4("gbufferModelViewInverse", ShaderStateOld::modelViewMatInv)
+            .addMat4("gbufferPreviousProjection", ShaderStateOld::prevProjectionMat)
+            .addMat4("gbufferModelView", ShaderStateOld::modelViewMat)
+            .addMat4("gbufferProjectionInverse", ShaderStateOld::projectionMatInv)
+            .addMat4("gbufferPreviousModelView", ShaderStateOld::prevModelViewMat)
+            .addMat4("shadowProjection", ShaderStateOld::shadowProjection)
+            .addMat4("shadowProjectionInverse", ShaderStateOld::shadowProjectionInverse)
+            .addMat4("shadowModelView", ShaderStateOld::shadowModelView)
+            .addMat4("shadowModelViewInverse", ShaderStateOld::shadowModelViewInverse)
+            .addInt("renderStage", ShaderStateOld::renderStage)
+            .addVec2i("atlasSize", ShaderStateOld::atlasSize)
             .build();
 
     private final static List<Uniform<?>> GENERAL_UNIFORMS = new GeneralUniformListBuilder(LIVE_UNIFORMS)
-            .addInt("heldItemId", ShaderState::heldItemId)
-            .addInt("heldBlockLightValue", ShaderState::heldBlockLightValue)
-            .addInt("worldTime", ShaderState::worldTime)
-            .addInt("worldDay", ShaderState::worldDay)
-            .addInt("moonPhase", ShaderState::moonPhase)
-            .addInt("frameCounter", ShaderState::frameCounter)
-            .addFloat("frameTime", ShaderState::frameTime)
-            .addFloat("frameTimeCounter", ShaderState::frameTimeCounter)
-            .addFloat("sunAngle", ShaderState::sunAngle)
-            .addFloat("shadowAngle", ShaderState::shadowAngle)
-            .addFloat("rainStrength", ShaderState::rainStrength)
-            .addFloat("aspectRatio", ShaderState::aspectRatio)
-            .addFloat("viewWidth", ShaderState::viewWidth)
-            .addFloat("viewHeight", ShaderState::viewHeight)
-            .addFloat("near", ShaderState::nearPlane)
-            .addFloat("far", ShaderState::farPlane)
-            .addVec3("previousCameraPosition", ShaderState::prevCamPos)
-            .addVec3("cameraPosition", ShaderState::camPos)
-            .addFloat("wetness", ShaderState::wetness)
-            .addFloat("eyeAltitude", ShaderState::eyeAltitude)
-            .addVec2i("eyeBrightness", ShaderState::eyeBrightness)
-            .addVec2i("eyeBrightnessSmooth", ShaderState::eyeBrightnessSmooth)
+            .addInt("heldItemId", ShaderStateOld::heldItemId)
+            .addInt("heldBlockLightValue", ShaderStateOld::heldBlockLightValue)
+            .addInt("worldTime", ShaderStateOld::worldTime)
+            .addInt("worldDay", ShaderStateOld::worldDay)
+            .addInt("moonPhase", ShaderStateOld::moonPhase)
+            .addInt("frameCounter", ShaderStateOld::frameCounter)
+            .addFloat("frameTime", ShaderStateOld::frameTime)
+            .addFloat("frameTimeCounter", ShaderStateOld::frameTimeCounter)
+            .addFloat("sunAngle", ShaderStateOld::sunAngle)
+            .addFloat("shadowAngle", ShaderStateOld::shadowAngle)
+            .addFloat("rainStrength", ShaderStateOld::rainStrength)
+            .addFloat("aspectRatio", ShaderStateOld::aspectRatio)
+            .addFloat("viewWidth", ShaderStateOld::viewWidth)
+            .addFloat("viewHeight", ShaderStateOld::viewHeight)
+            .addFloat("near", ShaderStateOld::nearPlane)
+            .addFloat("far", ShaderStateOld::farPlane)
+            .addVec3("previousCameraPosition", ShaderStateOld::prevCamPos)
+            .addVec3("cameraPosition", ShaderStateOld::camPos)
+            .addFloat("wetness", ShaderStateOld::wetness)
+            .addFloat("eyeAltitude", ShaderStateOld::eyeAltitude)
+            .addVec2i("eyeBrightness", ShaderStateOld::eyeBrightness)
+            .addVec2i("eyeBrightnessSmooth", ShaderStateOld::eyeBrightnessSmooth)
             .addVec2i("terrainTextureSize", UniformGetterDanglingWires::terrainTextureSize)
             .addInt("terrainIconSize", UniformGetterDanglingWires::terrainIconSize)
-            .addInt("isEyeInWater", ShaderState::isEyeInWater)
-            .addFloat("nightVision", ShaderState::nightVision)
-            .addFloat("blindness", ShaderState::blindness)
-            .addFloat("screenBrightness", ShaderState::screenBrightness)
-            .addBool("hideGUI", ShaderState::isGuiHidden)
-            .addFloat("centerDepthSmooth", ShaderState::centerDepthSmooth)
+            .addInt("isEyeInWater", ShaderStateOld::isEyeInWater)
+            .addFloat("nightVision", ShaderStateOld::nightVision)
+            .addFloat("blindness", ShaderStateOld::blindness)
+            .addFloat("screenBrightness", ShaderStateOld::screenBrightness)
+            .addBool("hideGUI", ShaderStateOld::isGuiHidden)
+            .addFloat("centerDepthSmooth", ShaderStateOld::centerDepthSmooth)
             .build();
     //@formatter:on
 
     static {
-        ShaderState.setUniformUpdateTask(() -> LIVE_UNIFORMS.forEach(Uniform::update));
+        ShaderStateOld.setUniformUpdateTask(() -> LIVE_UNIFORMS.forEach(Uniform::update));
     }
 
     private final static UniformFunctionRegistry UNIFORM_FUNCTION_REGISTRY;
 
     static {
         try {
-            val clazz = ShaderState.class;
+            val clazz = ShaderStateOld.class;
             val reg = new UniformFunctionRegistry.Single();
 
             reg.impure(clazz.getDeclaredMethod("camPos"), "cameraPosition");

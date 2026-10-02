@@ -27,9 +27,9 @@ import static com.ventooth.swansong.shader.OldShaderEngine.shaderData;
 import static com.ventooth.swansong.shader.OldShaderEngine.state;
 import static com.ventooth.swansong.shader.OldShaderEngine.unlockShader;
 import static com.ventooth.swansong.shader.OldShaderEngine.use;
-import static com.ventooth.swansong.shader.ShaderState.popRenderStage;
-import static com.ventooth.swansong.shader.ShaderState.pushRenderStage;
-import static com.ventooth.swansong.shader.ShaderState.updateRenderStage;
+import static com.ventooth.swansong.shader.ShaderStateOld.popRenderStage;
+import static com.ventooth.swansong.shader.ShaderStateOld.pushRenderStage;
+import static com.ventooth.swansong.shader.ShaderStateOld.updateRenderStage;
 import static com.ventooth.swansong.shader.StateGraph.Node.BeginFrame;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBegin;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockDamage;
@@ -190,7 +190,7 @@ public class StateGraph {
         });
         edge(RenderWeatherEntities0, RenderEntities0);
         edge(RenderEntities0, RenderBlockEntities0, () -> {
-            ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
+            ShaderStateOld.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
         });
         //Can happen (CNPC+ DBC Addon is one example)
@@ -225,7 +225,7 @@ public class StateGraph {
             use(state.manager.water);
         });
         edge(RenderChunk1, RenderWeatherEntities1, () -> {
-            ShaderState.updateRenderStage(MCRenderStage.ENTITIES);
+            ShaderStateOld.updateRenderStage(MCRenderStage.ENTITIES);
             use(state.manager.entities);
         });
         edge(RenderChunk1, RenderClouds, () -> {
@@ -239,7 +239,7 @@ public class StateGraph {
         });
         edge(RenderWeatherEntities1, RenderEntities1);
         edge(RenderEntities1, RenderBlockEntities1, () -> {
-            ShaderState.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
+            ShaderStateOld.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
         });
         //Can happen (CNPC+ DBC Addon is one example)
