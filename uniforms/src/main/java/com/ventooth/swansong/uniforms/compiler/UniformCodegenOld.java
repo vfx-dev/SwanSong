@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.uniforms.compiler;
 
-import com.ventooth.swansong.uniforms.Builtins;
+import com.ventooth.swansong.uniforms.BuiltinsOld;
 import com.ventooth.swansong.uniforms.CompiledUniform;
 import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import com.ventooth.swansong.uniforms.Type;
@@ -75,7 +75,7 @@ public final class UniformCodegenOld {
     public static Result generate(UniformFunctionRegistryOld hostUniforms, List<UniformDef> defs) {
         val varRegistry = new UniformFunctionRegistryOld.Single();
         val registry = new UniformFunctionRegistryOld.Multi();
-        registry.add(Builtins.REGISTRY);
+        registry.add(BuiltinsOld.REGISTRY);
         registry.add(StatefulBuiltins.REGISTRY);
         registry.add(varRegistry);
         registry.add(hostUniforms);

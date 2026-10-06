@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.uniforms.compiler;
 
-import com.ventooth.swansong.uniforms.Builtins;
+import com.ventooth.swansong.uniforms.BuiltinsOld;
 import com.ventooth.swansong.uniforms.Type;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.compiler.backend.BytecodeOptimizer;
@@ -32,7 +32,7 @@ class UniformCompilerTest {
     @Test
     void simpleTest() {
         val registry = new UniformFunctionRegistryOld.Multi();
-        registry.add(Builtins.REGISTRY);
+        registry.add(BuiltinsOld.REGISTRY);
         val flags = new UniformCompiler.Flags(new TypeResolver.Flags(true),
                                               new Optimizer.Flags(true, true, true),
                                               new CodeGenerator.Flags(false, false),
