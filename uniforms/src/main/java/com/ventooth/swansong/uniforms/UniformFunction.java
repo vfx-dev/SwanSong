@@ -24,6 +24,7 @@ public record UniformFunction(@Nullable Method constantFoldMethod,
                               List<Type> params,
                               boolean statefulIndexed) {
 
+    // TODO: Replace with builder, boolean args are EVIL!
     public static UniformFunction of(Method method, boolean constantFoldable, boolean statefulIndexed) {
         val returns = Type.of(method.getReturnType());
         val javaParams = method.getParameterTypes();
