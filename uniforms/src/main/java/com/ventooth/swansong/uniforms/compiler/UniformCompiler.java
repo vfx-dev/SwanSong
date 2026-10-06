@@ -66,6 +66,7 @@ public class UniformCompiler {
         return method;
     }
 
+    // TODO: Can we make this *return* the InsnList?
     void compile(Type returnType, String expressionSource, InsnList instructions, boolean isStatic) {
         val untypedExpr = parse(expressionSource);
         val typedExpr = resolveTypes(returnType, untypedExpr);
@@ -74,6 +75,8 @@ public class UniformCompiler {
         new BytecodeOptimizer(flags.bytecode).optimize(instructions);
     }
 
+    // TODO: This is where the `RuntimeException` gets throw, THIS should be as close to top of UniformCodegen#generate() as reasonable.
+    //  Or even outside as a separate stage.
     private UntypedNode parse(String expressionSource) {
         val lexer = new Lexer(expressionSource);
         val parser = new UntypedParser(lexer);

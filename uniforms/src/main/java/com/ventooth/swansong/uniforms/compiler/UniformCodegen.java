@@ -101,7 +101,10 @@ public final class UniformCodegen {
             try {
                 accessor = compile(compiler, def, carrier, updateMethod.instructions);
             } catch (Exception e) {
-                // TODO: Logging here should go to debug+trace, and the shortform error appended to the report.
+                // TODO: This is the ONE place where we would have an actual 'RuntimeException' is possible in this function it should be handled better.
+                //  Logging here should go to debug+trace, and the shortform error appended to the report.
+                //  And/Or execute outside of this function.
+                //  Note that partial failures are ALLOWED by the ShaderPack spec!
                 log.error("Failed to compile custom shader uniform {} with code: {}",
                           def.name(),
                           def.expression()
@@ -174,7 +177,7 @@ public final class UniformCodegen {
         {
             val staticUpdate = new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, name$update, "()V", null, null);
             val insn = staticUpdate.instructions;
-            //This can throw an exception, propagate upward without touching any other state
+            // TODO: This can throw an exception, propagate upward without touching any other state
             comp.compile(type, expr, insn, true);
             insn.add(new FieldInsnNode(Opcodes.PUTSTATIC, carrier.name, name$state, fieldDesc));
             insn.add(new InsnNode(Opcodes.RETURN));
