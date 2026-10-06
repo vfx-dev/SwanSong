@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
 
+// TODO: Undocumented 32 index limit?
+// See: https://shaders.properties/current/reference/shadersproperties/custom_uniforms/#functions
 public class StatefulBuiltins {
     public static final UniformFunctionRegistry REGISTRY = register();
 
@@ -25,10 +27,12 @@ public class StatefulBuiltins {
     private static UniformFunctionRegistry register() {
         val klass = StatefulBuiltins.class;
         val reg = new UniformFunctionRegistry.Single();
+        // TODO: Randoms do *NOT* have an index!
         reg.statefulIndexed(klass.getDeclaredMethod("random", int.class));
         reg.statefulIndexed(klass.getDeclaredMethod("random", int.class, double.class, double.class));
         reg.statefulIndexed(klass.getDeclaredMethod("randomInt", int.class));
         reg.statefulIndexed(klass.getDeclaredMethod("randomInt", int.class, int.class, int.class));
+        // TODO: Does not handle all overloads, cross-reference how OptiFine/Iris handles it!
         reg.statefulIndexed(klass.getDeclaredMethod("smooth", int.class, double.class, double.class, double.class));
         return reg;
     }

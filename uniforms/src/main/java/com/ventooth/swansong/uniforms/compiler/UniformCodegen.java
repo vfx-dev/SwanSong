@@ -116,6 +116,11 @@ public final class UniformCodegen {
             if (accessor != null) {
                 accessors.put(def.name(), accessor);
             }
+            // TODO: Uniform definitions are *forced* to be ordered because of this.
+            //  It is also the mechanism that implicitly prevents recursion.
+            //  Iris allows for shaders to be defined out-of-order and still works.
+            //  They seem to do explicit recursion checks.
+            //  NOTE: If we *did* implement this, then we should catch `StackOverflowError` on updates!
             varRegistry.addWithNames(new UniformFunction(null,
                                                          carrier.name,
                                                          def.name() + "$get",
@@ -229,6 +234,7 @@ public final class UniformCodegen {
         void update();
     }
 
+    // TODO: Debug tracking on if this class *actually* gets unloaded?
     private static class UniformClassLoader extends ClassLoader {
         private final @Nullable Path dumpDir;
 

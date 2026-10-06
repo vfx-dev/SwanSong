@@ -10,4 +10,7 @@
 
 package com.ventooth.swansong.uniforms;
 
+// TODO: Invert `exposed`, as it currently means 'generate getter'
+//  Flipping it makes it more clear, as in a flag to NOT generate a getter!
+//  eg: !exposed -> isVariable
 public record UniformDef(String name, Type type, String expression, boolean exposed) {}

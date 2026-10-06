@@ -207,6 +207,8 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
             params.get(0)
                   .outputType() == Type.Int) {
             i = 1;
+            // TODO: This increments once-per-uniform, potentially wasting the limited 32 slots?
+            //  And make sure we actually KEEP the user-defined explicit index!
             newParams.add(ConstNode.Int.of(statefulIndexedCounter++));
         }
         for (; i < size; i++) {
