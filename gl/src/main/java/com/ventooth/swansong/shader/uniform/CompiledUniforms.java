@@ -15,7 +15,7 @@ import com.ventooth.swansong.uniforms.CompiledUniform;
 import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import com.ventooth.swansong.uniforms.UniformDef;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
-import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
+import com.ventooth.swansong.uniforms.compiler.UniformCodegenOld;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
@@ -25,7 +25,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class CompiledUniforms {
-    private final UniformCodegen.Result compiled;
+    private final UniformCodegenOld.Result compiled;
 
     public List<Uniform<?>> wrapUniforms() {
         val list = new ArrayList<Uniform<?>>();
@@ -66,6 +66,6 @@ public class CompiledUniforms {
                                     shaderVar.expression(),
                                     shaderVar.variant() == ShaderVar.Variant.Uniform));
         }
-        return new CompiledUniforms(UniformCodegen.generate(mcUniforms, defs));
+        return new CompiledUniforms(UniformCodegenOld.generate(mcUniforms, defs));
     }
 }

@@ -52,7 +52,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UniformCodegen {
+public final class UniformCodegenOld {
     private static final Logger log = LogManager.getLogger("SwanSong|UniformCodegen");
 
     public static Supplier<@Nullable Path> dumpDirSupplier = () -> null;
@@ -131,7 +131,7 @@ public final class UniformCodegen {
 
         updateMethod.instructions.add(new InsnNode(Opcodes.RETURN));
 
-        val loader = new UniformClassLoader(UniformCodegen.class.getClassLoader(), dumpDirSupplier.get());
+        val loader = new UniformClassLoader(UniformCodegenOld.class.getClassLoader(), dumpDirSupplier.get());
         val carrierClass = loader.define(carrier);
         val accessorClasses = new HashMap<String, Class<?>>();
         for (val accessor : accessors.entrySet()) {
