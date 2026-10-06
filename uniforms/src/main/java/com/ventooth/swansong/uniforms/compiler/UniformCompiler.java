@@ -156,31 +156,6 @@ public class UniformCompiler {
         codeGenerator.genExpr(expr, instructions);
     }
 
-    private static MethodNode createEmptyMethod(String desc) {
-        return new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "funy", desc, null, null);
-    }
-
-    @SneakyThrows
-    public static void main(String[] args) {
-        val registry = new UniformFunctionRegistry.Multi();
-        registry.add(Builtins.REGISTRY);
-        val flags = new Flags(new TypeResolver.Flags(true),
-                              new Optimizer.Flags(true, true, true),
-                              new CodeGenerator.Flags(false, false),
-                              new BytecodeOptimizer.Flags(false));
-        val compiler = new UniformCompiler(flags, registry);
-        val method = compiler.compile(Type.Vec3, "ceil(vec3(1.3) * pi)", UniformCompiler::createEmptyMethod);
-        val outClass = new ClassNode();
-        outClass.version = Opcodes.V1_8;
-        outClass.superName = "java/lang/Object";
-        outClass.name = "Funny";
-        outClass.access = Opcodes.ACC_PUBLIC;
-        outClass.methods.add(method);
-        val writer = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        outClass.accept(writer);
-        Files.write(Paths.get("Funny.class"), writer.toByteArray());
-    }
-
     @FunctionalInterface
     interface MethodBuilder {
         MethodNode createEmptyMethod(String descriptor);
