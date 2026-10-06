@@ -21,12 +21,12 @@ import java.util.Random;
 // TODO: Undocumented 32 index limit?
 // See: https://shaders.properties/current/reference/shadersproperties/custom_uniforms/#functions
 public class StatefulBuiltins {
-    public static final UniformFunctionRegistry REGISTRY = register();
+    public static final UniformFunctionRegistryOld REGISTRY = register();
 
     @SneakyThrows
-    private static UniformFunctionRegistry register() {
+    private static UniformFunctionRegistryOld register() {
         val klass = StatefulBuiltins.class;
-        val reg = new UniformFunctionRegistry.Single();
+        val reg = new UniformFunctionRegistryOld.Single();
         // TODO: Randoms do *NOT* have an index!
         reg.statefulIndexed(klass.getDeclaredMethod("random", int.class));
         reg.statefulIndexed(klass.getDeclaredMethod("random", int.class, double.class, double.class));

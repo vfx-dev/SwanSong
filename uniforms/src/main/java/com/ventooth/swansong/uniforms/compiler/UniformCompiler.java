@@ -13,9 +13,8 @@ package com.ventooth.swansong.uniforms.compiler;
 import com.ventooth.swansong.mathparser.AbstractParser;
 import com.ventooth.swansong.mathparser.Lexer;
 import com.ventooth.swansong.mathparser.ParserException;
-import com.ventooth.swansong.uniforms.Builtins;
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
+import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
 import com.ventooth.swansong.uniforms.compiler.ast.UntypedNode;
 import com.ventooth.swansong.uniforms.compiler.ast.typed.TypedCastNode;
@@ -25,17 +24,11 @@ import com.ventooth.swansong.uniforms.compiler.frontend.Optimizer;
 import com.ventooth.swansong.uniforms.compiler.frontend.TypeResolver;
 import com.ventooth.swansong.uniforms.compiler.frontend.UntypedParser;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.val;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class UniformCompiler {
 
@@ -51,7 +44,7 @@ public class UniformCompiler {
     private final TypeResolver typeResolver;
     private final Optimizer optimizer;
 
-    public UniformCompiler(Flags flags, UniformFunctionRegistry registry) {
+    public UniformCompiler(Flags flags, UniformFunctionRegistryOld registry) {
         this.flags = flags;
         this.typeResolver = new TypeResolver(flags.typeResolver, registry);
         this.optimizer = new Optimizer(flags.optimizer);

@@ -14,7 +14,7 @@ import com.ventooth.swansong.shader.info.ShaderVar;
 import com.ventooth.swansong.uniforms.CompiledUniform;
 import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import com.ventooth.swansong.uniforms.UniformDef;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
+import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.compiler.UniformCodegenOld;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -57,7 +57,7 @@ public class CompiledUniforms {
         StatefulBuiltins.update();
     }
 
-    public static CompiledUniforms createCompiledUniforms(UniformFunctionRegistry mcUniforms,
+    public static CompiledUniforms createCompiledUniforms(UniformFunctionRegistryOld mcUniforms,
                                                           List<ShaderVar> shaderVars) {
         val defs = new ArrayList<UniformDef>(shaderVars.size());
         for (val shaderVar : shaderVars) {

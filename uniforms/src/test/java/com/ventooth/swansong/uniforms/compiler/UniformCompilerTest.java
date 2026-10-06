@@ -12,7 +12,7 @@ package com.ventooth.swansong.uniforms.compiler;
 
 import com.ventooth.swansong.uniforms.Builtins;
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
+import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.compiler.backend.BytecodeOptimizer;
 import com.ventooth.swansong.uniforms.compiler.backend.CodeGenerator;
 import com.ventooth.swansong.uniforms.compiler.frontend.Optimizer;
@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 class UniformCompilerTest {
     @Test
     void simpleTest() {
-        val registry = new UniformFunctionRegistry.Multi();
+        val registry = new UniformFunctionRegistryOld.Multi();
         registry.add(Builtins.REGISTRY);
         val flags = new UniformCompiler.Flags(new TypeResolver.Flags(true),
                                               new Optimizer.Flags(true, true, true),

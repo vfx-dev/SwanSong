@@ -16,7 +16,7 @@ import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import com.ventooth.swansong.uniforms.Type;
 import com.ventooth.swansong.uniforms.UniformDef;
 import com.ventooth.swansong.uniforms.UniformFunction;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
+import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.compiler.backend.BytecodeOptimizer;
 import com.ventooth.swansong.uniforms.compiler.backend.CodeGenerator;
 import com.ventooth.swansong.uniforms.compiler.frontend.Optimizer;
@@ -72,9 +72,9 @@ public final class UniformCodegenOld {
         uniformTypeInternalNameMap.put(Type.Vec4, org.objectweb.asm.Type.getInternalName(CompiledUniform.Vec4.class));
     }
 
-    public static Result generate(UniformFunctionRegistry hostUniforms, List<UniformDef> defs) {
-        val varRegistry = new UniformFunctionRegistry.Single();
-        val registry = new UniformFunctionRegistry.Multi();
+    public static Result generate(UniformFunctionRegistryOld hostUniforms, List<UniformDef> defs) {
+        val varRegistry = new UniformFunctionRegistryOld.Single();
+        val registry = new UniformFunctionRegistryOld.Multi();
         registry.add(Builtins.REGISTRY);
         registry.add(StatefulBuiltins.REGISTRY);
         registry.add(varRegistry);

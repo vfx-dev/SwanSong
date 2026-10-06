@@ -11,7 +11,7 @@
 package com.ventooth.swansong.shader.uniform;
 
 import com.ventooth.swansong.shader.ShaderStateOld;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
+import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -92,12 +92,12 @@ public final class GeneralUniforms {
         ShaderStateOld.setUniformUpdateTask(() -> LIVE_UNIFORMS.forEach(Uniform::update));
     }
 
-    private final static UniformFunctionRegistry UNIFORM_FUNCTION_REGISTRY;
+    private final static UniformFunctionRegistryOld UNIFORM_FUNCTION_REGISTRY;
 
     static {
         try {
             val clazz = ShaderStateOld.class;
-            val reg = new UniformFunctionRegistry.Single();
+            val reg = new UniformFunctionRegistryOld.Single();
 
             reg.impure(clazz.getDeclaredMethod("camPos"), "cameraPosition");
             reg.impure(clazz.getDeclaredMethod("eyeAltitude"));
@@ -154,7 +154,7 @@ public final class GeneralUniforms {
         }
     }
 
-    public static UniformFunctionRegistry getFuncRegistry() {
+    public static UniformFunctionRegistryOld getFuncRegistry() {
         return UNIFORM_FUNCTION_REGISTRY;
     }
 

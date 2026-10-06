@@ -21,12 +21,12 @@ import org.joml.Vector4d;
 import org.joml.Vector4dc;
 
 public final class Builtins {
-    public static final UniformFunctionRegistry REGISTRY = register();
+    public static final UniformFunctionRegistryOld REGISTRY = register();
 
     @SneakyThrows
-    private static UniformFunctionRegistry register() {
+    private static UniformFunctionRegistryOld register() {
         val klass = Builtins.class;
-        val reg = new UniformFunctionRegistry.Single();
+        val reg = new UniformFunctionRegistryOld.Single();
         reg.pure(klass.getDeclaredMethod("pi"));
         reg.pure(klass.getDeclaredMethod("vec2", double.class));
         reg.pure(klass.getDeclaredMethod("vec2", double.class, double.class));

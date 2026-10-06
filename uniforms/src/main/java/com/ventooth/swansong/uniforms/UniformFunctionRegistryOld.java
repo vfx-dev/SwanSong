@@ -22,9 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-public abstract class UniformFunctionRegistry {
+public abstract class UniformFunctionRegistryOld {
     protected abstract @Nullable Iterable<UniformFunction> registeredMethods(String name);
 
     public UniformFunction resolve(String name, List<Type> paramTypes) {
@@ -57,7 +56,7 @@ public abstract class UniformFunctionRegistry {
         return null;
     }
 
-    public static class Single extends UniformFunctionRegistry {
+    public static class Single extends UniformFunctionRegistryOld {
         private final Map<String, List<UniformFunction>> registeredMethods = new HashMap<>();
 
         public void pure(Method method) {
@@ -97,20 +96,20 @@ public abstract class UniformFunctionRegistry {
         }
     }
 
-    public static class Multi extends UniformFunctionRegistry {
-        private final List<UniformFunctionRegistry> subRegistries = new ArrayList<>();
+    public static class Multi extends UniformFunctionRegistryOld {
+        private final List<UniformFunctionRegistryOld> subRegistries = new ArrayList<>();
 
         @Override
         protected Iterable<UniformFunction> registeredMethods(String name) {
             return new MultiIterable(name, subRegistries);
         }
 
-        public void add(UniformFunctionRegistry subRegistry) {
+        public void add(UniformFunctionRegistryOld subRegistry) {
             subRegistries.add(subRegistry);
         }
 
         private record MultiIterable(String name,
-                                     Iterable<UniformFunctionRegistry> subIterables) implements Iterable<UniformFunction> {
+                                     Iterable<UniformFunctionRegistryOld> subIterables) implements Iterable<UniformFunction> {
 
             @Override
             public @NotNull Iterator<UniformFunction> iterator() {
@@ -120,7 +119,7 @@ public abstract class UniformFunctionRegistry {
             @RequiredArgsConstructor
             private static class MultiIterator implements Iterator<UniformFunction> {
                 private final String name;
-                private final Iterator<UniformFunctionRegistry> subIterables;
+                private final Iterator<UniformFunctionRegistryOld> subIterables;
                 private Iterator<UniformFunction> current = null;
 
                 @Override

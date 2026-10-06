@@ -13,7 +13,7 @@ package com.ventooth.swansong.uniforms.compiler.frontend;
 import com.ventooth.swansong.mathparser.AbstractParser;
 import com.ventooth.swansong.uniforms.Type;
 import com.ventooth.swansong.uniforms.UniformFunction;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
+import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.VecUtil;
 import com.ventooth.swansong.uniforms.compiler.ast.ConstNode;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
@@ -50,7 +50,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
     }
 
     private final Flags flags;
-    private final UniformFunctionRegistry registry;
+    private final UniformFunctionRegistryOld registry;
     private int statefulIndexedCounter = 0;
 
     @Override
