@@ -13,7 +13,6 @@ package com.ventooth.swansong.uniforms.compiler;
 import com.ventooth.swansong.uniforms.BuiltinsOld;
 import com.ventooth.swansong.uniforms.CompiledUniform;
 import com.ventooth.swansong.uniforms.StatefulBuiltins;
-import com.ventooth.swansong.uniforms.Type;
 import com.ventooth.swansong.uniforms.UniformDef;
 import com.ventooth.swansong.uniforms.UniformFunction;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
@@ -44,7 +43,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,17 +58,7 @@ public final class UniformCodegenOld {
     private static final String GENERATED_PACKAGE = "com/ventooth/swansong/uniforms/compiled/";
 
     private static final AtomicInteger counter = new AtomicInteger(0);
-    private static final Map<Type, String> uniformTypeInternalNameMap = new EnumMap<>(Type.class);
     private static final String internalInterfaceName = org.objectweb.asm.Type.getInternalName(UniformCarrier.class);
-
-    static {
-        uniformTypeInternalNameMap.put(Type.Float, org.objectweb.asm.Type.getInternalName(CompiledUniform.Float.class));
-        uniformTypeInternalNameMap.put(Type.Int, org.objectweb.asm.Type.getInternalName(CompiledUniform.Int.class));
-        uniformTypeInternalNameMap.put(Type.Bool, org.objectweb.asm.Type.getInternalName(CompiledUniform.Bool.class));
-        uniformTypeInternalNameMap.put(Type.Vec2, org.objectweb.asm.Type.getInternalName(CompiledUniform.Vec2.class));
-        uniformTypeInternalNameMap.put(Type.Vec3, org.objectweb.asm.Type.getInternalName(CompiledUniform.Vec3.class));
-        uniformTypeInternalNameMap.put(Type.Vec4, org.objectweb.asm.Type.getInternalName(CompiledUniform.Vec4.class));
-    }
 
     public static Result generate(UniformFunctionRegistryOld hostUniforms, List<UniformDef> defs) {
         val varRegistry = new UniformFunctionRegistryOld.Single();
@@ -206,7 +194,7 @@ public final class UniformCodegenOld {
         val cn = new ClassNode();
         cn.version = Opcodes.V1_8;
         cn.superName = "java/lang/Object";
-        cn.interfaces.add(uniformTypeInternalNameMap.get(type));
+        cn.interfaces.add(type.internalTypeName());
         cn.name = GENERATED_PACKAGE + "__COMP_UNI_" + counter.incrementAndGet() + "_" + name;
         cn.access = Opcodes.ACC_PUBLIC;
         addEmptyConstructor(cn);
