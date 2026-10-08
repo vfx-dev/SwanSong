@@ -15,5 +15,5 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface UniformFunctionResolver {
-    @Nullable UniformFunction resolve(String name, List<Type> paramTypes);
+    @Nullable UniformFunctionOld resolve(String name, List<Type> paramTypes);
 }

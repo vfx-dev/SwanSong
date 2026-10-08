@@ -14,7 +14,7 @@ import com.ventooth.swansong.uniforms.BuiltinsOld;
 import com.ventooth.swansong.uniforms.CompiledUniform;
 import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import com.ventooth.swansong.uniforms.UniformDef;
-import com.ventooth.swansong.uniforms.UniformFunction;
+import com.ventooth.swansong.uniforms.UniformFunctionOld;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.compiler.backend.BytecodeOptimizer;
 import com.ventooth.swansong.uniforms.compiler.backend.CodeGenerator;
@@ -109,12 +109,12 @@ public final class UniformCodegenOld {
             //  Iris allows for shaders to be defined out-of-order and still works.
             //  They seem to do explicit recursion checks.
             //  NOTE: If we *did* implement this, then we should catch `StackOverflowError` on updates!
-            varRegistry.addWithNames(new UniformFunction(null,
-                                                         carrier.name,
+            varRegistry.addWithNames(new UniformFunctionOld(null,
+                                                            carrier.name,
                                                          def.name() + "$get",
-                                                         def.type(),
-                                                         Collections.emptyList(),
-                                                         false), def.name());
+                                                            def.type(),
+                                                            Collections.emptyList(),
+                                                            false), def.name());
         }
 
         updateMethod.instructions.add(new InsnNode(Opcodes.RETURN));

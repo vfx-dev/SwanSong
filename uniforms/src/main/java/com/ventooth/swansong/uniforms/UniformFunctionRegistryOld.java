@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class UniformFunctionRegistryOld {
-    protected abstract @Nullable Iterable<UniformFunction> registeredMethods(String name);
+    protected abstract @Nullable Iterable<UniformFunctionOld> registeredMethods(String name);
 
-    public UniformFunction resolve(String name, List<Type> paramTypes) {
+    public UniformFunctionOld resolve(String name, List<Type> paramTypes) {
         val methods = registeredMethods(name);
         if (methods == null) {
             return null;
@@ -57,33 +57,33 @@ public abstract class UniformFunctionRegistryOld {
     }
 
     public static class Single extends UniformFunctionRegistryOld {
-        private final Map<String, List<UniformFunction>> registeredMethods = new HashMap<>();
+        private final Map<String, List<UniformFunctionOld>> registeredMethods = new HashMap<>();
 
         public void pure(Method method) {
-            addWithNames(UniformFunction.of(method, true, false), method.getName());
+            addWithNames(UniformFunctionOld.of(method, true, false), method.getName());
         }
 
         public void pure(Method method, String... names) {
-            addWithNames(UniformFunction.of(method, true, false), names);
+            addWithNames(UniformFunctionOld.of(method, true, false), names);
         }
 
         public void impure(Method method) {
-            addWithNames(UniformFunction.of(method, false, false), method.getName());
+            addWithNames(UniformFunctionOld.of(method, false, false), method.getName());
         }
 
         public void impure(Method method, String... names) {
-            addWithNames(UniformFunction.of(method, false, false), names);
+            addWithNames(UniformFunctionOld.of(method, false, false), names);
         }
 
         public void statefulIndexed(Method method) {
-            addWithNames(UniformFunction.of(method, false, true), method.getName());
+            addWithNames(UniformFunctionOld.of(method, false, true), method.getName());
         }
 
         public void statefulIndexed(Method method, String... names) {
-            addWithNames(UniformFunction.of(method, false, true), names);
+            addWithNames(UniformFunctionOld.of(method, false, true), names);
         }
 
-        public void addWithNames(UniformFunction uni, String... names) {
+        public void addWithNames(UniformFunctionOld uni, String... names) {
             for (val name : names) {
                 registeredMethods.computeIfAbsent(name, ignored -> new ArrayList<>())
                                  .add(uni);
@@ -91,7 +91,7 @@ public abstract class UniformFunctionRegistryOld {
         }
 
         @Override
-        protected Iterable<UniformFunction> registeredMethods(String name) {
+        protected Iterable<UniformFunctionOld> registeredMethods(String name) {
             return registeredMethods.getOrDefault(name, Collections.emptyList());
         }
     }
@@ -100,7 +100,7 @@ public abstract class UniformFunctionRegistryOld {
         private final List<UniformFunctionRegistryOld> subRegistries = new ArrayList<>();
 
         @Override
-        protected Iterable<UniformFunction> registeredMethods(String name) {
+        protected Iterable<UniformFunctionOld> registeredMethods(String name) {
             return new MultiIterable(name, subRegistries);
         }
 
@@ -109,18 +109,18 @@ public abstract class UniformFunctionRegistryOld {
         }
 
         private record MultiIterable(String name,
-                                     Iterable<UniformFunctionRegistryOld> subIterables) implements Iterable<UniformFunction> {
+                                     Iterable<UniformFunctionRegistryOld> subIterables) implements Iterable<UniformFunctionOld> {
 
             @Override
-            public @NotNull Iterator<UniformFunction> iterator() {
+            public @NotNull Iterator<UniformFunctionOld> iterator() {
                 return new MultiIterator(name, subIterables.iterator());
             }
 
             @RequiredArgsConstructor
-            private static class MultiIterator implements Iterator<UniformFunction> {
+            private static class MultiIterator implements Iterator<UniformFunctionOld> {
                 private final String name;
                 private final Iterator<UniformFunctionRegistryOld> subIterables;
-                private Iterator<UniformFunction> current = null;
+                private Iterator<UniformFunctionOld> current = null;
 
                 @Override
                 public boolean hasNext() {
@@ -150,7 +150,7 @@ public abstract class UniformFunctionRegistryOld {
                 }
 
                 @Override
-                public UniformFunction next() {
+                public UniformFunctionOld next() {
                     return current.next();
                 }
             }

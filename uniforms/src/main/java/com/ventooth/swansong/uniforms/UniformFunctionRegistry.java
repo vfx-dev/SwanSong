@@ -25,5 +25,5 @@ public interface UniformFunctionRegistry {
 
     void statefulIndexed(Method method, String... names);
 
-    void addWithNames(UniformFunction uni, String... names);
+    void addWithNames(UniformFunctionOld uni, String... names);
 }

@@ -12,7 +12,7 @@ package com.ventooth.swansong.uniforms.compiler.frontend;
 
 import com.ventooth.swansong.mathparser.AbstractParser;
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunction;
+import com.ventooth.swansong.uniforms.UniformFunctionOld;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
 import com.ventooth.swansong.uniforms.VecUtil;
 import com.ventooth.swansong.uniforms.compiler.ast.ConstNode;
@@ -197,7 +197,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
         throw new IllegalStateException("Unknown uniform variable/function \"" + name + "\" with parameters: " + types);
     }
 
-    private TypedNode resolveFunction(UniformFunction fn, List<TypedNode> params) {
+    private TypedNode resolveFunction(UniformFunctionOld fn, List<TypedNode> params) {
         val size = params.size();
         val types = fn.params();
         val newParams = new ArrayList<TypedNode>(size);

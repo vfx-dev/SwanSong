@@ -13,7 +13,7 @@ package com.ventooth.swansong.uniforms.compiler;
 import com.ventooth.swansong.uniforms.CompiledUniform;
 import com.ventooth.swansong.uniforms.UniformCarrier;
 import com.ventooth.swansong.uniforms.UniformDef;
-import com.ventooth.swansong.uniforms.UniformFunction;
+import com.ventooth.swansong.uniforms.UniformFunctionOld;
 import com.ventooth.swansong.uniforms.UniformFunctionProvider;
 import com.ventooth.swansong.uniforms.UniformFunctionRegistry;
 import lombok.AccessLevel;
@@ -71,7 +71,7 @@ public class UniformCodegen {
             }
 
             @Override
-            public void addWithNames(UniformFunction uni, String... names) {
+            public void addWithNames(UniformFunctionOld uni, String... names) {
 
             }
         });
