@@ -43,46 +43,42 @@ public record UniformFunction(
     @Builder
     public UniformFunction(@Nullable Object instance,
                            Method method,
-                           boolean isPure,
-                           boolean isCompileCallable,
-                           boolean isIndexed,
-                           boolean isIndexedImplicit) {
-        val flags = new HashSet<Flag>();
-        if (isPure) {
-            flags.add(Flag.PURE);
-        }
-        if (isCompileCallable) {
-            flags.add(Flag.COMPILE_CALLABLE);
-        }
-        if (isIndexed) {
-            flags.add(Flag.INDEXED);
-        }
-        if (isIndexedImplicit) {
-            flags.add(Flag.INDEXED);
-            flags.add(Flag.INDEXED_IMPLICIT);
-        }
-
-        val methodClass = method.getDeclaringClass();
-        if (Modifier.isStatic(method.getModifiers())) {
-            flags.add(Flag.STATIC);
-        } else if (Modifier.isInterface(methodClass.getModifiers())) {
-            flags.add(Flag.INTERFACE);
-        }
-
-        val retType = Type.of(method.getReturnType());
+                           boolean pure,
+                           boolean indexedExplicit,
+                           boolean indexedImplicit) {
         val methodParams = method.getParameterTypes();
         val paramTypes = new ArrayList<Type>(methodParams.length);
         for (val methodParam : methodParams) {
             paramTypes.add(Type.of(methodParam));
         }
 
+        val flags = new HashSet<Flag>();
+        val methodClass = method.getDeclaringClass();
+        if (Modifier.isStatic(method.getModifiers())) {
+            flags.add(Flag.STATIC);
+            if (pure) {
+                flags.add(Flag.PURE);
+            }
+        } else if (Modifier.isInterface(methodClass.getModifiers())) {
+            flags.add(Flag.INTERFACE);
+        }
+
+        if (indexedExplicit && indexedImplicit) {
+            throw new IllegalArgumentException();
+        } else if (indexedExplicit) {
+            flags.add(Flag.INDEXED);
+        } else if (indexedImplicit) {
+            flags.add(Flag.INDEXED);
+            flags.add(Flag.INDEXED_IMPLICIT);
+        }
+
         this(instance,
              method,
-             retType,
+             Type.of(method.getReturnType()),
              paramTypes,
              org.objectweb.asm.Type.getInternalName(methodClass),
              method.getName(),
-             Type.methodDescriptor(retType, paramTypes.toArray(new Type[0])),
+             Type.methodDescriptor(Type.of(method.getReturnType()), paramTypes.toArray(new Type[0])),
              flags);
     }
 
@@ -145,23 +141,13 @@ public record UniformFunction(
         }
 
         val numParams = paramTypes.size();
-        if (flags.contains(Flag.COMPILE_CALLABLE)) {
-            if (isIndexed) {
-                throw new IllegalArgumentException();
-            }
-            if (numParams != 0) {
-                throw new IllegalArgumentException();
-            }
-        } else {
-            val methodParams = method.getParameterTypes();
-            if (numParams != methodParams.length) {
-                throw new IllegalArgumentException();
-            }
-
-            for (var i = (isIndexed ? 1 : 0); i < numParams; i++) {
-                if (paramTypes.get(i) != Type.of(methodParams[i])) {
-                    throw new IllegalArgumentException(Integer.toString(i));
-                }
+        val methodParams = method.getParameterTypes();
+        if (numParams != methodParams.length) {
+            throw new IllegalArgumentException();
+        }
+        for (var i = (isIndexed ? 1 : 0); i < numParams; i++) {
+            if (paramTypes.get(i) != Type.of(methodParams[i])) {
+                throw new IllegalArgumentException(Integer.toString(i));
             }
         }
 
@@ -198,8 +184,6 @@ public record UniformFunction(
         ///
         PURE,
         ///
-        COMPILE_CALLABLE,
-        ///
         INDEXED,
         ///
         INDEXED_IMPLICIT,
@@ -215,14 +199,6 @@ public record UniformFunction(
                     }
                     case PURE -> {
                         if (!flags.contains(STATIC)) {
-                            throw new IllegalArgumentException();
-                        }
-                    }
-                    case COMPILE_CALLABLE -> {
-                        if (!flags.contains(PURE)) {
-                            throw new IllegalArgumentException();
-                        }
-                        if (flags.contains(INDEXED)) {
                             throw new IllegalArgumentException();
                         }
                     }
