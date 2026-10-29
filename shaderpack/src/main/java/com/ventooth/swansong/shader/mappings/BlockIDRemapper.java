@@ -32,7 +32,6 @@ import java.util.function.BiFunction;
 public class BlockIDRemapper {
     private static final String PROP_FILE_NAME = "block.properties";
 
-    public static BiFunction<String, String, Integer> blockIdLookup = (modId, blockName) -> null;
 
     private final @NotNull List<List<MetaMapping>> patterns;
 
@@ -54,7 +53,8 @@ public class BlockIDRemapper {
         return id;
     }
 
-    public static @Nullable BlockIDRemapper createRemapper(@NotNull ShaderPack pack) {
+    public static @Nullable BlockIDRemapper createRemapper(@NotNull ShaderPack pack,
+                                                           BiFunction<String, String, Integer> blockIdLookup) {
         val path = pack.absolutize(null, PROP_FILE_NAME);
         try {
             if (!pack.has(path)) {
@@ -89,20 +89,26 @@ public class BlockIDRemapper {
             if (mappings == null) {
                 mappings = new ArrayList<>();
             }
-            parsePatterns(outputId, value, mappings);
+            parsePatterns(outputId, value, mappings, blockIdLookup);
         }
         // TODO: Figure out some kind of logging? Append to report probably.
         return mappings == null ? null : new BlockIDRemapper(mappings);
     }
 
-    private static void parsePatterns(int outputId, @NotNull String property, ArrayList<List<MetaMapping>> result) {
+    private static void parsePatterns(int outputId,
+                                      @NotNull String property,
+                                      ArrayList<List<MetaMapping>> result,
+                                      BiFunction<String, String, Integer> blockIdLookup) {
         val parts = StringUtils.split(property, null);
         for (val part : parts) {
-            parsePattern(outputId, part, result);
+            parsePattern(outputId, part, result, blockIdLookup);
         }
     }
 
-    private static void parsePattern(int outputId, @NotNull String pattern, ArrayList<List<MetaMapping>> result) {
+    private static void parsePattern(int outputId,
+                                     @NotNull String pattern,
+                                     ArrayList<List<MetaMapping>> result,
+                                     BiFunction<String, String, Integer> blockIdLookup) {
         val parts = StringUtils.split(pattern, ':');
         final String modId;
         final String block;
@@ -120,7 +126,7 @@ public class BlockIDRemapper {
             //TODO log warning
             return;
         }
-        val blocks = resolveBlocksIDs(modId, block);
+        val blocks = resolveBlocksIDs(modId, block, blockIdLookup);
         if (blocks == null) {
             //TODO log warning
             return;
@@ -156,7 +162,9 @@ public class BlockIDRemapper {
         return !str.isEmpty() && !Character.isDigit(str.charAt(0)) && !str.contains("=");
     }
 
-    private static @Nullable IntList resolveBlocksIDs(@NotNull String modId, @NotNull String blockName) {
+    private static @Nullable IntList resolveBlocksIDs(@NotNull String modId,
+                                                      @NotNull String blockName,
+                                                      BiFunction<String, String, Integer> blockIdLookup) {
         if (!Character.isDigit(blockName.charAt(0))) {
             val blockId = blockIdLookup.apply(modId, blockName);
             return blockId == null ? null : IntList.of(blockId.intValue());

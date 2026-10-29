@@ -64,6 +64,13 @@ public interface HostRenderer {
         return null;
     }
 
+    default @Nullable Integer findBlockId(String modId, String blockName) {
+        return null;
+    }
+
+    default void reportToChat(Report report) {
+    }
+
     enum Lifecycle {
         RELOAD_SCHEDULED,
         LOADED,

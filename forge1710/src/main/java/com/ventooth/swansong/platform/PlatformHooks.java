@@ -24,7 +24,6 @@ import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderStateOld;
-import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -53,10 +52,8 @@ public final class PlatformHooks {
             "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";
 
     public static void install() {
-        Report.chatReporter = PlatformHooks::reportToChat;
         ShaderPackManager.settingsChangedHook = PlatformHooks::onShaderSettingsChanged;
         ShaderPackManager.referencePackEnabled = () -> ShadersConfig.enableReferenceShaderPack;
-        BlockIDRemapper.blockIdLookup = PlatformHooks::findBlockId;
         ShaderPackManager.localizerFactory = MinecraftPackLocalizer::new;
         ShaderPackManager.referencePack = DefaultShaderPack.INSTANCE;
         // TODO: Integrate into ArchaicShaderEngine
@@ -74,7 +71,7 @@ public final class PlatformHooks {
         ShaderStateOld.heldBlockLightSource = McWorldSampler::heldBlockLightValue;
     }
 
-    private static @Nullable Integer findBlockId(String modId, String blockName) {
+    static @Nullable Integer findBlockId(String modId, String blockName) {
         val block = GameRegistry.findBlock(modId, blockName);
         return block == null ? null : Block.getIdFromBlock(block);
     }
@@ -141,7 +138,7 @@ public final class PlatformHooks {
         }
     }
 
-    private static void reportToChat(Report report) {
+    static void reportToChat(Report report) {
         if (!report.erroredShaders.isEmpty()) {
             val plr = Minecraft.getMinecraft().thePlayer;
             if (plr != null) {

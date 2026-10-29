@@ -415,10 +415,12 @@ public final class OldShaderEngine {
 
             report.endTime = System.nanoTime();
             report.print();
+            host.reportToChat(report);
             return true;
         } catch (RuntimeException e) {
             report.endTime = System.nanoTime();
             report.print();
+            host.reportToChat(report);
             OldShaderEngine.log.error("Caught internal error while loading shaderpack!");
             OldShaderEngine.log.error("Please report this as a bug:", e);
             deinit();

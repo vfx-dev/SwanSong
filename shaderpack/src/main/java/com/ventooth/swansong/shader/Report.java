@@ -25,11 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 public class Report {
-    public static @Nullable Consumer<Report> chatReporter;
-
     public String name;
 
     public long startTime;
@@ -191,11 +188,6 @@ public class Report {
                     log.info("  Post Blit: [{}]", sb);
                 }
             }
-        }
-
-        val chat = chatReporter;
-        if (chat != null) {
-            chat.accept(this);
         }
     }
 

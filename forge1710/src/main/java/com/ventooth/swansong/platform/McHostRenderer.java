@@ -16,6 +16,7 @@ import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.pbr.PBRTextureEngine;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.shader.HostRenderer;
+import com.ventooth.swansong.shader.Report;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
@@ -161,6 +162,16 @@ public final class McHostRenderer implements HostRenderer {
     @Override
     public @Nullable Path uniformDumpDir() {
         return PlatformHooks.uniformDumpDir();
+    }
+
+    @Override
+    public @Nullable Integer findBlockId(String modId, String blockName) {
+        return PlatformHooks.findBlockId(modId, blockName);
+    }
+
+    @Override
+    public void reportToChat(Report report) {
+        PlatformHooks.reportToChat(report);
     }
 
     @Override

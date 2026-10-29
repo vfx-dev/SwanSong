@@ -100,7 +100,7 @@ class FixedEngineState {
             return null;
         }
         b.pack = pack;
-        b.remapper = BlockIDRemapper.createRemapper(pack);
+        b.remapper = BlockIDRemapper.createRemapper(pack, OldShaderEngine.host::findBlockId);
 
         if (report != null) {
             report.name = pack.name();
