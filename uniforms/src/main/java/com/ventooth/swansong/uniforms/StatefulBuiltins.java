@@ -55,7 +55,7 @@ public class StatefulBuiltins implements UniformFunctionProvider {
     }
 
     @Override
-    public void update() {
+    public void postUpdate() {
         resetRands();
     }
 

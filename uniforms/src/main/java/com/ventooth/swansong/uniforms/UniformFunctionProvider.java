@@ -18,6 +18,6 @@ public interface UniformFunctionProvider {
     default void reset() {
     }
 
-    default void update() {
+    default void postUpdate() {
     }
 }

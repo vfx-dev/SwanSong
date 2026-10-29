@@ -133,7 +133,7 @@ class UniformCompilerTest {
         }
 
         @Override
-        public void update() {
+        public void postUpdate() {
             updates++;
         }
 

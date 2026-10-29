@@ -190,7 +190,7 @@ public class UniformCodegen {
             updateMethod.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, carrier.name, field.name, field.desc));
             updateMethod.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE,
                                                              INTERNAL_PROVIDER_NAME,
-                                                             "update",
+                                                             "postUpdate",
                                                              "()V",
                                                              true));
         }
