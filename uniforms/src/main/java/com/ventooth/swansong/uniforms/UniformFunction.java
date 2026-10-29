@@ -64,7 +64,7 @@ public record UniformFunction(
         }
 
         if (indexedExplicit && indexedImplicit) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("indexedExplicit and indexedImplicit are mutually exclusive");
         } else if (indexedExplicit) {
             flags.add(Flag.INDEXED);
         } else if (indexedImplicit) {
@@ -103,71 +103,71 @@ public record UniformFunction(
 
         if (isStatic) {
             if (instance != null) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Static function " + name + " must not have an instance");
             }
             if (isInterface) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Static function " + name + " cannot be an interface method");
             }
         } else {
             if (instance == null && method != null) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Instance function " + name + " needs an instance");
             }
         }
 
         val numParams = paramTypes.size();
         if (method == null) {
             if (instance != null || isInterface || flags.contains(Flag.PURE) || isIndexed) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Generated function " + name + " cannot have an instance or be interface, pure or indexed");
             }
             if (!desc.equals(Type.methodDescriptor(retType, paramTypes.toArray(new Type[0])))) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Descriptor " + desc + " does not match the types of " + name);
             }
         } else {
             val methodClass = method.getDeclaringClass();
 
             if (!Modifier.isPublic(methodClass.getModifiers())) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Declaring class of " + method + " is not public");
             }
             if (!Modifier.isPublic(method.getModifiers())) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Method " + method + " is not public");
             }
             if (Modifier.isStatic(method.getModifiers()) != isStatic) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("STATIC flag does not match " + method);
             }
             if (Modifier.isInterface(methodClass.getModifiers()) != isInterface) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("INTERFACE flag does not match " + method);
             }
             if (!isStatic && !methodClass.isAssignableFrom(instance.getClass())) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Instance " + instance + " is not a " + methodClass.getName());
             }
             if (retType != Type.of(method.getReturnType())) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Return type " + retType + " does not match " + method);
             }
 
             val methodParams = method.getParameterTypes();
             if (isIndexed) {
                 if (methodParams.length == 0 || Type.of(methodParams[0]) != Type.Int) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Indexed function " + method + " must take an int index first");
                 }
                 if (!isIndexedImplicit && (paramTypes.isEmpty() || paramTypes.getFirst() != Type.Int)) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("Explicitly indexed function " + name + " must list the int index first");
                 }
             }
 
             val offset = isIndexedImplicit ? 1 : 0;
             if (numParams + offset != methodParams.length) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Parameter count does not match " + method);
             }
             for (var i = 0; i < numParams; i++) {
                 if (paramTypes.get(i) != Type.of(methodParams[i + offset])) {
-                    throw new IllegalArgumentException(Integer.toString(i));
+                    throw new IllegalArgumentException("Parameter " + i + " type " + paramTypes.get(i) + " does not match " + method);
                 }
             }
 
             // Yes. These two ARE calling 'expensive' methods.
             // But this means that both constructors are validated!
             if (!owner.equals(org.objectweb.asm.Type.getInternalName(methodClass))) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Owner " + owner + " does not match " + method);
             }
             final Type[] descParams;
             if (isIndexedImplicit) {
@@ -180,7 +180,7 @@ public record UniformFunction(
                 descParams = paramTypes.toArray(new Type[0]);
             }
             if (!desc.equals(Type.methodDescriptor(retType, descParams))) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Descriptor " + desc + " does not match " + method);
             }
         }
 
@@ -218,17 +218,17 @@ public record UniformFunction(
                 switch (flag) {
                     case STATIC -> {
                         if (flags.contains(INTERFACE)) {
-                            throw new IllegalArgumentException();
+                            throw new IllegalArgumentException("STATIC and INTERFACE are mutually exclusive");
                         }
                     }
                     case PURE -> {
                         if (!flags.contains(STATIC)) {
-                            throw new IllegalArgumentException();
+                            throw new IllegalArgumentException("PURE requires STATIC");
                         }
                     }
                     case INDEXED_IMPLICIT -> {
                         if (!flags.contains(INDEXED)) {
-                            throw new IllegalArgumentException();
+                            throw new IllegalArgumentException("INDEXED_IMPLICIT requires INDEXED");
                         }
                     }
                 }
