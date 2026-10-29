@@ -10,22 +10,17 @@
 
 package com.ventooth.swansong.shader;
 
-import com.ventooth.swansong.Share;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 
 @NoArgsConstructor
 public final class ShaderTypes {
@@ -117,96 +112,54 @@ public final class ShaderTypes {
         internal = listBuilder.build();
     }
 
-    private static Map<ShaderId, ShaderId> fallbacks = new HashMap<>();
-    private static volatile boolean registryLocked = false;
+    private static final Map<ShaderId, ShaderId> fallbacks = createFallbacks();
 
     public static @Nullable ShaderId getFallback(ShaderId loc) {
-        if (registryLocked) {
-            return fallbacks.get(loc);
-        } else {
-            throw new IllegalStateException("Registry must be locked before a fallback can be resolved!");
-        }
+        return fallbacks.get(loc);
     }
 
-    public static void registerInternalFallbacks() {
-        registerFallback(gbuffers_basic, null);
-        registerFallback(gbuffers_skybasic, gbuffers_basic);
-        registerFallback(gbuffers_textured, gbuffers_basic);
-        registerFallback(gbuffers_skytextured, gbuffers_textured);
-        registerFallback(gbuffers_clouds, gbuffers_textured);
-        registerFallback(gbuffers_beaconbeam, gbuffers_textured);
-        registerFallback(gbuffers_armor_glint, gbuffers_textured);
-        registerFallback(gbuffers_spidereyes, gbuffers_textured);
-        registerFallback(gbuffers_textured_lit, gbuffers_textured);
-        registerFallback(gbuffers_item, gbuffers_textured_lit);
-        registerFallback(gbuffers_entities, gbuffers_textured_lit);
-        registerFallback(gbuffers_weather, gbuffers_textured_lit);
-        registerFallback(gbuffers_hand, gbuffers_textured_lit);
-        registerFallback(gbuffers_hand_water, gbuffers_hand);
-        registerFallback(gbuffers_terrain, gbuffers_textured_lit);
-        registerFallback(gbuffers_terrain_solid, gbuffers_terrain);
-        registerFallback(gbuffers_terrain_cutout_mip, gbuffers_terrain);
-        registerFallback(gbuffers_terrain_cutout, gbuffers_terrain);
-        registerFallback(gbuffers_damagedblock, gbuffers_terrain);
-        registerFallback(gbuffers_water, gbuffers_terrain);
-        registerFallback(gbuffers_block, gbuffers_terrain);
-
-        registerFallback(blit_color_mismatched, null);
-        registerFallback(blit_depth_mismatched, null);
+    private static Map<ShaderId, ShaderId> createFallbacks() {
+        val map = new HashMap<ShaderId, ShaderId>();
+        register(map, gbuffers_basic, null);
+        register(map, gbuffers_skybasic, gbuffers_basic);
+        register(map, gbuffers_textured, gbuffers_basic);
+        register(map, gbuffers_skytextured, gbuffers_textured);
+        register(map, gbuffers_clouds, gbuffers_textured);
+        register(map, gbuffers_beaconbeam, gbuffers_textured);
+        register(map, gbuffers_armor_glint, gbuffers_textured);
+        register(map, gbuffers_spidereyes, gbuffers_textured);
+        register(map, gbuffers_textured_lit, gbuffers_textured);
+        register(map, gbuffers_item, gbuffers_textured_lit);
+        register(map, gbuffers_entities, gbuffers_textured_lit);
+        register(map, gbuffers_weather, gbuffers_textured_lit);
+        register(map, gbuffers_hand, gbuffers_textured_lit);
+        register(map, gbuffers_hand_water, gbuffers_hand);
+        register(map, gbuffers_terrain, gbuffers_textured_lit);
+        register(map, gbuffers_terrain_solid, gbuffers_terrain);
+        register(map, gbuffers_terrain_cutout_mip, gbuffers_terrain);
+        register(map, gbuffers_terrain_cutout, gbuffers_terrain);
+        register(map, gbuffers_damagedblock, gbuffers_terrain);
+        register(map, gbuffers_water, gbuffers_terrain);
+        register(map, gbuffers_block, gbuffers_terrain);
+        register(map, blit_color_mismatched, null);
+        register(map, blit_depth_mismatched, null);
         // Relevant for MacOS as the identical ones need GLSL 130
-        registerFallback(blit_color_identical, blit_color_mismatched);
-        registerFallback(blit_depth_identical, blit_depth_mismatched);
-    }
+        register(map, blit_color_identical, blit_color_mismatched);
+        register(map, blit_depth_identical, blit_depth_mismatched);
 
-    public static synchronized void registerFallback(@NonNull ShaderId shader,
-                                                     @Nullable ShaderId fallback) {
-        if (registryLocked) {
-            throw new IllegalStateException("Registry is already locked! Register shaders in the init phase!");
-        }
-        if (fallbacks.containsKey(shader)) {
-            throw new IllegalStateException(shader + " is already registered!");
-        }
-        fallbacks.put(shader, fallback);
-
-        Share.log.debug("Registered Shader Fallback: [{}] -> [{}]", toStr(shader), toStr(fallback));
-    }
-
-    public static synchronized void validateRegistry() {
-        registryLocked = true;
-        fallbacks.forEach((shader, fallback) -> {
-            if (fallback == null) {
-                return;
-            }
-            if (!fallbacks.containsKey(fallback)) {
+        map.forEach((shader, fallback) -> {
+            if (fallback != null && !map.containsKey(fallback)) {
                 throw new IllegalStateException("Shader " + shader + " defined a missing fallback: " + fallback);
             }
         });
-        fallbacks = Collections.unmodifiableMap(fallbacks);
-        Share.log.info("Locked Shader Type Registry with {} entries:", fallbacks.size());
-
-        val reverse = new HashMap<ShaderId, List<ShaderId>>();
-        fallbacks.forEach((shader, fallback) -> {
-            reverse.computeIfAbsent(fallback, loc -> new ArrayList<>())
-                   .add(shader);
-        });
-        reverse.forEach((fallback, shaders) -> {
-            val sj = new StringJoiner(" ");
-            shaders.forEach(shader -> sj.add(toStr(shader)));
-            Share.log.info("[{}] <- [{}]", toStr(fallback), sj);
-        });
+        return Collections.unmodifiableMap(map);
     }
 
-    private static String toStr(@Nullable ShaderId loc) {
-        if (loc == null) {
-            return "NULL";
+    private static void register(Map<ShaderId, ShaderId> map, ShaderId shader, @Nullable ShaderId fallback) {
+        if (map.containsKey(shader)) {
+            throw new IllegalStateException(shader + " is already registered!");
         }
-        val name = loc.path();
-        val domain = loc.namespace();
-        if ("minecraft".equals(domain)) {
-            return name;
-        } else {
-            return domain + ":" + name;
-        }
+        map.put(shader, fallback);
     }
 
     private static class ShaderTypeListBuilder {

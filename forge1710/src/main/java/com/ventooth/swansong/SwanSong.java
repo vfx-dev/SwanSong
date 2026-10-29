@@ -20,7 +20,6 @@ import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.platform.ThreadedScreenshot;
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.ModJarContainer;
-import com.ventooth.swansong.shader.ShaderTypes;
 import com.ventooth.swansong.zoom.FunkyZoom;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -87,7 +86,6 @@ public final class SwanSong {
             }
 
             PlatformHooks.install();
-            ShaderTypes.registerInternalFallbacks();
             MinecraftForge.EVENT_BUS.register(this);
             FMLCommonHandler.instance()
                             .bus()
@@ -119,7 +117,6 @@ public final class SwanSong {
                     FunkyZoom.init();
                 }
             }
-            ShaderTypes.validateRegistry();
             ArchaicShaderEngine.get().firstInit();
         }
 
