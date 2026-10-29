@@ -123,7 +123,9 @@ class FixedEngineState {
         val shaderVars = mainLoader.outShaderVars;
         b.compiledUniforms = shaderVars == null
                              ? null
-                             : CompiledUniforms.createCompiledUniforms(GeneralUniforms.getFuncLookup(), shaderVars);
+                             : CompiledUniforms.createCompiledUniforms(GeneralUniforms.getFuncLookup(),
+                                                                   shaderVars,
+                                                                   OldShaderEngine.host.uniformDumpDir());
 
         if (b.compiledUniforms != null) {
             UniformGetterDanglingWires.customUniforms = b.compiledUniforms.wrapUniforms();

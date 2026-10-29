@@ -56,12 +56,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 public class UniformCodegen {
     private static final Logger log = LogManager.getLogger("SwanSong|UniformCodegen");
-
-    public static Supplier<@Nullable Path> dumpDirSupplier = () -> null;
 
     private static final String GENERATED_PACKAGE = "com/ventooth/swansong/uniforms/compiled/";
 
@@ -72,8 +69,14 @@ public class UniformCodegen {
     protected final Map<String, UniformFunctionProvider> valueProviders = new LinkedHashMap<>();
     protected final UniformFunctionLookup.Multi builtinLookups = new UniformFunctionLookup.Multi();
     protected final UniformFunctionLookup.Multi lookups = new UniformFunctionLookup.Multi();
+    private final @Nullable Path dumpDir;
 
     public UniformCodegen() {
+        this(null);
+    }
+
+    public UniformCodegen(@Nullable Path dumpDir) {
+        this.dumpDir = dumpDir;
         builtinLookups.add(Builtins.LOOKUP);
         builtinLookups.add(initProvider(new StatefulBuiltins()));
     }
@@ -198,7 +201,7 @@ public class UniformCodegen {
         carrier.methods.add(resetMethod);
         carrier.methods.add(updateMethod);
 
-        val loader = new UniformClassLoader(UniformCodegen.class.getClassLoader(), dumpDirSupplier.get());
+        val loader = new UniformClassLoader(UniformCodegen.class.getClassLoader(), dumpDir);
         val carrierClass = loader.define(carrier);
         val accessorClasses = new HashMap<String, Class<?>>();
         for (val accessor : accessors.entrySet()) {

@@ -24,6 +24,8 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.nio.file.Path;
+
 public final class McHostRenderer implements HostRenderer {
     @Override
     public boolean isHandVisible() {
@@ -154,6 +156,11 @@ public final class McHostRenderer implements HostRenderer {
     @Override
     public boolean allowDepthOfField() {
         return ShadersConfig.LetMeUseDepthOfFieldPlease;
+    }
+
+    @Override
+    public @Nullable Path uniformDumpDir() {
+        return PlatformHooks.uniformDumpDir();
     }
 
     @Override

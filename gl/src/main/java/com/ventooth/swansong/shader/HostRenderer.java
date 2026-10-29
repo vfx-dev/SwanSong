@@ -13,6 +13,8 @@ package com.ventooth.swansong.shader;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
+
 public interface HostRenderer {
     boolean isHandVisible();
 
@@ -57,6 +59,10 @@ public interface HostRenderer {
     double shadowQuality();
 
     boolean allowDepthOfField();
+
+    default @Nullable Path uniformDumpDir() {
+        return null;
+    }
 
     enum Lifecycle {
         RELOAD_SCHEDULED,

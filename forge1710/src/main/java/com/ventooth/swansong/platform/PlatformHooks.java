@@ -25,7 +25,6 @@ import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
-import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -73,7 +72,6 @@ public final class PlatformHooks {
         ShaderStateOld.heldItemIdSource = McWorldSampler::heldItemId;
         // TODO: Integrate into ShaderState
         ShaderStateOld.heldBlockLightSource = McWorldSampler::heldBlockLightValue;
-        UniformCodegen.dumpDirSupplier = PlatformHooks::uniformDumpDir;
     }
 
     private static @Nullable Integer findBlockId(String modId, String blockName) {
@@ -81,7 +79,7 @@ public final class PlatformHooks {
         return block == null ? null : Block.getIdFromBlock(block);
     }
 
-    private static @Nullable Path uniformDumpDir() {
+    static @Nullable Path uniformDumpDir() {
         if (!DebugConfig.DumpCompiledUniforms) {
             return null;
         }

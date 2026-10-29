@@ -17,7 +17,9 @@ import com.ventooth.swansong.uniforms.UniformFunctionLookup;
 import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +62,8 @@ public class CompiledUniforms {
     }
 
     public static CompiledUniforms createCompiledUniforms(UniformFunctionLookup mcUniforms,
-                                                          List<ShaderVar> shaderVars) {
+                                                          List<ShaderVar> shaderVars,
+                                                          @Nullable Path dumpDir) {
         val defs = new ArrayList<UniformDef>(shaderVars.size());
         for (val shaderVar : shaderVars) {
             defs.add(new UniformDef(shaderVar.name(),
@@ -68,7 +71,7 @@ public class CompiledUniforms {
                                     shaderVar.expression(),
                                     shaderVar.variant() == ShaderVar.Variant.Uniform));
         }
-        val codegen = new UniformCodegen();
+        val codegen = new UniformCodegen(dumpDir);
         codegen.register(mcUniforms);
         return new CompiledUniforms(codegen.generate(defs));
     }
