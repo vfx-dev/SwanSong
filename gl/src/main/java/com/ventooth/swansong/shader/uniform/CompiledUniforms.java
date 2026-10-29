@@ -12,10 +12,9 @@ package com.ventooth.swansong.shader.uniform;
 
 import com.ventooth.swansong.shader.info.ShaderVar;
 import com.ventooth.swansong.uniforms.CompiledUniform;
-import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import com.ventooth.swansong.uniforms.UniformDef;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
-import com.ventooth.swansong.uniforms.compiler.UniformCodegenOld;
+import com.ventooth.swansong.uniforms.UniformFunctionLookup;
+import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
@@ -25,7 +24,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class CompiledUniforms {
-    private final UniformCodegenOld.Result compiled;
+    private final UniformCodegen.Result compiled;
 
     public List<Uniform<?>> wrapUniforms() {
         val list = new ArrayList<Uniform<?>>();
@@ -52,12 +51,15 @@ public class CompiledUniforms {
         return Collections.unmodifiableList(list);
     }
 
-    public void update() {
-        compiled.carrier.update();
-        StatefulBuiltins.update();
+    public void reset() {
+        compiled.carrier.reset();
     }
 
-    public static CompiledUniforms createCompiledUniforms(UniformFunctionRegistryOld mcUniforms,
+    public void update() {
+        compiled.carrier.update();
+    }
+
+    public static CompiledUniforms createCompiledUniforms(UniformFunctionLookup mcUniforms,
                                                           List<ShaderVar> shaderVars) {
         val defs = new ArrayList<UniformDef>(shaderVars.size());
         for (val shaderVar : shaderVars) {
@@ -66,6 +68,8 @@ public class CompiledUniforms {
                                     shaderVar.expression(),
                                     shaderVar.variant() == ShaderVar.Variant.Uniform));
         }
-        return new CompiledUniforms(UniformCodegenOld.generate(mcUniforms, defs));
+        val codegen = new UniformCodegen();
+        codegen.register(mcUniforms);
+        return new CompiledUniforms(codegen.generate(defs));
     }
 }

@@ -10,8 +10,9 @@
 
 package com.ventooth.swansong.uniforms.compiler.backend;
 
-import com.ventooth.swansong.uniforms.BuiltinsOld;
+import com.ventooth.swansong.uniforms.Builtins;
 import com.ventooth.swansong.uniforms.Type;
+import com.ventooth.swansong.uniforms.UniformFunction;
 import com.ventooth.swansong.uniforms.compiler.ast.ConstNode;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
 import com.ventooth.swansong.uniforms.compiler.ast.typed.TypedBoolNode;
@@ -25,6 +26,7 @@ import com.ventooth.swansong.uniforms.compiler.ast.typed.TypedUnaryMinusNode;
 import com.ventooth.swansong.uniforms.compiler.ast.typed.TypedUnaryNotNode;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -46,11 +48,22 @@ public class CodeGenerator {
         public final boolean fuseIfElseRelational;
     }
 
+    @FunctionalInterface
+    public interface InstanceLoader {
+        void loadInstance(UniformFunction fn, InsnList insnList);
+    }
+
     private final Flags flags;
+    private final @Nullable InstanceLoader instanceLoader;
 
     public CodeGenerator(Flags flags, boolean isStatic) {
+        this(flags, isStatic, null);
+    }
+
+    public CodeGenerator(Flags flags, boolean isStatic, @Nullable InstanceLoader instanceLoader) {
         this.flags = flags;
         this.localVariableIndex = isStatic ? 0 : 1;
+        this.instanceLoader = instanceLoader;
     }
 
     public void genExpr(TypedNode input, InsnList insnList) {
@@ -111,10 +124,10 @@ public class CodeGenerator {
             val x = vecCst.x;
             val y = vecCst.y;
             if (x == y) {
-                genFn(new TypedFunctionNode(BuiltinsOld.REGISTRY.resolve("vec2", Collections.singletonList(Type.Float)),
+                genFn(new TypedFunctionNode(Builtins.LOOKUP.lookup("vec2", Collections.singletonList(Type.Float)),
                                             Collections.singletonList(new ConstNode.Float(x))), insnList);
             } else {
-                genFn(new TypedFunctionNode(BuiltinsOld.REGISTRY.resolve("vec2", Arrays.asList(Type.Float, Type.Float)),
+                genFn(new TypedFunctionNode(Builtins.LOOKUP.lookup("vec2", Arrays.asList(Type.Float, Type.Float)),
                                             Arrays.asList(new ConstNode.Float(x), new ConstNode.Float(y))), insnList);
             }
             return;
@@ -123,13 +136,13 @@ public class CodeGenerator {
             val y = vecCst.y;
             val z = vecCst.z;
             if (x == y && x == z) {
-                genFn(new TypedFunctionNode(BuiltinsOld.REGISTRY.resolve("vec3", Collections.singletonList(Type.Float)),
+                genFn(new TypedFunctionNode(Builtins.LOOKUP.lookup("vec3", Collections.singletonList(Type.Float)),
                                             Collections.singletonList(new ConstNode.Float(x))), insnList);
             } else {
-                genFn(new TypedFunctionNode(BuiltinsOld.REGISTRY.resolve("vec3",
-                                                                         Arrays.asList(Type.Float,
-                                                                                    Type.Float,
-                                                                                    Type.Float)),
+                genFn(new TypedFunctionNode(Builtins.LOOKUP.lookup("vec3",
+                                                                   Arrays.asList(Type.Float,
+                                                                                 Type.Float,
+                                                                                 Type.Float)),
                                             Arrays.asList(new ConstNode.Float(x),
                                                           new ConstNode.Float(y),
                                                           new ConstNode.Float(z))), insnList);
@@ -141,14 +154,14 @@ public class CodeGenerator {
             val z = vecCst.z;
             val w = vecCst.w;
             if (x == y && x == z && x == w) {
-                genFn(new TypedFunctionNode(BuiltinsOld.REGISTRY.resolve("vec4", Collections.singletonList(Type.Float)),
+                genFn(new TypedFunctionNode(Builtins.LOOKUP.lookup("vec4", Collections.singletonList(Type.Float)),
                                             Collections.singletonList(new ConstNode.Float(x))), insnList);
             } else {
-                genFn(new TypedFunctionNode(BuiltinsOld.REGISTRY.resolve("vec4",
-                                                                         Arrays.asList(Type.Float,
-                                                                                    Type.Float,
-                                                                                    Type.Float,
-                                                                                    Type.Float)),
+                genFn(new TypedFunctionNode(Builtins.LOOKUP.lookup("vec4",
+                                                                   Arrays.asList(Type.Float,
+                                                                                 Type.Float,
+                                                                                 Type.Float,
+                                                                                 Type.Float)),
                                             Arrays.asList(new ConstNode.Float(x),
                                                           new ConstNode.Float(y),
                                                           new ConstNode.Float(z),
@@ -192,14 +205,14 @@ public class CodeGenerator {
                 }
                 val fnName = outType.name()
                                     .toLowerCase();
-                val fn = BuiltinsOld.REGISTRY.resolve(fnName, Collections.singletonList(Type.Float));
+                val fn = Builtins.LOOKUP.lookup(fnName, Collections.singletonList(Type.Float));
                 if (fn == null) {
                     throw new IllegalArgumentException();
                 }
                 insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-                                                fn.javaOwner(),
-                                                fn.javaName(),
-                                                Type.methodDescriptor(outType, Type.Float),
+                                                fn.owner(),
+                                                fn.name(),
+                                                fn.desc(),
                                                 false));
             }
             default -> throw new IllegalArgumentException();
@@ -264,22 +277,26 @@ public class CodeGenerator {
 
     private void genFn(TypedFunctionNode fn, InsnList insnList) {
         val function = fn.function;
-        val desc = new StringBuilder("(");
-        val paramVals = fn.params;
-        val params = function.params();
-        for (int i = 0; i < params.size(); i++) {
-            genExpr(paramVals.get(i), insnList);
-            desc.append(params.get(i)
-                              .descriptor());
+        val fnFlags = function.flags();
+        val isStatic = fnFlags.contains(UniformFunction.Flag.STATIC);
+        if (!isStatic) {
+            if (instanceLoader == null) {
+                throw new IllegalStateException("Cannot invoke instance UniformFunction without an InstanceLoader");
+            }
+            instanceLoader.loadInstance(function, insnList);
         }
-        desc.append(')')
-            .append(function.returns()
-                            .descriptor());
-        insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-                                        function.javaOwner(),
-                                        function.javaName(),
-                                        desc.toString(),
-                                        false));
+        for (val paramVal : fn.params) {
+            genExpr(paramVal, insnList);
+        }
+        val isInterface = fnFlags.contains(UniformFunction.Flag.INTERFACE);
+        val opcode = isStatic
+                     ? Opcodes.INVOKESTATIC
+                     : (isInterface ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL);
+        insnList.add(new MethodInsnNode(opcode,
+                                        function.owner(),
+                                        function.name(),
+                                        function.desc(),
+                                        isInterface));
     }
 
     //endregion

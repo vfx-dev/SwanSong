@@ -23,6 +23,10 @@ public class MockUniformFunctions {
     }
 
     public double methodC() {
-        return 0;
+        return 42.0;
+    }
+
+    public int indexedMethod(int index, double scale) {
+        return index + (int) scale;
     }
 }

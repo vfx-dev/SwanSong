@@ -11,6 +11,7 @@
 package com.ventooth.swansong.uniforms.compiler;
 
 import com.ventooth.swansong.uniforms.UniformFunction;
+import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,5 +32,26 @@ class UniformFunctionTest {
                                                            .method(MockUniformFunctions.class.getDeclaredMethod(
                                                                    "methodC"))
                                                            .build());
+        val implicitFn = Assertions.assertDoesNotThrow(() -> UniformFunction.builder()
+                                                                            .instance(new MockUniformFunctions())
+                                                                            .method(MockUniformFunctions.class.getDeclaredMethod(
+                                                                                    "indexedMethod",
+                                                                                    int.class,
+                                                                                    double.class))
+                                                                            .indexedImplicit(true)
+                                                                            .build());
+        Assertions.assertEquals(1, implicitFn.paramTypes().size());
+        Assertions.assertEquals("(ID)I", implicitFn.desc());
+
+        val explicitFn = Assertions.assertDoesNotThrow(() -> UniformFunction.builder()
+                                                                            .instance(new MockUniformFunctions())
+                                                                            .method(MockUniformFunctions.class.getDeclaredMethod(
+                                                                                    "indexedMethod",
+                                                                                    int.class,
+                                                                                    double.class))
+                                                                            .indexedExplicit(true)
+                                                                            .build());
+        Assertions.assertEquals(2, explicitFn.paramTypes().size());
+        Assertions.assertEquals("(ID)I", explicitFn.desc());
     }
 }

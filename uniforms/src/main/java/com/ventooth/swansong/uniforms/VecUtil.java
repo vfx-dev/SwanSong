@@ -20,12 +20,12 @@ import org.joml.Vector4d;
 import org.joml.Vector4dc;
 
 public class VecUtil {
-    public static final UniformFunctionRegistryOld REGISTRY = register();
+    public static final UniformFunctionLookup LOOKUP = register();
 
     @SneakyThrows
-    private static UniformFunctionRegistryOld register() {
+    private static UniformFunctionLookup register() {
         val klass = VecUtil.class;
-        val reg = new UniformFunctionRegistryOld.Single();
+        val reg = new UniformFunctionLookup.Single();
         reg.pure(klass.getDeclaredMethod("add", Vector2dc.class, Vector2dc.class));
         reg.pure(klass.getDeclaredMethod("sub", Vector2dc.class, Vector2dc.class));
         reg.pure(klass.getDeclaredMethod("mul", Vector2dc.class, Vector2dc.class));

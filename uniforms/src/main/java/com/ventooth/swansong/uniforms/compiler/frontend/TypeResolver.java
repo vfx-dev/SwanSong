@@ -12,8 +12,8 @@ package com.ventooth.swansong.uniforms.compiler.frontend;
 
 import com.ventooth.swansong.mathparser.AbstractParser;
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunctionOld;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
+import com.ventooth.swansong.uniforms.UniformFunction;
+import com.ventooth.swansong.uniforms.UniformFunctionLookup;
 import com.ventooth.swansong.uniforms.VecUtil;
 import com.ventooth.swansong.uniforms.compiler.ast.ConstNode;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
@@ -50,7 +50,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
     }
 
     private final Flags flags;
-    private final UniformFunctionRegistryOld registry;
+    private final UniformFunctionLookup lookup;
     private int statefulIndexedCounter = 0;
 
     @Override
@@ -121,7 +121,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
                     case Div -> "div";
                     case Rem -> "rem";
                 };
-                val theOp = VecUtil.REGISTRY.resolve(name, Arrays.asList(left.outputType(), right.outputType()));
+                val theOp = VecUtil.LOOKUP.lookup(name, Arrays.asList(left.outputType(), right.outputType()));
                 if (theOp == null) {
                     //This should never happen
                     throw new AssertionError("Unknown binary operation between vectors " + op);
@@ -156,7 +156,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
             case Minus -> switch (param.outputType()) {
                 case Bool, Int, Float -> new TypedUnaryMinusNode(param);
                 case Vec2, Vec3, Vec4 -> {
-                    val theOp = VecUtil.REGISTRY.resolve("neg", Collections.singletonList(param.outputType()));
+                    val theOp = VecUtil.LOOKUP.lookup("neg", Collections.singletonList(param.outputType()));
                     if (theOp == null) {
                         throw new AssertionError("Could not find vector negation function!");
                     }
@@ -190,28 +190,23 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
         for (val param : params) {
             types.add(param.outputType());
         }
-        val function = registry.resolve(name, types);
+        val function = lookup.lookup(name, types);
         if (function != null) {
             return resolveFunction(function, params);
         }
         throw new IllegalStateException("Unknown uniform variable/function \"" + name + "\" with parameters: " + types);
     }
 
-    private TypedNode resolveFunction(UniformFunctionOld fn, List<TypedNode> params) {
+    private TypedNode resolveFunction(UniformFunction fn, List<TypedNode> params) {
         val size = params.size();
-        val types = fn.params();
-        val newParams = new ArrayList<TypedNode>(size);
-        int i = 0;
-        if (fn.statefulIndexed() &&
-            !params.isEmpty() &&
-            params.get(0)
-                  .outputType() == Type.Int) {
-            i = 1;
-            // TODO: This increments once-per-uniform, potentially wasting the limited 32 slots?
-            //  And make sure we actually KEEP the user-defined explicit index!
+        val types = fn.paramTypes();
+        val isImplicit = fn.flags()
+                           .contains(UniformFunction.Flag.INDEXED_IMPLICIT);
+        val newParams = new ArrayList<TypedNode>(size + (isImplicit ? 1 : 0));
+        if (isImplicit) {
             newParams.add(ConstNode.Int.of(statefulIndexedCounter++));
         }
-        for (; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             var param = params.get(i);
             val type = types.get(i);
             if (param.outputType() != type) {
@@ -239,7 +234,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
     //region swizzle
 
     private TypedNode resolveSwizzle(TypedNode value, int index) {
-        val fn = VecUtil.REGISTRY.resolve("swiz", Arrays.asList(value.outputType(), Type.Int));
+        val fn = VecUtil.LOOKUP.lookup("swiz", Arrays.asList(value.outputType(), Type.Int));
         if (fn == null) {
             throw new IllegalStateException("Could not generate swizzle for value of type " + value.outputType());
         }

@@ -20,13 +20,13 @@ import org.joml.Vector3dc;
 import org.joml.Vector4d;
 import org.joml.Vector4dc;
 
-public final class BuiltinsOld {
-    public static final UniformFunctionRegistryOld REGISTRY = register();
+public final class Builtins {
+    public static final UniformFunctionLookup LOOKUP = register();
 
     @SneakyThrows
-    private static UniformFunctionRegistryOld register() {
-        val klass = BuiltinsOld.class;
-        val reg = new UniformFunctionRegistryOld.Single();
+    private static UniformFunctionLookup register() {
+        val klass = Builtins.class;
+        val reg = new UniformFunctionLookup.Single();
         reg.pure(klass.getDeclaredMethod("pi"));
         reg.pure(klass.getDeclaredMethod("vec2", double.class));
         reg.pure(klass.getDeclaredMethod("vec2", double.class, double.class));
@@ -341,5 +341,4 @@ public final class BuiltinsOld {
     public static boolean equals(double a, double b, double epsilon) {
         return abs(a - b) <= epsilon;
     }
-
 }

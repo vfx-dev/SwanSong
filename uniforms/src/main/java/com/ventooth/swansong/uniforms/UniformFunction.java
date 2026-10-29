@@ -29,7 +29,7 @@ public record UniformFunction(
         // Instance to call on if the method ain't static
         @Nullable Object instance,
         // Woe!!
-        Method method,
+        @Nullable Method method,
         // return type
         Type retType,
         // parameter types
@@ -47,9 +47,9 @@ public record UniformFunction(
                            boolean indexedExplicit,
                            boolean indexedImplicit) {
         val methodParams = method.getParameterTypes();
-        val paramTypes = new ArrayList<Type>(methodParams.length);
+        val fullParamTypes = new ArrayList<Type>(methodParams.length);
         for (val methodParam : methodParams) {
-            paramTypes.add(Type.of(methodParam));
+            fullParamTypes.add(Type.of(methodParam));
         }
 
         val flags = new HashSet<Flag>();
@@ -72,18 +72,22 @@ public record UniformFunction(
             flags.add(Flag.INDEXED_IMPLICIT);
         }
 
+        val paramTypes = indexedImplicit && !fullParamTypes.isEmpty()
+                         ? fullParamTypes.subList(1, fullParamTypes.size())
+                         : fullParamTypes;
+
         this(instance,
              method,
              Type.of(method.getReturnType()),
              paramTypes,
              org.objectweb.asm.Type.getInternalName(methodClass),
              method.getName(),
-             Type.methodDescriptor(Type.of(method.getReturnType()), paramTypes.toArray(new Type[0])),
+             Type.methodDescriptor(Type.of(method.getReturnType()), fullParamTypes.toArray(new Type[0])),
              flags);
     }
 
     public UniformFunction(@Nullable Object instance,
-                           Method method,
+                           @Nullable Method method,
                            Type retType,
                            @Unmodifiable List<Type> paramTypes,
                            String owner,
@@ -92,23 +96,10 @@ public record UniformFunction(
                            @Unmodifiable Set<Flag> flags) {
         Flag.validate(flags);
 
-        val methodClass = method.getDeclaringClass();
-
-        if (!Modifier.isPublic(methodClass.getModifiers())) {
-            throw new IllegalArgumentException();
-        }
-        if (!Modifier.isPublic(method.getModifiers())) {
-            throw new IllegalArgumentException();
-        }
-
-        val isStatic = Modifier.isStatic(method.getModifiers());
-        if (isStatic != flags.contains(Flag.STATIC)) {
-            throw new IllegalArgumentException();
-        }
-        val isInterface = Modifier.isInterface(methodClass.getModifiers());
-        if (isInterface != flags.contains(Flag.INTERFACE)) {
-            throw new IllegalArgumentException();
-        }
+        val isStatic = flags.contains(Flag.STATIC);
+        val isInterface = flags.contains(Flag.INTERFACE);
+        val isIndexed = flags.contains(Flag.INDEXED);
+        val isIndexedImplicit = flags.contains(Flag.INDEXED_IMPLICIT);
 
         if (isStatic) {
             if (instance != null) {
@@ -121,43 +112,76 @@ public record UniformFunction(
             if (instance == null) {
                 throw new IllegalArgumentException();
             }
-            if (!methodClass.isAssignableFrom(instance.getClass())) {
-                throw new IllegalArgumentException();
-            }
-        }
-
-        val isIndexed = flags.contains(Flag.INDEXED);
-        if (isIndexed) {
-            if (paramTypes.isEmpty()) {
-                throw new IllegalArgumentException();
-            }
-            if (paramTypes.getFirst() != Type.Int) {
-                throw new IllegalArgumentException();
-            }
-        }
-
-        if (retType != Type.of(method.getReturnType())) {
-            throw new IllegalArgumentException();
         }
 
         val numParams = paramTypes.size();
-        val methodParams = method.getParameterTypes();
-        if (numParams != methodParams.length) {
-            throw new IllegalArgumentException();
-        }
-        for (var i = (isIndexed ? 1 : 0); i < numParams; i++) {
-            if (paramTypes.get(i) != Type.of(methodParams[i])) {
-                throw new IllegalArgumentException(Integer.toString(i));
+        if (method == null) {
+            if (!isStatic || flags.contains(Flag.PURE) || isIndexed) {
+                throw new IllegalArgumentException();
             }
-        }
+            if (!desc.equals(Type.methodDescriptor(retType, paramTypes.toArray(new Type[0])))) {
+                throw new IllegalArgumentException();
+            }
+        } else {
+            val methodClass = method.getDeclaringClass();
 
-        // Yes. These two ARE calling 'expensive' methods.
-        // But this means that both constructors are validated!
-        if (!owner.equals(org.objectweb.asm.Type.getInternalName(methodClass))) {
-            throw new IllegalArgumentException();
-        }
-        if (!desc.equals(Type.methodDescriptor(retType, paramTypes.toArray(new Type[0])))) {
-            throw new IllegalArgumentException();
+            if (!Modifier.isPublic(methodClass.getModifiers())) {
+                throw new IllegalArgumentException();
+            }
+            if (!Modifier.isPublic(method.getModifiers())) {
+                throw new IllegalArgumentException();
+            }
+            if (Modifier.isStatic(method.getModifiers()) != isStatic) {
+                throw new IllegalArgumentException();
+            }
+            if (Modifier.isInterface(methodClass.getModifiers()) != isInterface) {
+                throw new IllegalArgumentException();
+            }
+            if (!isStatic && !methodClass.isAssignableFrom(instance.getClass())) {
+                throw new IllegalArgumentException();
+            }
+            if (retType != Type.of(method.getReturnType())) {
+                throw new IllegalArgumentException();
+            }
+
+            val methodParams = method.getParameterTypes();
+            if (isIndexed) {
+                if (methodParams.length == 0 || Type.of(methodParams[0]) != Type.Int) {
+                    throw new IllegalArgumentException();
+                }
+                if (!isIndexedImplicit && (paramTypes.isEmpty() || paramTypes.getFirst() != Type.Int)) {
+                    throw new IllegalArgumentException();
+                }
+            }
+
+            val offset = isIndexedImplicit ? 1 : 0;
+            if (numParams + offset != methodParams.length) {
+                throw new IllegalArgumentException();
+            }
+            for (var i = 0; i < numParams; i++) {
+                if (paramTypes.get(i) != Type.of(methodParams[i + offset])) {
+                    throw new IllegalArgumentException(Integer.toString(i));
+                }
+            }
+
+            // Yes. These two ARE calling 'expensive' methods.
+            // But this means that both constructors are validated!
+            if (!owner.equals(org.objectweb.asm.Type.getInternalName(methodClass))) {
+                throw new IllegalArgumentException();
+            }
+            final Type[] descParams;
+            if (isIndexedImplicit) {
+                descParams = new Type[numParams + 1];
+                descParams[0] = Type.Int;
+                for (var i = 0; i < numParams; i++) {
+                    descParams[i + 1] = paramTypes.get(i);
+                }
+            } else {
+                descParams = paramTypes.toArray(new Type[0]);
+            }
+            if (!desc.equals(Type.methodDescriptor(retType, descParams))) {
+                throw new IllegalArgumentException();
+            }
         }
 
         this.instance = instance;

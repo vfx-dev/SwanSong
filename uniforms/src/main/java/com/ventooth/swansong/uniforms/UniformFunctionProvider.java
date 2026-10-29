@@ -15,7 +15,9 @@ public interface UniformFunctionProvider {
 
     void init(UniformFunctionRegistry cfg);
 
-    void reset();
+    default void reset() {
+    }
 
-    void update();
+    default void update() {
+    }
 }

@@ -14,7 +14,7 @@ import com.ventooth.swansong.mathparser.AbstractParser;
 import com.ventooth.swansong.mathparser.Lexer;
 import com.ventooth.swansong.mathparser.ParserException;
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunctionRegistryOld;
+import com.ventooth.swansong.uniforms.UniformFunctionLookup;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
 import com.ventooth.swansong.uniforms.compiler.ast.UntypedNode;
 import com.ventooth.swansong.uniforms.compiler.ast.typed.TypedCastNode;
@@ -25,6 +25,7 @@ import com.ventooth.swansong.uniforms.compiler.frontend.TypeResolver;
 import com.ventooth.swansong.uniforms.compiler.frontend.UntypedParser;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
@@ -44,9 +45,9 @@ public class UniformCompiler {
     private final TypeResolver typeResolver;
     private final Optimizer optimizer;
 
-    public UniformCompiler(Flags flags, UniformFunctionRegistryOld registry) {
+    public UniformCompiler(Flags flags, UniformFunctionLookup lookup) {
         this.flags = flags;
-        this.typeResolver = new TypeResolver(flags.typeResolver, registry);
+        this.typeResolver = new TypeResolver(flags.typeResolver, lookup);
         this.optimizer = new Optimizer(flags.optimizer);
     }
 
@@ -59,13 +60,17 @@ public class UniformCompiler {
         return method;
     }
 
-    // TODO: Can we make this *return* the InsnList?
-    void compile(Type returnType, String expressionSource, InsnList instructions, boolean isStatic) {
+    InsnList compile(Type returnType,
+                     String expressionSource,
+                     boolean isStatic,
+                     @Nullable CodeGenerator.InstanceLoader instanceLoader) {
+        val instructions = new InsnList();
         val untypedExpr = parse(expressionSource);
         val typedExpr = resolveTypes(returnType, untypedExpr);
         val optimizedExpr = optimizer.transform(typedExpr);
-        codegen(optimizedExpr, instructions, isStatic);
+        codegen(optimizedExpr, instructions, isStatic, instanceLoader);
         new BytecodeOptimizer(flags.bytecode).optimize(instructions);
+        return instructions;
     }
 
     // TODO: This is where the `RuntimeException` gets throw, THIS should be as close to top of UniformCodegen#generate() as reasonable.
@@ -137,15 +142,18 @@ public class UniformCompiler {
         val ret = new InsnNode(ot.returnOpcode());
         val method = builder.createEmptyMethod(desc);
 
-        codegen(expr, method.instructions, (method.access & Opcodes.ACC_STATIC) != 0);
+        codegen(expr, method.instructions, (method.access & Opcodes.ACC_STATIC) != 0, null);
 
         method.instructions.add(ret);
 
         return method;
     }
 
-    private void codegen(TypedNode expr, InsnList instructions, boolean isStatic) {
-        val codeGenerator = new CodeGenerator(flags.codegen, isStatic);
+    private void codegen(TypedNode expr,
+                         InsnList instructions,
+                         boolean isStatic,
+                         @Nullable CodeGenerator.InstanceLoader instanceLoader) {
+        val codeGenerator = new CodeGenerator(flags.codegen, isStatic, instanceLoader);
         codeGenerator.genExpr(expr, instructions);
     }
 

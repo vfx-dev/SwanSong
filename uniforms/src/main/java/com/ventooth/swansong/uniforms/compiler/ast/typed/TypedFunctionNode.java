@@ -11,7 +11,7 @@
 package com.ventooth.swansong.uniforms.compiler.ast.typed;
 
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunctionOld;
+import com.ventooth.swansong.uniforms.UniformFunction;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -21,11 +21,11 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class TypedFunctionNode implements TypedNode {
-    public final UniformFunctionOld function;
+    public final UniformFunction function;
     public final @Unmodifiable List<TypedNode> params;
 
     @Override
     public @NotNull Type outputType() {
-        return function.returns();
+        return function.retType();
     }
 }

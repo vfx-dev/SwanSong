@@ -11,7 +11,7 @@
 package com.ventooth.swansong.uniforms.compiler.frontend;
 
 import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformFunctionOld;
+import com.ventooth.swansong.uniforms.UniformFunction;
 import com.ventooth.swansong.uniforms.VecUtil;
 import com.ventooth.swansong.uniforms.compiler.ast.ConstNode;
 import com.ventooth.swansong.uniforms.compiler.ast.TypedNode;
@@ -188,7 +188,7 @@ public class Optimizer implements Transformation<TypedNode, TypedNode> {
         return new TypedMultiMatchNode(elems);
     }
 
-    private TypedNode optimizeFn(UniformFunctionOld fn, List<TypedNode> params) {
+    private TypedNode optimizeFn(UniformFunction fn, List<TypedNode> params) {
         val size = params.size();
         if (flags.constantFolding) {
             val cst = constantFoldFn(fn, params);
@@ -442,8 +442,12 @@ public class Optimizer implements Transformation<TypedNode, TypedNode> {
         return null;
     }
 
-    private TypedNode constantFoldFn(UniformFunctionOld method, List<TypedNode> params) {
-        val cf = method.constantFoldMethod();
+    private TypedNode constantFoldFn(UniformFunction method, List<TypedNode> params) {
+        if (!method.flags()
+                   .contains(UniformFunction.Flag.PURE)) {
+            return null;
+        }
+        val cf = method.method();
         if (cf == null) {
             return null;
         }
@@ -474,7 +478,7 @@ public class Optimizer implements Transformation<TypedNode, TypedNode> {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException(e);
         }
-        return switch (method.returns()) {
+        return switch (method.retType()) {
             case Int -> ConstNode.Int.of((Integer) result);
             case Float -> new ConstNode.Float((Double) result);
             case Bool -> ConstNode.Bool.of((Boolean) result);

@@ -29,7 +29,6 @@ import com.ventooth.swansong.sufrace.CustomTexture2D;
 import com.ventooth.swansong.sufrace.Framebuffer;
 import com.ventooth.swansong.sufrace.HFNoiseTexture2D;
 import com.ventooth.swansong.sufrace.Texture2D;
-import com.ventooth.swansong.uniforms.StatefulBuiltins;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.AbstractObjectList;
@@ -531,7 +530,9 @@ public final class OldShaderEngine {
                                                              BufferNameUtil.gbufferFormatNameFromEnum(noiseTex.internalFormat())));
         }
 
-        StatefulBuiltins.reset();
+        if (state.compiledUniforms != null) {
+            state.compiledUniforms.reset();
+        }
 
         // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
         reloadMinecraftRenderersSafe();
