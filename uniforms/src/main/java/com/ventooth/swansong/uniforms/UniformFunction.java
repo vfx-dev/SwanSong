@@ -109,14 +109,14 @@ public record UniformFunction(
                 throw new IllegalArgumentException();
             }
         } else {
-            if (instance == null) {
+            if (instance == null && method != null) {
                 throw new IllegalArgumentException();
             }
         }
 
         val numParams = paramTypes.size();
         if (method == null) {
-            if (!isStatic || flags.contains(Flag.PURE) || isIndexed) {
+            if (instance != null || isInterface || flags.contains(Flag.PURE) || isIndexed) {
                 throw new IllegalArgumentException();
             }
             if (!desc.equals(Type.methodDescriptor(retType, paramTypes.toArray(new Type[0])))) {

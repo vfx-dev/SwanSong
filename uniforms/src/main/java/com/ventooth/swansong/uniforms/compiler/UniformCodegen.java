@@ -128,7 +128,11 @@ public class UniformCodegen {
                                            combinedLookup);
 
         final CodeGenerator.InstanceLoader instanceLoader = (fn, insnList) -> {
-            val inst = Objects.requireNonNull(fn.instance());
+            val inst = fn.instance();
+            if (inst == null) {
+                insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                return;
+            }
             val declaringClass = Objects.requireNonNull(fn.method())
                                         .getDeclaringClass();
             val field = ensureCarrierField(carrierFields, inst, declaringClass);
@@ -165,7 +169,7 @@ public class UniformCodegen {
                                               carrier.name,
                                               def.name() + "$get",
                                               Type.methodDescriptor(def.type()),
-                                              EnumSet.of(UniformFunction.Flag.STATIC)),
+                                              EnumSet.noneOf(UniformFunction.Flag.class)),
                           def.name());
         }
 
@@ -217,8 +221,8 @@ public class UniformCodegen {
             for (val accessorClass : accessorClasses.entrySet()) {
                 accessorInstances.put(accessorClass.getKey(),
                                       (CompiledUniform) accessorClass.getValue()
-                                                                     .getConstructor()
-                                                                     .newInstance());
+                                                                     .getConstructor(carrierClass)
+                                                                     .newInstance(carrierInstance));
             }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
@@ -272,10 +276,14 @@ public class UniformCodegen {
         carrier.methods.add(init);
     }
 
-    private static void addEmptyConstructor(ClassNode cn) {
-        val init = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    private static void addCarrierConstructor(ClassNode cn, String carrierDesc) {
+        cn.fields.add(new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "carrier", carrierDesc, null, null));
+        val init = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(" + carrierDesc + ")V", null, null);
         init.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         init.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false));
+        init.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        init.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+        init.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, cn.name, "carrier", carrierDesc));
         init.instructions.add(new InsnNode(Opcodes.RETURN));
         cn.methods.add(init);
     }
@@ -300,18 +308,20 @@ public class UniformCodegen {
         {
             val instanceUpdate = new MethodNode(Opcodes.ACC_PRIVATE, name$update, "()V", null, null);
             val insn = instanceUpdate.instructions;
+            insn.add(new VarInsnNode(Opcodes.ALOAD, 0));
             insn.add(exprInsns);
-            insn.add(new FieldInsnNode(Opcodes.PUTSTATIC, carrier.name, name$state, fieldDesc));
+            insn.add(new FieldInsnNode(Opcodes.PUTFIELD, carrier.name, name$state, fieldDesc));
             insn.add(new InsnNode(Opcodes.RETURN));
             carrier.methods.add(instanceUpdate);
         }
 
-        carrier.fields.add(new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, name$state, fieldDesc, null, null));
+        carrier.fields.add(new FieldNode(Opcodes.ACC_PRIVATE, name$state, fieldDesc, null, null));
         {
-            val staticGet = new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, name$get, methodDesc, null, null);
-            carrier.methods.add(staticGet);
-            val insn = staticGet.instructions;
-            insn.add(new FieldInsnNode(Opcodes.GETSTATIC, carrier.name, name$state, fieldDesc));
+            val instanceGet = new MethodNode(Opcodes.ACC_PUBLIC, name$get, methodDesc, null, null);
+            carrier.methods.add(instanceGet);
+            val insn = instanceGet.instructions;
+            insn.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            insn.add(new FieldInsnNode(Opcodes.GETFIELD, carrier.name, name$state, fieldDesc));
             insn.add(new InsnNode(retOpcode));
         }
         updateMethod.add(new VarInsnNode(Opcodes.ALOAD, 0));
@@ -326,11 +336,14 @@ public class UniformCodegen {
         cn.interfaces.add(type.internalTypeName());
         cn.name = GENERATED_PACKAGE + "__COMP_UNI_" + counter.incrementAndGet() + "_" + name;
         cn.access = Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL;
-        addEmptyConstructor(cn);
+        val carrierDesc = "L" + carrier.name + ";";
+        addCarrierConstructor(cn, carrierDesc);
         {
             val dynamicGet = new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, "value", methodDesc, null, null);
             val insn = dynamicGet.instructions;
-            insn.add(new MethodInsnNode(Opcodes.INVOKESTATIC, carrier.name, name$get, methodDesc, false));
+            insn.add(new VarInsnNode(Opcodes.ALOAD, 0));
+            insn.add(new FieldInsnNode(Opcodes.GETFIELD, cn.name, "carrier", carrierDesc));
+            insn.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, carrier.name, name$get, methodDesc, false));
             insn.add(new InsnNode(retOpcode));
             cn.methods.add(dynamicGet);
         }
