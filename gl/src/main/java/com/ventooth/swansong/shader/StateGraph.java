@@ -301,8 +301,8 @@ public class StateGraph {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
-                    e.use(e.fixed.manager.basic);
                     e.pushShader();
+                    e.use(e.fixed.manager.basic);
                 }
             }
 
