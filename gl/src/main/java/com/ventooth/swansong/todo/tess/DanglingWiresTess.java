@@ -19,16 +19,16 @@ import org.jetbrains.annotations.Unmodifiable;
 
 @Deprecated
 public class DanglingWiresTess {
-    public static int entityAttrib = 10;
-    public static int midTexCoordAttrib = 11;
-    public static int tangentAttrib = 12;
-    public static int edgeTexCoordAttrib = 13;
+    public static final int entityAttrib = 10;
+    public static final int midTexCoordAttrib = 11;
+    public static final int tangentAttrib = 12;
+    public static final int edgeTexCoordAttrib = 13;
 
-    public static boolean useEntityAttrib = true;
-    public static boolean useMidTexCoordAttrib = true;
-    public static boolean useMultiTexCoord3Attrib = false;
-    public static boolean useTangentAttrib = true;
-    public static boolean useEdgeTexCoordAttrib = true;
+    public static final boolean useEntityAttrib = true;
+    public static final boolean useMidTexCoordAttrib = true;
+    public static final boolean useMultiTexCoord3Attrib = false;
+    public static final boolean useTangentAttrib = true;
+    public static final boolean useEdgeTexCoordAttrib = true;
 
     public static final @Unmodifiable ObjectList<AttribMapping> attribs;
 
