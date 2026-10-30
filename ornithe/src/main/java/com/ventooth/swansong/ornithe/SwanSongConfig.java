@@ -13,6 +13,7 @@ import com.ventooth.swansong.resources.ShaderPackManager;
 import net.ornithemc.osl.config.api.ConfigScope;
 import net.ornithemc.osl.config.api.LoadingPhase;
 import net.ornithemc.osl.config.api.config.BaseConfig;
+import net.ornithemc.osl.config.api.config.option.BooleanOption;
 import net.ornithemc.osl.config.api.config.option.StringOption;
 import net.ornithemc.osl.config.api.serdes.FileSerializerType;
 import net.ornithemc.osl.config.api.serdes.SerializerTypes;
@@ -21,6 +22,9 @@ public final class SwanSongConfig extends BaseConfig {
     public final StringOption currentShaderPack = new StringOption("currentShaderPack",
                                                                    "The selected shader pack",
                                                                    ShaderPackManager.DISABLED_SHADER_PACK_NAME);
+    public final BooleanOption enableReferenceShaderPack = new BooleanOption("enableReferenceShaderPack",
+                                                                             "List SwanSong's built-in shader pack",
+                                                                             false);
 
     @Override
     public String getNamespace() {
@@ -59,6 +63,6 @@ public final class SwanSongConfig extends BaseConfig {
 
     @Override
     public void init() {
-        registerOptions("shaders", currentShaderPack);
+        registerOptions("shaders", currentShaderPack, enableReferenceShaderPack);
     }
 }

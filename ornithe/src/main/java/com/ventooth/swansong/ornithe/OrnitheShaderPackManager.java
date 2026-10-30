@@ -10,6 +10,8 @@
 package com.ventooth.swansong.ornithe;
 
 import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.resources.pack.ShaderPack;
+import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import net.ornithemc.osl.config.api.ConfigManager;
 
 import java.nio.file.Path;
@@ -20,6 +22,16 @@ public final class OrnitheShaderPackManager extends ShaderPackManager {
     public OrnitheShaderPackManager(Path gameDir, SwanSongConfig config) {
         super(gameDir);
         this.config = config;
+    }
+
+    @Override
+    protected boolean referencePackEnabled() {
+        return config.enableReferenceShaderPack.get();
+    }
+
+    @Override
+    public PackLocalizer localizer(ShaderPack pack) {
+        return new OrnithePackLocalizer(pack);
     }
 
     @Override
