@@ -28,8 +28,6 @@ import java.util.List;
 public final class ImageUtils {
     public static final Logger log = Share.getLogger();
 
-    private static IntBuffer tempBuf = BufferUtils.createIntBuffer(128 * 128);
-
     public static @Nullable RawImage downloadGLTextureAsBGRA(int tex) {
         if (tex == 0) {
             log.warn("Tried to download zero texture");
@@ -53,12 +51,7 @@ public final class ImageUtils {
                 return null;
             }
 
-            val oldBufSize = tempBuf.capacity();
-            if (oldBufSize < bufSize) {
-                tempBuf = BufferUtils.createIntBuffer(bufSize);
-                log.debug("Resized temp texture buffer: ({}) -> ({})", oldBufSize, bufSize);
-            }
-            tempBuf.clear();
+            val tempBuf = BufferUtils.createIntBuffer(bufSize);
 
             GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
             GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
@@ -102,12 +95,7 @@ public final class ImageUtils {
                     break;
                 }
 
-                val oldBufSize = tempBuf.capacity();
-                if (oldBufSize < bufSize) {
-                    tempBuf = BufferUtils.createIntBuffer(bufSize);
-                    log.debug("Resized temp texture buffer: ({}) -> ({})", oldBufSize, bufSize);
-                }
-                tempBuf.clear();
+                val tempBuf = BufferUtils.createIntBuffer(bufSize);
 
                 GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
                 GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
