@@ -119,20 +119,6 @@ public class StateGraph {
             Share.log.fatal("StateGraph: ", err);
             throw err;
         }
-        if (!node.allowedNodes.contains(current)) {
-            var b = new StringBuilder("Tried to push stack \"").append(node.name())
-                                                               .append("\" in disallowed graph state \"")
-                                                               .append(current.name())
-                                                               .append("\".\n");
-            b.append("Allowed states:\n");
-            for (val allowed : node.allowedNodes) {
-                b.append(allowed.name())
-                 .append('\n');
-            }
-            val err = new IllegalStateException(b.toString());
-            Share.log.fatal("StateGraph: ", err);
-            throw err;
-        }
         stack.push(node.key, null);
         node.push(engine, current);
     }
@@ -310,10 +296,8 @@ public class StateGraph {
         }
     }
 
-    private static final EnumSet<Node> ALL_ALLOWED = EnumSet.allOf(Node.class);
-
-    public enum Stack {
-        AABBOutline {
+    public abstract static class Stack {
+        public static final Stack AABBOutline = new Stack("AABBOutline") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
@@ -328,8 +312,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        BlockDestroyProgress {
+        };
+
+        public static final Stack BlockDestroyProgress = new Stack("BlockDestroyProgress") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
@@ -347,8 +332,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        SpiderEyes {
+        };
+
+        public static final Stack SpiderEyes = new Stack("SpiderEyes") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
@@ -366,8 +352,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        EntityParticle {
+        };
+
+        public static final Stack EntityParticle = new Stack("EntityParticle") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
@@ -382,8 +369,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        Text {
+        };
+
+        public static final Stack Text = new Stack("Text") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
@@ -398,24 +386,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        DragonAPI {
-            @Override
-            protected void push(ShaderEngine<?> e, Node currentNode) {
-                if (currentNode.isRender) {
-                    e.pushShader();
-                    e.use(e.fixed.manager.textured_lit);
-                }
-            }
+        };
 
-            @Override
-            protected void pop(ShaderEngine<?> e, Node currentNode) {
-                if (currentNode.isRender) {
-                    e.popShader();
-                }
-            }
-        },
-        Leash {
+        public static final Stack Leash = new Stack("Leash") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 e.state().pushRenderStage();
@@ -433,23 +406,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        NEIOverlay {
-            @Override
-            protected void push(ShaderEngine<?> e, Node currentNode) {
-                e.state().pushRenderStage();
-                e.pushShader();
-                e.state().updateRenderStage(MCRenderStage.NONE);
-                e.use(e.fixed.manager.basic);
-            }
+        };
 
-            @Override
-            protected void pop(ShaderEngine<?> e, Node currentNode) {
-                e.state().popRenderStage();
-                e.popShader();
-            }
-        },
-        ExternalShader {
+        public static final Stack ExternalShader = new Stack("ExternalShader") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 e.pushShader();
@@ -460,8 +419,9 @@ public class StateGraph {
             protected void pop(ShaderEngine<?> e, Node currentNode) {
                 e.popShader();
             }
-        },
-        Beacon {
+        };
+
+        public static final Stack Beacon = new Stack("Beacon") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 e.state().pushRenderStage();
@@ -479,8 +439,9 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        BlockHighlightTextured {
+        };
+
+        public static final Stack BlockHighlightTextured = new Stack("BlockHighlightTextured") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
@@ -495,28 +456,36 @@ public class StateGraph {
                     e.popShader();
                 }
             }
-        },
-        ;
+        };
 
-        Stack(Node first, Node... rest) {
-            this.key = new StackStateTracker.Key(name());
-            this.allowedNodes = EnumSet.of(first, rest);
-        }
-
-        Stack() {
-            this.key = new StackStateTracker.Key(name());
-            this.allowedNodes = ALL_ALLOWED;
-        }
-
+        private final String name;
         private final StackStateTracker.Key key;
-        private final EnumSet<Node> allowedNodes;
+
+        protected Stack(String name) {
+            this.name = name;
+            this.key = new StackStateTracker.Key(name);
+        }
+
+        public String name() {
+            return name;
+        }
 
         protected void push(ShaderEngine<?> e, Node currentNode) {
-
         }
 
         protected void pop(ShaderEngine<?> e, Node currentNode) {
+        }
 
+        protected static void use(ShaderEngine<?> e, Function<ShaderBinding, ManagedShader> program) {
+            e.use(program.apply(e.fixed.manager));
+        }
+
+        protected static void pushShader(ShaderEngine<?> e) {
+            e.pushShader();
+        }
+
+        protected static void popShader(ShaderEngine<?> e) {
+            e.popShader();
         }
     }
 }

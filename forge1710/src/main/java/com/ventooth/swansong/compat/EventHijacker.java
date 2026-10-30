@@ -14,6 +14,8 @@ import com.falsepattern.lib.util.RenderUtil;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.CompatConfig;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
+import com.ventooth.swansong.shader.MCRenderStage;
+import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -31,6 +33,39 @@ import java.lang.reflect.Method;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventHijacker {
+    private static final StateGraph.Stack NEI_OVERLAY = new StateGraph.Stack("NEIOverlay") {
+        @Override
+        protected void push(ShaderEngine<?> e, StateGraph.Node currentNode) {
+            e.state().pushRenderStage();
+            pushShader(e);
+            e.state().updateRenderStage(MCRenderStage.NONE);
+            use(e, b -> b.basic);
+        }
+
+        @Override
+        protected void pop(ShaderEngine<?> e, StateGraph.Node currentNode) {
+            e.state().popRenderStage();
+            popShader(e);
+        }
+    };
+
+    private static final StateGraph.Stack DRAGON_API = new StateGraph.Stack("DragonAPI") {
+        @Override
+        protected void push(ShaderEngine<?> e, StateGraph.Node currentNode) {
+            if (currentNode.isRender) {
+                pushShader(e);
+                use(e, b -> b.textured_lit);
+            }
+        }
+
+        @Override
+        protected void pop(ShaderEngine<?> e, StateGraph.Node currentNode) {
+            if (currentNode.isRender) {
+                popShader(e);
+            }
+        }
+    };
+
     public static @Nullable EventHijack hijack(EventHandlerInfo info) {
         if ("net.minecraftforge.client.event.RenderWorldLastEvent".equals(info.eventClassName())) {
             if (CompatConfig.NEI_OverlayFix &&
@@ -45,7 +80,7 @@ public final class EventHijacker {
                         return;
                     }
 
-                    engine.graph().push(StateGraph.Stack.NEIOverlay);
+                    engine.graph().push(NEI_OVERLAY);
 
                     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                     try {
@@ -54,7 +89,7 @@ public final class EventHijacker {
                         GL11.glPopAttrib();
                     }
 
-                    engine.graph().pop(StateGraph.Stack.NEIOverlay);
+                    engine.graph().pop(NEI_OVERLAY);
                 };
             }
         }
@@ -110,7 +145,7 @@ public final class EventHijacker {
                     return;
                 }
 
-                engine.graph().push(StateGraph.Stack.DragonAPI);
+                engine.graph().push(DRAGON_API);
 
                 GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                 try {
@@ -119,7 +154,7 @@ public final class EventHijacker {
                     GL11.glPopAttrib();
                 }
 
-                engine.graph().pop(StateGraph.Stack.DragonAPI);
+                engine.graph().pop(DRAGON_API);
             };
         }
 
