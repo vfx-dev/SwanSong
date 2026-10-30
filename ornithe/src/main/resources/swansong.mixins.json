@@ -7,6 +7,7 @@
     "BeaconRendererMixin",
     "BufferBuilderMixin",
     "BufferUploaderMixin",
+    "DebugOverlayMixin",
     "EntityRenderDispatcherMixin",
     "EntityRendererMixin",
     "EyesLayerMixin",

@@ -12,6 +12,7 @@ package com.ventooth.swansong.ornithe;
 
 import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.shader.HostRenderer;
+import com.ventooth.swansong.shader.Report;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -20,9 +21,15 @@ import net.minecraft.client.render.platform.GLX;
 import net.minecraft.client.render.platform.GlStateManager;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.resource.Identifier;
+import net.minecraft.text.Formatting;
+import net.minecraft.text.LiteralText;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.LocalTime;
+
 public final class OrnitheHostRenderer implements HostRenderer {
+    private static final String CHAT_PREFIX = "[" + Formatting.BLUE + "Swan" + Formatting.AQUA + "Song" + Formatting.RESET + "] ";
+
     private final SwanSongConfig config;
     private final OrnitheShaderPackManager shaderPacks;
 
@@ -172,6 +179,29 @@ public final class OrnitheHostRenderer implements HostRenderer {
 
     @Override
     public void onLifecycle(Lifecycle stage) {
+    }
+
+    @Override
+    public void reportToChat(Report report) {
+        if (report.erroredShaders.isEmpty()) {
+            return;
+        }
+        chat("-----------------");
+        chat(Formatting.YELLOW + LocalTime.now()
+                                          .toString());
+        chat(Formatting.RED + "Failed to load shaders:");
+        for (var shader : report.erroredShaders) {
+            chat("  " + Formatting.RED + shader);
+        }
+        chat(Formatting.YELLOW + "Check the log for more details");
+        chat("-----------------");
+    }
+
+    private static void chat(String message) {
+        var player = Minecraft.getInstance().player;
+        if (player != null) {
+            player.addMessage(new LiteralText(CHAT_PREFIX + message));
+        }
     }
 
     @Override

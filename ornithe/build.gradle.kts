@@ -42,6 +42,7 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:0.19.5")
     ploceus.dependOsl("0.22.0")
     modRuntimeOnly("pl.tomgirl:pylon:0.2.1")
+    compileOnly("pl.tomgirl:pylon:0.2.1")
 
     listOf(":uniforms", ":shaderpack", ":gl").forEach { include(implementation(project(it))!!) }
     include(implementation("org.joml:joml:1.10.8")!!)
