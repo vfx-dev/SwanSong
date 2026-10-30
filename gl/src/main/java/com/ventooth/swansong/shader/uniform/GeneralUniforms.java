@@ -137,6 +137,7 @@ public final class GeneralUniforms {
             reg.impure(state, clazz.getDeclaredMethod("worldTime"));
             reg.impure(state, clazz.getDeclaredMethod("worldDay"));
             reg.impure(state, clazz.getDeclaredMethod("biome"));
+            reg.impure(state, clazz.getDeclaredMethod("temperature"));
             reg.impure(state, clazz.getDeclaredMethod("nearPlane"), "near");
             reg.impure(state, clazz.getDeclaredMethod("farPlane"), "far");
             //TODO alphaTestRef

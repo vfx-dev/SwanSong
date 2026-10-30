@@ -21,6 +21,7 @@ public record WorldSample(int eyeInWater,
                           double skyR,
                           double skyG,
                           double skyB,
-                          int biomeId) {
-    public static final WorldSample EMPTY = new WorldSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                          int biomeId,
+                          double temperature) {
+    public static final WorldSample EMPTY = new WorldSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }

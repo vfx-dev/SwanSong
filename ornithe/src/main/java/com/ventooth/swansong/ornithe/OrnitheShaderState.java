@@ -120,6 +120,8 @@ public final class OrnitheShaderState extends ShaderState {
 
         var skyColor = world.getSkyColor(camera, partialTick);
         var camPos = camPosInt();
+        var pos = new BlockPos(camPos.x(), camPos.y(), camPos.z());
+        var biome = world.getBiome(pos);
 
         return new WorldSample(eyeInWater,
                                nightVision,
@@ -132,6 +134,7 @@ public final class OrnitheShaderState extends ShaderState {
                                skyColor.x,
                                skyColor.y,
                                skyColor.z,
-                               world.getBiome(new BlockPos(camPos.x(), camPos.y(), camPos.z())).id);
+                               biome.id,
+                               biome.getTemperature(pos));
     }
 }

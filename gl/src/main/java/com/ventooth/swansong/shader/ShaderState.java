@@ -131,6 +131,7 @@ public abstract class ShaderState {
     private boolean isHeldItemTranslucent = false;
 
     private int biome = 0;
+    private double temperature = 0;
 
     private double wetnessHalfLife = 600D;
     private double drynessHalfLife = 200D;
@@ -174,6 +175,10 @@ public abstract class ShaderState {
 
     public int biome() {
         return biome;
+    }
+
+    public double temperature() {
+        return temperature;
     }
 
     public float blockLightLevel(float old) {
@@ -528,6 +533,7 @@ public abstract class ShaderState {
         updateSkyColor(sample.skyR(), sample.skyG(), sample.skyB());
 
         biome = sample.biomeId();
+        temperature = sample.temperature();
 
         entityId = -1;
         blockEntityId = -1;

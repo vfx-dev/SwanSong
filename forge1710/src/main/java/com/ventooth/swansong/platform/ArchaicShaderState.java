@@ -122,6 +122,7 @@ public class ArchaicShaderState extends ShaderState {
 
         val skyColor = world.getSkyColor(viewEntity, partialTick);
         val camPos = camPosInt();
+        val biome = world.getBiomeGenForCoords(camPos.x(), camPos.z());
 
         return new WorldSample(eyeInWater,
                                nightVision,
@@ -134,7 +135,7 @@ public class ArchaicShaderState extends ShaderState {
                                skyColor.xCoord,
                                skyColor.yCoord,
                                skyColor.zCoord,
-                               world.getBiomeGenForCoords(camPos.x(), camPos.z())
-                                    .biomeID);
+                               biome.biomeID,
+                               biome.getFloatTemperature(camPos.x(), camPos.y(), camPos.z()));
     }
 }
