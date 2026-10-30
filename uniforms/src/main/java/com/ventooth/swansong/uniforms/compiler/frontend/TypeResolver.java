@@ -224,7 +224,7 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
 
     private TypedNode resolveBranch(TypedNode cond, TypedNode ifTrue, TypedNode ifFalse) {
         val p = coerce(ifTrue, ifFalse);
-        return new TypedBranchNode(cond, ifTrue, ifFalse);
+        return new TypedBranchNode(cond, p.getLeft(), p.getRight());
     }
 
     private TypedNode resolveMultiMatch(List<TypedNode> elems) {
