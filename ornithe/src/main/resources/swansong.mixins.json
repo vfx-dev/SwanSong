@@ -4,8 +4,12 @@
   "package": "com.ventooth.swansong.ornithe.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
+    "BufferBuilderMixin",
+    "BufferUploaderMixin",
     "GameRendererMixin",
     "MinecraftMixin",
+    "RenderChunkMixin",
+    "VboRenderChunkListMixin",
     "WorldRendererMixin"
   ],
   "injectors": {
