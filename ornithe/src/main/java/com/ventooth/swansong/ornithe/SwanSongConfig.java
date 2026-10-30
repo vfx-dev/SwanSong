@@ -14,6 +14,7 @@ import net.ornithemc.osl.config.api.ConfigScope;
 import net.ornithemc.osl.config.api.LoadingPhase;
 import net.ornithemc.osl.config.api.config.BaseConfig;
 import net.ornithemc.osl.config.api.config.option.BooleanOption;
+import net.ornithemc.osl.config.api.config.option.FloatOption;
 import net.ornithemc.osl.config.api.config.option.StringOption;
 import net.ornithemc.osl.config.api.serdes.FileSerializerType;
 import net.ornithemc.osl.config.api.serdes.SerializerTypes;
@@ -25,6 +26,21 @@ public final class SwanSongConfig extends BaseConfig {
     public final BooleanOption enableReferenceShaderPack = new BooleanOption("enableReferenceShaderPack",
                                                                              "List SwanSong's built-in shader pack",
                                                                              false);
+    public final FloatOption renderQuality = new FloatOption("renderQuality",
+                                                             "Scale of the shader render targets",
+                                                             1F,
+                                                             v -> v >= 0.5F && v <= 2F);
+    public final FloatOption shadowQuality = new FloatOption("shadowQuality",
+                                                             "Scale of the shadow map",
+                                                             1F,
+                                                             v -> v >= 0.5F && v <= 2F);
+    public final FloatOption handDepth = new FloatOption("handDepth",
+                                                         "Depth scale of the first person hand",
+                                                         1F,
+                                                         v -> v >= 0.5F && v <= 2F);
+    public final BooleanOption allowDepthOfField = new BooleanOption("allowDepthOfField",
+                                                                     "Let shader packs use depth of field",
+                                                                     false);
 
     @Override
     public String getNamespace() {
@@ -63,6 +79,12 @@ public final class SwanSongConfig extends BaseConfig {
 
     @Override
     public void init() {
-        registerOptions("shaders", currentShaderPack, enableReferenceShaderPack);
+        registerOptions("shaders",
+                        currentShaderPack,
+                        enableReferenceShaderPack,
+                        renderQuality,
+                        shadowQuality,
+                        handDepth,
+                        allowDepthOfField);
     }
 }

@@ -12,7 +12,6 @@ package com.ventooth.swansong.ornithe;
 
 import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
-import net.fabricmc.loader.api.FabricLoader;
 
 import static com.ventooth.swansong.shader.StateGraph.Node.*;
 
@@ -41,8 +40,7 @@ public final class OrnitheShaderEngine extends ShaderEngine<OrnitheShaderState> 
 
     public OrnitheShaderEngine(SwanSongConfig config) {
         super(new OrnitheShaderState(),
-              new OrnitheHostRenderer(new OrnitheShaderPackManager(FabricLoader.getInstance()
-                                                                               .getGameDir(), config)),
+              new OrnitheHostRenderer(config),
               new OrnitheShadowPassRenderer(),
               STAGE_ORDER);
     }

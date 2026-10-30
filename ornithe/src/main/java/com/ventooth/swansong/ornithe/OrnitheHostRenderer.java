@@ -12,6 +12,7 @@ package com.ventooth.swansong.ornithe;
 
 import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.shader.HostRenderer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.GameRenderer;
@@ -22,10 +23,13 @@ import net.minecraft.resource.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public final class OrnitheHostRenderer implements HostRenderer {
+    private final SwanSongConfig config;
     private final OrnitheShaderPackManager shaderPacks;
 
-    public OrnitheHostRenderer(OrnitheShaderPackManager shaderPacks) {
-        this.shaderPacks = shaderPacks;
+    public OrnitheHostRenderer(SwanSongConfig config) {
+        this.config = config;
+        this.shaderPacks = new OrnitheShaderPackManager(FabricLoader.getInstance()
+                                                                    .getGameDir(), config);
     }
 
     @Override
@@ -142,22 +146,22 @@ public final class OrnitheHostRenderer implements HostRenderer {
 
     @Override
     public double handDepth() {
-        return 0.125;
+        return 0.125 * config.handDepth.get();
     }
 
     @Override
     public double renderQuality() {
-        return 1;
+        return config.renderQuality.get();
     }
 
     @Override
     public double shadowQuality() {
-        return 1;
+        return config.shadowQuality.get();
     }
 
     @Override
     public boolean allowDepthOfField() {
-        return false;
+        return config.allowDepthOfField.get();
     }
 
     @Override
