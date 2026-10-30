@@ -193,11 +193,11 @@ public final class GuiShaders extends GuiScreen {
         }
 
         public void updateList() {
-            ShaderPackManager.refreshShaderPackNames();
-            shaderPackNames = ShaderPackManager.getShaderPackNames();
+            ArchaicShaderEngine.get().shaderPacks().refreshShaderPackNames();
+            shaderPackNames = ArchaicShaderEngine.get().shaderPacks().getShaderPackNames();
             selectedIndex = 0;
 
-            val currentName = ShaderPackManager.getCurrentShaderPackName();
+            val currentName = ArchaicShaderEngine.get().shaderPacks().getCurrentShaderPackName();
             val size = shaderPackNames.size();
             for (var i = 0; i < size; i++) {
                 if (Objects.equals(shaderPackNames.get(i), currentName)) {
@@ -219,7 +219,7 @@ public final class GuiShaders extends GuiScreen {
             }
 
             this.selectedIndex = index;
-            ShaderPackManager.setShaderPackByName(this.shaderPackNames.get(index));
+            ArchaicShaderEngine.get().shaderPacks().setShaderPackByName(this.shaderPackNames.get(index));
             GuiShaders.this.updateButtons();
         }
 
@@ -254,7 +254,7 @@ public final class GuiShaders extends GuiScreen {
             if (label.equals(ShaderPackManager.DISABLED_SHADER_PACK_NAME)) {
                 label = I18n.format("options.off");
                 color = 0xe04040;
-            } else if (ShaderPackManager.isReferencePack(label)) {
+            } else if (ArchaicShaderEngine.get().shaderPacks().isReferencePack(label)) {
                 label = I18n.format("gui.swansong.shaders.default");
                 color = 0xa0a0a0;
             } else {

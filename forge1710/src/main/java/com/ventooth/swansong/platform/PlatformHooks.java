@@ -16,11 +16,8 @@ import com.falsepattern.lib.dependencies.SemanticVersion;
 import com.falsepattern.lib.util.FileUtil;
 import com.ventooth.swansong.Tags;
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.config.Configs;
 import com.ventooth.swansong.config.DebugConfig;
-import com.ventooth.swansong.config.ShadersConfig;
 import com.ventooth.swansong.gl.ShaderHax;
-import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderStateOld;
@@ -52,10 +49,6 @@ public final class PlatformHooks {
             "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";
 
     public static void install() {
-        ShaderPackManager.settingsChangedHook = PlatformHooks::onShaderSettingsChanged;
-        ShaderPackManager.referencePackEnabled = () -> ShadersConfig.enableReferenceShaderPack;
-        ShaderPackManager.localizerFactory = MinecraftPackLocalizer::new;
-        ShaderPackManager.referencePack = DefaultShaderPack.INSTANCE;
         // TODO: Integrate into ArchaicShaderEngine
         OldShaderEngine.shadowPass = new McShadowPassRenderer();
         ensureJnaAvailable();
@@ -108,15 +101,10 @@ public final class PlatformHooks {
                                               .build());
     }
 
-    private static void onShaderSettingsChanged() {
-        ShadersConfig.CurrentShaderPack = ShaderPackManager.getCurrentShaderPackName();
-        ArchaicShaderEngine.get()
-                           .scheduleShaderPackReload();
-        Configs.syncConfigFile();
-    }
-
     public static void openShaderPacksDir() {
-        val dir = ShaderPackManager.getShaderPacksDir();
+        val dir = ArchaicShaderEngine.get()
+                                     .shaderPacks()
+                                     .getShaderPacksDir();
         try {
             // Works on Windows/Linux
             // TODO: Doesn't work on my machine without LWJGL3ify? Wayland+KDE, should open Dolphin :(

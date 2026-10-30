@@ -10,8 +10,8 @@
 
 package com.ventooth.swansong.gui;
 
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.config.ShadersConfig;
-import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 
 import net.minecraft.client.Minecraft;
@@ -68,7 +68,7 @@ public abstract class GuiButtonShaders extends GuiButton {
         public void onClick() {
             ShadersConfig.AntiAliasing = nextValue(ShadersConfig.AntiAliasingCfg.values(), ShadersConfig.AntiAliasing);
             this.displayString = ShadersConfig.AntiAliasing.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class GuiButtonShaders extends GuiButton {
             ShadersConfig.NormalMapping = nextValue(ShadersConfig.NormalMappingCfg.values(),
                                                     ShadersConfig.NormalMapping);
             this.displayString = ShadersConfig.NormalMapping.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
             Minecraft.getMinecraft()
                      .refreshResources();
         }
@@ -102,7 +102,7 @@ public abstract class GuiButtonShaders extends GuiButton {
             ShadersConfig.SpecularMapping = nextValue(ShadersConfig.SpecularMappingCfg.values(),
                                                       ShadersConfig.SpecularMapping);
             this.displayString = ShadersConfig.SpecularMapping.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
             Minecraft.getMinecraft()
                      .refreshResources();
         }
@@ -120,7 +120,7 @@ public abstract class GuiButtonShaders extends GuiButton {
             ShadersConfig.RenderQuality = nextValue(ShadersConfig.RenderQualityCfg.values(),
                                                     ShadersConfig.RenderQuality);
             this.displayString = ShadersConfig.RenderQuality.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
         }
     }
 
@@ -136,7 +136,7 @@ public abstract class GuiButtonShaders extends GuiButton {
             ShadersConfig.ShadowQuality = nextValue(ShadersConfig.ShadowQualityCfg.values(),
                                                     ShadersConfig.ShadowQuality);
             this.displayString = ShadersConfig.ShadowQuality.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
         }
     }
 
@@ -151,7 +151,7 @@ public abstract class GuiButtonShaders extends GuiButton {
         public void onClick() {
             ShadersConfig.HandDepth = nextValue(ShadersConfig.HandDepthCfg.values(), ShadersConfig.HandDepth);
             this.displayString = ShadersConfig.HandDepth.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
         }
     }
 
@@ -166,7 +166,7 @@ public abstract class GuiButtonShaders extends GuiButton {
         public void onClick() {
             ShadersConfig.OldHandLight = nextValue(ShadersConfig.OldHandLightCfg.values(), ShadersConfig.OldHandLight);
             this.displayString = ShadersConfig.OldHandLight.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
         }
     }
 
@@ -181,7 +181,7 @@ public abstract class GuiButtonShaders extends GuiButton {
         public void onClick() {
             ShadersConfig.OldHandDepth = nextValue(ShadersConfig.OldHandDepthCfg.values(), ShadersConfig.OldHandDepth);
             this.displayString = ShadersConfig.OldHandDepth.format(locale);
-            ShaderPackManager.saveShaderSettings();
+            ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
         }
     }
 

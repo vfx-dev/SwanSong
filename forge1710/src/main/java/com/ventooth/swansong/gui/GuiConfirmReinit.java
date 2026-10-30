@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.gui;
 
-import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 
 import net.minecraft.client.gui.GuiButton;
@@ -60,7 +60,7 @@ public class GuiConfirmReinit extends GuiScreen {
             if (button.id == 0) {
                 rootScreen.fullReset();
                 rootScreen.save();
-                ShaderPackManager.saveShaderSettings();
+                ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
             }
             this.mc.displayGuiScreen(parentScreen.get());
         }

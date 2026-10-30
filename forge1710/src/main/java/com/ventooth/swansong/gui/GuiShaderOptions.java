@@ -10,8 +10,8 @@
 
 package com.ventooth.swansong.gui;
 
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -198,7 +198,7 @@ public final class GuiShaderOptions extends GuiScreen {
         if (guibutton.id == APPLY_BUTTON) {
             if (rootScreen.isModified()) {
                 rootScreen.save();
-                ShaderPackManager.saveShaderSettings();
+                ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
                 this.mc.displayGuiScreen(doRefresh());
             }
             return;
@@ -207,7 +207,7 @@ public final class GuiShaderOptions extends GuiScreen {
         if (guibutton.id == DONE_BUTTON) {
             if (rootScreen == configScreen && rootScreen.isModified()) {
                 rootScreen.save();
-                ShaderPackManager.saveShaderSettings();
+                ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
             }
             this.mc.displayGuiScreen(this.parentGui.get());
         }

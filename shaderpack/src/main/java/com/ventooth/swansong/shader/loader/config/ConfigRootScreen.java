@@ -28,12 +28,15 @@ import java.nio.file.Files;
 public class ConfigRootScreen extends ConfigScreen implements ConfigEntry.RootScreen {
     private final ObjectList<@NotNull Option> allOptions;
     private final IntList initialValues;
+    private final ShaderPackManager packs;
 
     public ConfigRootScreen(PackLocalizer locale,
                             @NotNull ObjectList<@Nullable ConfigEntry> content,
-                            @NotNull ObjectList<@NotNull Option> allOptions) {
+                            @NotNull ObjectList<@NotNull Option> allOptions,
+                            ShaderPackManager packs) {
         super(locale, null, content);
         this.allOptions = allOptions;
+        this.packs = packs;
         initialValues = new IntArrayList(allOptions.size());
         for (val opt : allOptions) {
             initialValues.add(opt.getValueIndex());
@@ -66,7 +69,7 @@ public class ConfigRootScreen extends ConfigScreen implements ConfigEntry.RootSc
 
     @Override
     public void save() {
-        val configFile = ShaderPackManager.resolvePath(ShaderPackManager.currentShaderPackName + ".txt");
+        val configFile = packs.currentConfigPath();
         PrintWriter writer = null;
         try {
             for (int i = 0; i < allOptions.size(); i++) {

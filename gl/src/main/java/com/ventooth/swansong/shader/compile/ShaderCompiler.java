@@ -13,7 +13,7 @@ package com.ventooth.swansong.shader.compile;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.gl.GLProgram;
 import com.ventooth.swansong.gl.GLShader;
-import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.ShaderException;
 import com.ventooth.swansong.shader.loader.PreprocessedProgram;
@@ -111,7 +111,8 @@ public final class ShaderCompiler {
                                                                              GL20.GL_FRAGMENT_SHADER}) int type,
                                                  String name,
                                                  ByteBuffer src) throws ShaderException {
-        ShaderPackManager.dumpShader(name, src);
+        OldShaderEngine.host.shaderPacks()
+                            .dumpShader(name, src);
         val shader = new GLShader();
         shader.glCreateShader(type);
         shader.glShaderSource(src);

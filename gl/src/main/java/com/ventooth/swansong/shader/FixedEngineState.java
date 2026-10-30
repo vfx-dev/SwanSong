@@ -12,7 +12,6 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.InternalShaderPack;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.resources.pack.ShaderPack;
@@ -75,14 +74,15 @@ class FixedEngineState {
     public final PackLocalizer locale;
 
     private static ShaderLoader createLoader(ShaderPack pack, @Nullable DimensionInfo dimension) {
-        val loader = new ShaderLoader(pack, dimension);
+        val loader = new ShaderLoader(pack, OldShaderEngine.host.shaderPacks(), dimension);
         loader.inExpectedShaders = ShaderTypes.general;
         loader.inParams = ShaderLoaderInParams.builder()
                                               .handDepth(OldShaderEngine.host.handDepth())
                                               .renderQuality(OldShaderEngine.host.renderQuality())
                                               .shadowQuality(OldShaderEngine.host.shadowQuality())
                                               .build();
-        loader.inShaderConfig = ShaderPackManager.readShaderPackConfig();
+        loader.inShaderConfig = OldShaderEngine.host.shaderPacks()
+                                                    .readShaderPackConfig();
         loader.inEnvInfo = EnvInfo.get();
         return loader;
     }
@@ -91,11 +91,13 @@ class FixedEngineState {
         val b = builder();
         b.dimension = dimension;
         try {
-            ShaderPackManager.cleanDebugDir();
+            OldShaderEngine.host.shaderPacks()
+                                .cleanDebugDir();
         } catch (IOException ignored) {
         }
 
-        val pack = ShaderPackManager.createShaderPack();
+        val pack = OldShaderEngine.host.shaderPacks()
+                                       .createShaderPack();
         if (pack == null) {
             return null;
         }
@@ -109,7 +111,8 @@ class FixedEngineState {
         val mainLoader = createLoader(pack, dimension);
 
         val loaders = new ArrayList<ShaderLoader>();
-        val referencePack = ShaderPackManager.referencePack;
+        val referencePack = OldShaderEngine.host.shaderPacks()
+                                                .referencePack();
         if (referencePack != null && pack != referencePack) {
             loaders.add(createLoader(referencePack, dimension));
         }

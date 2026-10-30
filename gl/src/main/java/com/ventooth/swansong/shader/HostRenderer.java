@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,6 +60,8 @@ public interface HostRenderer {
     double shadowQuality();
 
     boolean allowDepthOfField();
+
+    ShaderPackManager shaderPacks();
 
     default @Nullable Path uniformDumpDir() {
         return null;
@@ -178,6 +181,11 @@ public interface HostRenderer {
         @Override
         public boolean allowDepthOfField() {
             return false;
+        }
+
+        @Override
+        public ShaderPackManager shaderPacks() {
+            throw new IllegalStateException("No host installed");
         }
     };
 }

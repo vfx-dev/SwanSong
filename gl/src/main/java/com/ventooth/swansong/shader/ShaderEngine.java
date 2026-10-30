@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import com.ventooth.swansong.sufrace.Texture2D;
@@ -33,6 +34,10 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
     public void firstInit() {
         OldShaderEngine.firstInit();
+    }
+
+    public ShaderPackManager shaderPacks() {
+        return OldShaderEngine.host.shaderPacks();
     }
 
     public StateGraph graph() {

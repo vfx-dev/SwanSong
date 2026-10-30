@@ -84,6 +84,7 @@ public class ShaderLoader {
 
     //fixed
     private final ShaderPack pack;
+    private final ShaderPackManager packs;
     private final ShaderPreprocessor preprocessor;
     private final @Nullable DimensionInfo dimension;
 
@@ -133,8 +134,9 @@ public class ShaderLoader {
         }
     }
 
-    public ShaderLoader(ShaderPack pack, @Nullable DimensionInfo dimension) {
+    public ShaderLoader(ShaderPack pack, ShaderPackManager packs, @Nullable DimensionInfo dimension) {
         this.pack = pack;
+        this.packs = packs;
         this.preprocessor = new ShaderPreprocessor(pack);
         this.dimension = dimension;
     }
@@ -206,7 +208,7 @@ public class ShaderLoader {
         }
         inExpectedShaders = null;
 
-        outLocale = ShaderPackManager.localizerFactory.apply(pack);
+        outLocale = packs.localizer(pack);
 
         //configure
         parseShadersProperties();
@@ -538,7 +540,7 @@ public class ShaderLoader {
             if (profile != null) {
                 mainScreenContent.add(profile);
             }
-            val root = new ConfigRootScreen(outLocale, mainScreenContent, allOptions);
+            val root = new ConfigRootScreen(outLocale, mainScreenContent, allOptions, packs);
             outConfigScreen = root;
             for (int i = 0; i < allOptions.size(); i++) {
                 var opt = allOptions.get(i);
@@ -553,7 +555,7 @@ public class ShaderLoader {
                 allOptions.add(opt);
                 optionsMap.put(opt.name, opt);
             });
-            val rootScreen = new ConfigRootScreen(outLocale, new ObjectArrayList<>(), allOptions);
+            val rootScreen = new ConfigRootScreen(outLocale, new ObjectArrayList<>(), allOptions, packs);
             outConfigScreen = rootScreen;
             val subScreens = new Object2ObjectOpenHashMap<String, ConfigScreen>();
             //Init sub-screens

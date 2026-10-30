@@ -395,7 +395,8 @@ public final class OldShaderEngine {
         host.onLifecycle(HostRenderer.Lifecycle.RELOAD_SCHEDULED);
 
         deinit();
-        if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(ShaderPackManager.currentShaderPackName)) {
+        if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(host.shaderPacks()
+                                                                .getCurrentShaderPackName())) {
             // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
             reloadMinecraftRenderersSafe();
             needsShaderPackReload = false;
@@ -424,7 +425,8 @@ public final class OldShaderEngine {
             OldShaderEngine.log.error("Caught internal error while loading shaderpack!");
             OldShaderEngine.log.error("Please report this as a bug:", e);
             deinit();
-            ShaderPackManager.setShaderPackByName(ShaderPackManager.DISABLED_SHADER_PACK_NAME);
+            host.shaderPacks()
+                .setShaderPackByName(ShaderPackManager.DISABLED_SHADER_PACK_NAME);
             reloadMinecraftRenderersSafe();
             needsShaderPackReload = false;
             return false;

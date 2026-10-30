@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.gui;
 
-import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 
 import net.minecraft.client.gui.GuiButton;
@@ -59,7 +59,7 @@ public class GuiConfirmEscape extends GuiScreen {
         if (button.enabled && (button.id == 0 || button.id == 1)) {
             if (button.id == 0) {
                 rootScreen.save();
-                ShaderPackManager.saveShaderSettings();
+                ArchaicShaderEngine.get().shaderPacks().saveShaderSettings();
             } else {
                 rootScreen.cancel();
             }

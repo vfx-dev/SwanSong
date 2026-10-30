@@ -103,7 +103,9 @@ public class ShaderBinding {
 
             {
                 // TODO: This code is ASS, session terminated...
-                val internalLoader = new ShaderLoader(InternalShaderPack.INSTANCE, dimension);
+                val internalLoader = new ShaderLoader(InternalShaderPack.INSTANCE,
+                                                     OldShaderEngine.host.shaderPacks(),
+                                                     dimension);
 
                 internalLoader.inExpectedShaders = ShaderTypes.internal;
                 internalLoader.inParams = ShaderLoaderInParams.builder()

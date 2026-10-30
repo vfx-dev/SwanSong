@@ -18,7 +18,6 @@ import com.ventooth.swansong.platform.DebugCommandClient;
 import com.ventooth.swansong.platform.DebugCommandServer;
 import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.platform.ThreadedScreenshot;
-import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.resources.pack.ModJarContainer;
 import com.ventooth.swansong.zoom.FunkyZoom;
 import lombok.NoArgsConstructor;
@@ -105,7 +104,9 @@ public final class SwanSong {
 
         @Override
         public void postInit(FMLPostInitializationEvent event) {
-            ShaderPackManager.init(Minecraft.getMinecraft().mcDataDir.toPath(), ShadersConfig.CurrentShaderPack);
+            ArchaicShaderEngine.get()
+                               .shaderPacks()
+                               .init(ShadersConfig.CurrentShaderPack);
 
             if (ModuleConfig.ThreadedScreenshots) {
                 ThreadedScreenshot.init();
@@ -132,7 +133,8 @@ public final class SwanSong {
                 text.right.add("§4Shaders disabled");
                 return;
             }
-            text.right.add("§bPack §9" + ShaderPackManager.currentShaderPackName);
+            text.right.add("§bPack §9" + engine.shaderPacks()
+                                              .getCurrentShaderPackName());
             text.right.add("§bShadows " + (engine.shadowPassExists() ? "§aEnabled" : "§4Disabled"));
             text.right.add("§bShader switches: " + "§r" + engine.prevFrameShaderSwitches());
             if (engine.doGraphLog()) {

@@ -28,6 +28,13 @@ import net.minecraftforge.common.MinecraftForge;
 import java.nio.file.Path;
 
 public final class McHostRenderer implements HostRenderer {
+    private final McShaderPackManager shaderPacks = new McShaderPackManager(Minecraft.getMinecraft().mcDataDir.toPath());
+
+    @Override
+    public McShaderPackManager shaderPacks() {
+        return shaderPacks;
+    }
+
     @Override
     public boolean isHandVisible() {
         val mc = Minecraft.getMinecraft();

@@ -15,9 +15,7 @@ import com.ventooth.swansong.resources.pack.ResolvedShaderPack;
 import com.ventooth.swansong.resources.pack.ResolvedShaderPack.WorldSpecializationPredicate;
 import com.ventooth.swansong.resources.pack.ShaderPack;
 import com.ventooth.swansong.shader.loader.config.PackLocalizer;
-import lombok.AccessLevel;
 import lombok.Cleanup;
-import lombok.NoArgsConstructor;
 import lombok.val;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -41,67 +39,73 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 import java.util.zip.ZipFile;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShaderPackManager {
+public class ShaderPackManager {
     private static final Logger log = Share.getLogger();
 
     public static final String DISABLED_SHADER_PACK_NAME = "(disabled)";
 
-    public static String currentShaderPackName = DISABLED_SHADER_PACK_NAME;
+    private final Path shaderpacksDir;
+    private final Path shaderpacksDebugDir;
 
-    public static Runnable settingsChangedHook = () -> {};
+    private String currentShaderPackName = DISABLED_SHADER_PACK_NAME;
 
-    public static BooleanSupplier referencePackEnabled = () -> false;
+    private List<String> detectedShaderpacks = Collections.singletonList(DISABLED_SHADER_PACK_NAME);
 
-    public static Function<ShaderPack, PackLocalizer> localizerFactory = pack -> PackLocalizer.NONE;
+    public ShaderPackManager(Path minecraftDir) {
+        shaderpacksDir = minecraftDir.resolve("shaderpacks");
+        shaderpacksDebugDir = shaderpacksDir.resolve("debug");
+    }
 
-    public static @Nullable ShaderPack referencePack;
+    public @Nullable ShaderPack referencePack() {
+        return null;
+    }
 
-    public static @Nullable String referencePackName() {
-        val pack = referencePack;
+    protected boolean referencePackEnabled() {
+        return false;
+    }
+
+    public PackLocalizer localizer(ShaderPack pack) {
+        return PackLocalizer.NONE;
+    }
+
+    protected void onSettingsChanged() {
+    }
+
+    public @Nullable String referencePackName() {
+        val pack = referencePack();
         return pack == null ? null : pack.name();
     }
 
-    public static boolean isReferencePack(String name) {
+    public boolean isReferencePack(String name) {
         return name != null && name.equals(referencePackName());
     }
 
-    private static Path shaderpacksDir;
-    private static Path shaderpacksDebugDir;
-
-    private static List<String> detectedShaderpacks = Collections.singletonList(DISABLED_SHADER_PACK_NAME);
-
-    public static void init(Path minecraftDir, String initialPackName) {
-        shaderpacksDir = minecraftDir.resolve("shaderpacks");
-        shaderpacksDebugDir = shaderpacksDir.resolve("debug");
-
+    public void init(String initialPackName) {
         ensureDirExists("Shader Pack", shaderpacksDir);
 
         refreshShaderPackNames();
         setShaderPackByName(initialPackName);
     }
 
-    public static Path resolvePath(String name) {
-        return shaderpacksDir.resolve(name);
+    public Path currentConfigPath() {
+        return shaderpacksDir.resolve(currentShaderPackName + ".txt");
     }
 
-    public static void cleanDebugDir() throws IOException {
+    public void cleanDebugDir() throws IOException {
         ensureDirExists("Shader Pack Debug output", shaderpacksDebugDir);
         FileUtils.cleanDirectory(shaderpacksDebugDir.toFile());
     }
 
-    public static void dumpShader(String name, String src) throws IOException {
+    public void dumpShader(String name, String src) throws IOException {
         ensureDirExists("Shader Pack Debug output", shaderpacksDebugDir);
         FileUtils.write(shaderpacksDebugDir.resolve(name)
                                            .toFile(), src);
     }
 
     //Does not advance the offset of src
-    public static void dumpShader(String name, ByteBuffer src) {
+    public void dumpShader(String name, ByteBuffer src) {
         try {
             val file = shaderpacksDebugDir.resolve(name)
                                           .toFile();
@@ -136,19 +140,19 @@ public final class ShaderPackManager {
         }
     }
 
-    public static void saveShaderSettings() {
-        settingsChangedHook.run();
+    public void saveShaderSettings() {
+        onSettingsChanged();
     }
 
-    public static Path getShaderPacksDir() {
+    public Path getShaderPacksDir() {
         return shaderpacksDir;
     }
 
-    public static String getCurrentShaderPackName() {
+    public String getCurrentShaderPackName() {
         return currentShaderPackName;
     }
 
-    public static void setShaderPackByName(String shaderPackName) {
+    public void setShaderPackByName(String shaderPackName) {
         if (detectedShaderpacks.contains(shaderPackName)) {
             currentShaderPackName = shaderPackName;
         } else {
@@ -157,7 +161,7 @@ public final class ShaderPackManager {
         saveShaderSettings();
     }
 
-    public static void refreshShaderPackNames() {
+    public void refreshShaderPackNames() {
         val newShaders = new ArrayList<String>();
         try {
             @Cleanup val shadersDir = Files.list(shaderpacksDir);
@@ -194,7 +198,7 @@ public final class ShaderPackManager {
             newShaders.sort(Comparator.naturalOrder());
 
             val referenceName = referencePackName();
-            if (referenceName != null && referencePackEnabled.getAsBoolean()) {
+            if (referenceName != null && referencePackEnabled()) {
                 newShaders.add(0, referenceName);
             }
             newShaders.add(0, DISABLED_SHADER_PACK_NAME);
@@ -209,17 +213,17 @@ public final class ShaderPackManager {
     }
 
     @UnmodifiableView
-    public static List<String> getShaderPackNames() {
+    public List<String> getShaderPackNames() {
         return Collections.unmodifiableList(detectedShaderpacks); //TODO: Should include the internal shader pack on top, but ONLY if it is active.
     }
 
-    public static @Nullable ShaderPack createShaderPack() {
+    public @Nullable ShaderPack createShaderPack() {
         if (DISABLED_SHADER_PACK_NAME.equals(currentShaderPackName)) {
             return null;
         }
         if (isReferencePack(currentShaderPackName)) {
-            if (referencePackEnabled.getAsBoolean()) {
-                return referencePack;
+            if (referencePackEnabled()) {
+                return referencePack();
             } else {
                 return null;
             }
@@ -244,8 +248,8 @@ public final class ShaderPackManager {
         return null;
     }
 
-    public static byte @Nullable [] readShaderPackConfig() {
-        val configPath = shaderpacksDir.resolve(currentShaderPackName + ".txt");
+    public byte @Nullable [] readShaderPackConfig() {
+        val configPath = currentConfigPath();
         if (!Files.isRegularFile(configPath)) {
             return null;
         }
