@@ -20,7 +20,6 @@ import com.ventooth.swansong.config.DebugConfig;
 import com.ventooth.swansong.gl.ShaderHax;
 import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.OldShaderEngine;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -54,14 +53,6 @@ public final class PlatformHooks {
         ensureJnaAvailable();
         // TODO: Integrate into ArchaicShaderEngine
         OldShaderEngine.host = new McHostRenderer();
-        // TODO: Integrate into ShaderState
-        ShaderStateOld.host = new McHostWorld();
-        // TODO: Integrate into ShaderState
-        ShaderStateOld.worldSampler = McWorldSampler::sample;
-        // TODO: Integrate into ShaderState
-        ShaderStateOld.heldItemIdSource = McWorldSampler::heldItemId;
-        // TODO: Integrate into ShaderState
-        ShaderStateOld.heldBlockLightSource = McWorldSampler::heldBlockLightValue;
     }
 
     static @Nullable Integer findBlockId(String modId, String blockName) {

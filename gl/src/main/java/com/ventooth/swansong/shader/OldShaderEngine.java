@@ -76,6 +76,8 @@ public final class OldShaderEngine {
 
     static @Nullable FixedEngineState state;
 
+    public static ShaderState shaderState;
+
     /// runtime varying state
 
     // TODO: [CUSTOM_TEX] Do we want to keep it loose like this?
@@ -140,7 +142,7 @@ public final class OldShaderEngine {
         blitDepth(buffers.gDepthTex, buffers.depthTex2);
         DebugMarker.GENERIC.insert("POST_COPY_DEPTH_2");
 
-        if (!ShaderStateOld.isHeldItemTranslucent()) {
+        if (!shaderState.isHeldItemTranslucent()) {
             if (host.isHandVisible()) {
                 renderHand(false);
             }
@@ -168,7 +170,7 @@ public final class OldShaderEngine {
                                         buffers.gDepthTex.glName(),
                                         0);
 
-            val viewSize = ShaderStateOld.viewSize();
+            val viewSize = shaderState.viewSize();
             val centerX = viewSize.x() / 2;
             val centerY = viewSize.y() / 2;
             state.depthSampler.scheduleSample(centerX, centerY);
@@ -188,7 +190,7 @@ public final class OldShaderEngine {
     }
 
     public static void beginRenderAll() {
-        needsFramebufferResize = ShaderStateOld.updateViewSize(host.renderQuality());
+        needsFramebufferResize = shaderState.updateViewSize(host.renderQuality());
         if (needsShaderPackReload) {
             if (!doShaderPackReload()) {
                 return;
@@ -231,7 +233,7 @@ public final class OldShaderEngine {
     private static void renderHand(boolean isTranslucent) {
         assert state != null : "Not Initialized";
 
-        val partialTick = ShaderStateOld.getSubTick();
+        val partialTick = shaderState.getSubTick();
         val anaglyph = host.anaglyphOffset();
         val anaglyphField = host.anaglyphField();
 
@@ -246,7 +248,7 @@ public final class OldShaderEngine {
 
         {
             val fov = Math.toRadians(host.fieldOfView(partialTick));
-            val aspect = ShaderStateOld.aspectRatio();
+            val aspect = shaderState.aspectRatio();
             val near = 0.05;
             val far = host.farPlaneDistance() * 2;
             tempDoubleBuffer.clear();
@@ -272,10 +274,10 @@ public final class OldShaderEngine {
         val lastShader = state.manager.current();
 
         if (isTranslucent) {
-            ShaderStateOld.updateRenderStage(MCRenderStage.HAND_TRANSLUCENT);
+            shaderState.updateRenderStage(MCRenderStage.HAND_TRANSLUCENT);
             use(state.manager.hand_water);
         } else {
-            ShaderStateOld.updateRenderStage(MCRenderStage.HAND_SOLID);
+            shaderState.updateRenderStage(MCRenderStage.HAND_SOLID);
             use(state.manager.hand);
         }
 
@@ -293,11 +295,11 @@ public final class OldShaderEngine {
 
         GL11.glPopAttrib();
 
-        ShaderStateOld.updateRenderStage(MCRenderStage.NONE);
+        shaderState.updateRenderStage(MCRenderStage.NONE);
     }
 
     private static void captureLastDepth() {
-        if (ShaderStateOld.isHeldItemTranslucent()) {
+        if (shaderState.isHeldItemTranslucent()) {
             if (host.isHandVisible()) {
                 renderHand(true);
             }
@@ -365,7 +367,7 @@ public final class OldShaderEngine {
 
         log.info("Initializing for the very first time...");
         try {
-            ShaderStateOld.updateViewSize(host.renderQuality());
+            shaderState.updateViewSize(host.renderQuality());
             doShaderPackReload();
         } catch (RuntimeException | Error e) {
             log.fatal("Failed to initialize: ", e);
@@ -406,7 +408,7 @@ public final class OldShaderEngine {
         try {
             init(report);
 
-            val viewSize = ShaderStateOld.viewSize();
+            val viewSize = shaderState.viewSize();
             val width = viewSize.x();
             val height = viewSize.y();
             resizeFramebuffers(width, height, report);
@@ -434,7 +436,7 @@ public final class OldShaderEngine {
     }
 
     private static void doFramebufferResize() {
-        val viewSize = ShaderStateOld.viewSize();
+        val viewSize = shaderState.viewSize();
         val width = viewSize.x();
         val height = viewSize.y();
         resizeFramebuffers(width, height, null);
@@ -732,12 +734,12 @@ public final class OldShaderEngine {
         clearColorBufs();
 
         if (state.depthSampler != null) {
-            ShaderStateOld.updateCenterDepth(state.depthSampler.getSample());
+            shaderState.updateCenterDepth(state.depthSampler.getSample());
         } else {
-            ShaderStateOld.updateCenterDepth(1F); // TODO: This assumes that far depth is 1.0
+            shaderState.updateCenterDepth(1F); // TODO: This assumes that far depth is 1.0
         }
 
-        ShaderStateOld.updatePreRenderWorld();
+        shaderState.updatePreRenderWorld();
 
         if (state.compiledUniforms != null) {
             state.compiledUniforms.update();
@@ -749,7 +751,7 @@ public final class OldShaderEngine {
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
         }
 
-        ShaderStateOld.updateCelestialAngle();
+        shaderState.updateCelestialAngle();
 
         if (state.shadow != null) {
             shadowPass.renderShadowPass(state.shadow, buffers);
@@ -779,7 +781,7 @@ public final class OldShaderEngine {
     }
 
     public static void finishRenderFinal() {
-        ShaderStateOld.updateRenderStage(MCRenderStage.NONE);
+        shaderState.updateRenderStage(MCRenderStage.NONE);
 
         if (COMBINED_DEPTH) {
             DebugMarker.GENERIC.insert("PRE_COMBINE_DEPTH");
@@ -982,7 +984,7 @@ public final class OldShaderEngine {
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 
         buffers.tempColor.bind();
-        buffers.gColor.clear(ShaderStateOld.fogColor());
+        buffers.gColor.clear(shaderState.fogColor());
     }
 
     private static void reloadMinecraftRenderersSafe() {

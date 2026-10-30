@@ -26,7 +26,6 @@ import com.ventooth.swansong.shader.loader.config.PackLocalizer;
 import com.ventooth.swansong.shader.mappings.BlockIDRemapper;
 import com.ventooth.swansong.shader.texbuf.BufferConfig;
 import com.ventooth.swansong.shader.uniform.CompiledUniforms;
-import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.uniform.UniformGetterDanglingWires;
 import com.ventooth.swansong.todo.tess.DanglingWiresTess;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
@@ -126,7 +125,8 @@ class FixedEngineState {
         val shaderVars = mainLoader.outShaderVars;
         b.compiledUniforms = shaderVars == null
                              ? null
-                             : CompiledUniforms.createCompiledUniforms(GeneralUniforms.getFuncLookup(),
+                             : CompiledUniforms.createCompiledUniforms(OldShaderEngine.shaderState.uniforms()
+                                                                                                  .funcLookup(),
                                                                    shaderVars,
                                                                    OldShaderEngine.host.uniformDumpDir());
 
@@ -168,7 +168,7 @@ class FixedEngineState {
             if (b.manager.shadow != null) {
                 b.shadow = ShadowProperties.from(outParams, (float) OldShaderEngine.host.shadowQuality());
             }
-            ShaderStateOld.applyParams(outParams);
+            OldShaderEngine.shaderState.applyParams(outParams);
         } catch (ShaderException e) {
             throw new AssertionError(e);
         }

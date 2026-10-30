@@ -14,7 +14,6 @@ import com.hbm.dim.SkyProviderCelestial;
 import com.hbm.render.shader.Shader;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import lombok.val;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

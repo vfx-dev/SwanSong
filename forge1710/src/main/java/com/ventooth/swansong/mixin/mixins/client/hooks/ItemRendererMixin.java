@@ -13,7 +13,6 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

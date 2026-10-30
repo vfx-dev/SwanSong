@@ -10,11 +10,11 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderSamplers;
 import com.ventooth.swansong.shader.compile.CompiledProgram;
 import com.ventooth.swansong.shader.compile.IShaderPool;
-import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.uniform.Uniform;
 import lombok.val;
 import org.jetbrains.annotations.Contract;
@@ -22,7 +22,8 @@ import org.jetbrains.annotations.Contract;
 import java.util.List;
 
 public class ShadowShader extends ManagedShader {
-    private static final List<Uniform<?>> RELEVANT_UNIFORMS = GeneralUniforms.getWith(ShaderSamplers.Shadow.uniforms());
+    private final List<Uniform<?>> relevantUniforms = OldShaderEngine.shaderState.uniforms()
+                                                                               .getWith(ShaderSamplers.Shadow.uniforms());
 
     public ShadowShader(ShaderId loc, CompiledProgram prog) {
         super(loc, prog);
@@ -43,6 +44,6 @@ public class ShadowShader extends ManagedShader {
 
     @Override
     protected List<Uniform<?>> relevantUniforms() {
-        return RELEVANT_UNIFORMS;
+        return relevantUniforms;
     }
 }

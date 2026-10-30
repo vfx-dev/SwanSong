@@ -27,9 +27,6 @@ import static com.ventooth.swansong.shader.OldShaderEngine.shaderData;
 import static com.ventooth.swansong.shader.OldShaderEngine.state;
 import static com.ventooth.swansong.shader.OldShaderEngine.unlockShader;
 import static com.ventooth.swansong.shader.OldShaderEngine.use;
-import static com.ventooth.swansong.shader.ShaderStateOld.popRenderStage;
-import static com.ventooth.swansong.shader.ShaderStateOld.pushRenderStage;
-import static com.ventooth.swansong.shader.ShaderStateOld.updateRenderStage;
 import static com.ventooth.swansong.shader.StateGraph.Node.BeginFrame;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBegin;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockDamage;
@@ -64,6 +61,18 @@ import static com.ventooth.swansong.shader.StateGraph.Node.Unmanaged;
 @SuppressWarnings("Convert2MethodRef")
 public class StateGraph {
     private static final EnumMap<Node, EnumMap<Node, Runnable>> graph = new EnumMap<>(Node.class);
+
+    private static void updateRenderStage(MCRenderStage stage) {
+        OldShaderEngine.shaderState.updateRenderStage(stage);
+    }
+
+    private static void pushRenderStage() {
+        OldShaderEngine.shaderState.pushRenderStage();
+    }
+
+    private static void popRenderStage() {
+        OldShaderEngine.shaderState.popRenderStage();
+    }
 
     private static void edge(Node from, Node to, @NotNull Runnable logic) {
         val map = graph.computeIfAbsent(from, _from -> new EnumMap<>(Node.class));
@@ -190,7 +199,7 @@ public class StateGraph {
         });
         edge(RenderWeatherEntities0, RenderEntities0);
         edge(RenderEntities0, RenderBlockEntities0, () -> {
-            ShaderStateOld.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
+            updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
         });
         //Can happen (CNPC+ DBC Addon is one example)
@@ -225,7 +234,7 @@ public class StateGraph {
             use(state.manager.water);
         });
         edge(RenderChunk1, RenderWeatherEntities1, () -> {
-            ShaderStateOld.updateRenderStage(MCRenderStage.ENTITIES);
+            updateRenderStage(MCRenderStage.ENTITIES);
             use(state.manager.entities);
         });
         edge(RenderChunk1, RenderClouds, () -> {
@@ -239,7 +248,7 @@ public class StateGraph {
         });
         edge(RenderWeatherEntities1, RenderEntities1);
         edge(RenderEntities1, RenderBlockEntities1, () -> {
-            ShaderStateOld.updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
+            updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
             use(state.manager.block);
         });
         //Can happen (CNPC+ DBC Addon is one example)

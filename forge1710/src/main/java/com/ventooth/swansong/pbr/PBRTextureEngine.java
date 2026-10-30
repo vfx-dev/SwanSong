@@ -16,7 +16,6 @@ import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.mixin.interfaces.ShadersTextureAtlasSprite;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderSamplers;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.sufrace.PBRTexture2D;
 import com.ventooth.swansong.sufrace.Texture2D;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

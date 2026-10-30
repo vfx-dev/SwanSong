@@ -15,7 +15,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.ventooth.swansong.mixin.interfaces.ShaderGameSettings;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import org.lwjgl.opengl.GL11;
 import org.objectweb.asm.Opcodes;

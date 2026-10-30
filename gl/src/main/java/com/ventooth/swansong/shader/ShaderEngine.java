@@ -24,6 +24,9 @@ import java.util.List;
 public abstract class ShaderEngine<STATE extends ShaderState> {
     public ShaderEngine(STATE state) {
         this.state = state;
+        if (OldShaderEngine.shaderState == null) {
+            OldShaderEngine.shaderState = state;
+        }
     }
 
     protected STATE state;

@@ -19,7 +19,6 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
 import com.ventooth.swansong.platform.WorldProviderRenderer;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;

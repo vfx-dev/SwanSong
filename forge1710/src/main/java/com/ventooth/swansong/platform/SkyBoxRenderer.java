@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.ShaderStateOld;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;

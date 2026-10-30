@@ -10,9 +10,8 @@
 
 package com.ventooth.swansong.shader.uniform;
 
-import com.ventooth.swansong.shader.ShaderStateOld;
+import com.ventooth.swansong.shader.ShaderState;
 import com.ventooth.swansong.uniforms.UniformFunctionLookup;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
 import org.joml.Matrix4dc;
@@ -26,145 +25,146 @@ import java.util.List;
 import java.util.function.Supplier;
 
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GeneralUniforms {
-    //@formatter:off
-    private final static List<Uniform<?>> LIVE_UNIFORMS = new GeneralUniformListBuilder()
-            .addInt("fogMode", ShaderStateOld::fogMode)
-            .addVec3("fogColor", ShaderStateOld::fogColor)
-            .addVec3("skyColor", ShaderStateOld::skyColor)
-            .addVec4("entityColor", ShaderStateOld::entityColor)
-            .addInt("entityId", ShaderStateOld::entityId)
-            .addInt("blockEntityId", ShaderStateOld::blockEntityId)
-            .addVec3("sunPosition", ShaderStateOld::sunPosition)
-            .addVec3("moonPosition", ShaderStateOld::moonPosition)
-            .addVec3("shadowLightPosition", ShaderStateOld::shadowLightPosition)
-            .addVec3("upPosition", ShaderStateOld::upPos)
-            .addMat4("gbufferProjection", ShaderStateOld::projectionMat)
-            .addMat4("gbufferModelViewInverse", ShaderStateOld::modelViewMatInv)
-            .addMat4("gbufferPreviousProjection", ShaderStateOld::prevProjectionMat)
-            .addMat4("gbufferModelView", ShaderStateOld::modelViewMat)
-            .addMat4("gbufferProjectionInverse", ShaderStateOld::projectionMatInv)
-            .addMat4("gbufferPreviousModelView", ShaderStateOld::prevModelViewMat)
-            .addMat4("shadowProjection", ShaderStateOld::shadowProjection)
-            .addMat4("shadowProjectionInverse", ShaderStateOld::shadowProjectionInverse)
-            .addMat4("shadowModelView", ShaderStateOld::shadowModelView)
-            .addMat4("shadowModelViewInverse", ShaderStateOld::shadowModelViewInverse)
-            .addInt("renderStage", ShaderStateOld::renderStage)
-            .addVec2i("atlasSize", ShaderStateOld::atlasSize)
+    private final List<Uniform<?>> live;
+    private final List<Uniform<?>> general;
+    private final UniformFunctionLookup funcLookup;
+
+    public GeneralUniforms(ShaderState state) {
+        //@formatter:off
+        live = new GeneralUniformListBuilder()
+            .addInt("fogMode", state::fogMode)
+            .addVec3("fogColor", state::fogColor)
+            .addVec3("skyColor", state::skyColor)
+            .addVec4("entityColor", state::entityColor)
+            .addInt("entityId", state::entityId)
+            .addInt("blockEntityId", state::blockEntityId)
+            .addVec3("sunPosition", state::sunPosition)
+            .addVec3("moonPosition", state::moonPosition)
+            .addVec3("shadowLightPosition", state::shadowLightPosition)
+            .addVec3("upPosition", state::upPos)
+            .addMat4("gbufferProjection", state::projectionMat)
+            .addMat4("gbufferModelViewInverse", state::modelViewMatInv)
+            .addMat4("gbufferPreviousProjection", state::prevProjectionMat)
+            .addMat4("gbufferModelView", state::modelViewMat)
+            .addMat4("gbufferProjectionInverse", state::projectionMatInv)
+            .addMat4("gbufferPreviousModelView", state::prevModelViewMat)
+            .addMat4("shadowProjection", state::shadowProjection)
+            .addMat4("shadowProjectionInverse", state::shadowProjectionInverse)
+            .addMat4("shadowModelView", state::shadowModelView)
+            .addMat4("shadowModelViewInverse", state::shadowModelViewInverse)
+            .addInt("renderStage", state::renderStage)
+            .addVec2i("atlasSize", state::atlasSize)
             .build();
 
-    private final static List<Uniform<?>> GENERAL_UNIFORMS = new GeneralUniformListBuilder(LIVE_UNIFORMS)
-            .addInt("heldItemId", ShaderStateOld::heldItemId)
-            .addInt("heldBlockLightValue", ShaderStateOld::heldBlockLightValue)
-            .addInt("worldTime", ShaderStateOld::worldTime)
-            .addInt("worldDay", ShaderStateOld::worldDay)
-            .addInt("moonPhase", ShaderStateOld::moonPhase)
-            .addInt("frameCounter", ShaderStateOld::frameCounter)
-            .addFloat("frameTime", ShaderStateOld::frameTime)
-            .addFloat("frameTimeCounter", ShaderStateOld::frameTimeCounter)
-            .addFloat("sunAngle", ShaderStateOld::sunAngle)
-            .addFloat("shadowAngle", ShaderStateOld::shadowAngle)
-            .addFloat("rainStrength", ShaderStateOld::rainStrength)
-            .addFloat("aspectRatio", ShaderStateOld::aspectRatio)
-            .addFloat("viewWidth", ShaderStateOld::viewWidth)
-            .addFloat("viewHeight", ShaderStateOld::viewHeight)
-            .addFloat("near", ShaderStateOld::nearPlane)
-            .addFloat("far", ShaderStateOld::farPlane)
-            .addVec3("previousCameraPosition", ShaderStateOld::prevCamPos)
-            .addVec3("cameraPosition", ShaderStateOld::camPos)
-            .addFloat("wetness", ShaderStateOld::wetness)
-            .addFloat("eyeAltitude", ShaderStateOld::eyeAltitude)
-            .addVec2i("eyeBrightness", ShaderStateOld::eyeBrightness)
-            .addVec2i("eyeBrightnessSmooth", ShaderStateOld::eyeBrightnessSmooth)
+        general = new GeneralUniformListBuilder(live)
+            .addInt("heldItemId", state::heldItemId)
+            .addInt("heldBlockLightValue", state::heldBlockLightValue)
+            .addInt("worldTime", state::worldTime)
+            .addInt("worldDay", state::worldDay)
+            .addInt("moonPhase", state::moonPhase)
+            .addInt("frameCounter", state::frameCounter)
+            .addFloat("frameTime", state::frameTime)
+            .addFloat("frameTimeCounter", state::frameTimeCounter)
+            .addFloat("sunAngle", state::sunAngle)
+            .addFloat("shadowAngle", state::shadowAngle)
+            .addFloat("rainStrength", state::rainStrength)
+            .addFloat("aspectRatio", state::aspectRatio)
+            .addFloat("viewWidth", state::viewWidth)
+            .addFloat("viewHeight", state::viewHeight)
+            .addFloat("near", state::nearPlane)
+            .addFloat("far", state::farPlane)
+            .addVec3("previousCameraPosition", state::prevCamPos)
+            .addVec3("cameraPosition", state::camPos)
+            .addFloat("wetness", state::wetness)
+            .addFloat("eyeAltitude", state::eyeAltitude)
+            .addVec2i("eyeBrightness", state::eyeBrightness)
+            .addVec2i("eyeBrightnessSmooth", state::eyeBrightnessSmooth)
             .addVec2i("terrainTextureSize", UniformGetterDanglingWires::terrainTextureSize)
             .addInt("terrainIconSize", UniformGetterDanglingWires::terrainIconSize)
-            .addInt("isEyeInWater", ShaderStateOld::isEyeInWater)
-            .addFloat("nightVision", ShaderStateOld::nightVision)
-            .addFloat("blindness", ShaderStateOld::blindness)
-            .addFloat("screenBrightness", ShaderStateOld::screenBrightness)
-            .addBool("hideGUI", ShaderStateOld::isGuiHidden)
-            .addFloat("centerDepthSmooth", ShaderStateOld::centerDepthSmooth)
+            .addInt("isEyeInWater", state::isEyeInWater)
+            .addFloat("nightVision", state::nightVision)
+            .addFloat("blindness", state::blindness)
+            .addFloat("screenBrightness", state::screenBrightness)
+            .addBool("hideGUI", state::isGuiHidden)
+            .addFloat("centerDepthSmooth", state::centerDepthSmooth)
             .build();
-    //@formatter:on
+        //@formatter:on
 
-    static {
-        ShaderStateOld.setUniformUpdateTask(() -> LIVE_UNIFORMS.forEach(Uniform::update));
-    }
-
-    private final static UniformFunctionLookup UNIFORM_FUNCTION_LOOKUP;
-
-    static {
         try {
-            val clazz = ShaderStateOld.class;
+            val clazz = ShaderState.class;
             val reg = new UniformFunctionLookup.Single();
 
-            reg.impure(clazz.getDeclaredMethod("camPos"), "cameraPosition");
-            reg.impure(clazz.getDeclaredMethod("eyeAltitude"));
+            reg.impure(state, clazz.getDeclaredMethod("camPos"), "cameraPosition");
+            reg.impure(state, clazz.getDeclaredMethod("eyeAltitude"));
             //iris stuff
-            reg.impure(clazz.getDeclaredMethod("camPosFract"), "cameraPositionFract");
-            reg.impure(clazz.getDeclaredMethod("camPosIntD"), "cameraPositionInt");
-            reg.impure(clazz.getDeclaredMethod("prevCamPos"), "previousCameraPosition");
-            reg.impure(clazz.getDeclaredMethod("prevCamPosFract"), "previousCameraPositionFract");
-            reg.impure(clazz.getDeclaredMethod("prevCamPosIntD"), "previousCameraPositionInt");
+            reg.impure(state, clazz.getDeclaredMethod("camPosFract"), "cameraPositionFract");
+            reg.impure(state, clazz.getDeclaredMethod("camPosIntD"), "cameraPositionInt");
+            reg.impure(state, clazz.getDeclaredMethod("prevCamPos"), "previousCameraPosition");
+            reg.impure(state, clazz.getDeclaredMethod("prevCamPosFract"), "previousCameraPositionFract");
+            reg.impure(state, clazz.getDeclaredMethod("prevCamPosIntD"), "previousCameraPositionInt");
 
-            reg.impure(clazz.getDeclaredMethod("upPos"), "upPosition");
-            reg.impure(clazz.getDeclaredMethod("eyeBrightnessD"), "eyeBrightness");
-            reg.impure(clazz.getDeclaredMethod("eyeBrightnessSmoothD"), "eyeBrightnessSmooth");
-            reg.impure(clazz.getDeclaredMethod("centerDepthSmooth"));
-            reg.impure(clazz.getDeclaredMethod("isEyeInWater"));
-            reg.impure(clazz.getDeclaredMethod("blindness"));
+            reg.impure(state, clazz.getDeclaredMethod("upPos"), "upPosition");
+            reg.impure(state, clazz.getDeclaredMethod("eyeBrightnessD"), "eyeBrightness");
+            reg.impure(state, clazz.getDeclaredMethod("eyeBrightnessSmoothD"), "eyeBrightnessSmooth");
+            reg.impure(state, clazz.getDeclaredMethod("centerDepthSmooth"));
+            reg.impure(state, clazz.getDeclaredMethod("isEyeInWater"));
+            reg.impure(state, clazz.getDeclaredMethod("blindness"));
             //TODO darknessFactor
             //TODO darknessLightFactor
-            reg.impure(clazz.getDeclaredMethod("nightVision"));
+            reg.impure(state, clazz.getDeclaredMethod("nightVision"));
             //TODO playerMood
-            reg.impure(clazz.getDeclaredMethod("isGuiHidden"), "hideGUI");
-            reg.impure(clazz.getDeclaredMethod("viewHeight"));
-            reg.impure(clazz.getDeclaredMethod("viewWidth"));
-            reg.impure(clazz.getDeclaredMethod("aspectRatio"));
-            reg.impure(clazz.getDeclaredMethod("screenBrightness"));
-            reg.impure(clazz.getDeclaredMethod("frameCounter"));
-            reg.impure(clazz.getDeclaredMethod("frameTime"));
-            reg.impure(clazz.getDeclaredMethod("frameTimeCounter"));
+            reg.impure(state, clazz.getDeclaredMethod("isGuiHidden"), "hideGUI");
+            reg.impure(state, clazz.getDeclaredMethod("viewHeight"));
+            reg.impure(state, clazz.getDeclaredMethod("viewWidth"));
+            reg.impure(state, clazz.getDeclaredMethod("aspectRatio"));
+            reg.impure(state, clazz.getDeclaredMethod("screenBrightness"));
+            reg.impure(state, clazz.getDeclaredMethod("frameCounter"));
+            reg.impure(state, clazz.getDeclaredMethod("frameTime"));
+            reg.impure(state, clazz.getDeclaredMethod("frameTimeCounter"));
             //TODO entityId
             //TODO blockEntityId
-            reg.impure(clazz.getDeclaredMethod("heldItemId"));
-            reg.impure(clazz.getDeclaredMethod("heldBlockLightValue"));
-            reg.impure(clazz.getDeclaredMethod("sunPosition"));
-            reg.impure(clazz.getDeclaredMethod("moonPosition"));
-            reg.impure(clazz.getDeclaredMethod("shadowLightPosition"));
-            reg.impure(clazz.getDeclaredMethod("sunAngle"));
-            reg.impure(clazz.getDeclaredMethod("shadowAngle"));
-            reg.impure(clazz.getDeclaredMethod("moonPhase"));
-            reg.impure(clazz.getDeclaredMethod("rainStrength"));
-            reg.impure(clazz.getDeclaredMethod("wetness"));
-            reg.impure(clazz.getDeclaredMethod("worldTime"));
-            reg.impure(clazz.getDeclaredMethod("worldDay"));
-            reg.impure(clazz.getDeclaredMethod("biome"));
-            reg.impure(clazz.getDeclaredMethod("nearPlane"), "near");
-            reg.impure(clazz.getDeclaredMethod("farPlane"), "far");
+            reg.impure(state, clazz.getDeclaredMethod("heldItemId"));
+            reg.impure(state, clazz.getDeclaredMethod("heldBlockLightValue"));
+            reg.impure(state, clazz.getDeclaredMethod("sunPosition"));
+            reg.impure(state, clazz.getDeclaredMethod("moonPosition"));
+            reg.impure(state, clazz.getDeclaredMethod("shadowLightPosition"));
+            reg.impure(state, clazz.getDeclaredMethod("sunAngle"));
+            reg.impure(state, clazz.getDeclaredMethod("shadowAngle"));
+            reg.impure(state, clazz.getDeclaredMethod("moonPhase"));
+            reg.impure(state, clazz.getDeclaredMethod("rainStrength"));
+            reg.impure(state, clazz.getDeclaredMethod("wetness"));
+            reg.impure(state, clazz.getDeclaredMethod("worldTime"));
+            reg.impure(state, clazz.getDeclaredMethod("worldDay"));
+            reg.impure(state, clazz.getDeclaredMethod("biome"));
+            reg.impure(state, clazz.getDeclaredMethod("nearPlane"), "near");
+            reg.impure(state, clazz.getDeclaredMethod("farPlane"), "far");
             //TODO alphaTestRef
             //TODO atlasSize
             //TODO renderStage
-            reg.impure(clazz.getDeclaredMethod("skyColor"));
+            reg.impure(state, clazz.getDeclaredMethod("skyColor"));
 
-            UNIFORM_FUNCTION_LOOKUP = reg;
+            funcLookup = reg;
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Someone messed up; [BIG_TIME]", e);
         }
     }
 
-    public static UniformFunctionLookup getFuncLookup() {
-        return UNIFORM_FUNCTION_LOOKUP;
+    public void updateLive() {
+        live.forEach(Uniform::update);
     }
 
-    public static List<Uniform<?>> get() {
-        return GENERAL_UNIFORMS;
+    public UniformFunctionLookup funcLookup() {
+        return funcLookup;
     }
 
-    public static List<Uniform<?>> getWith(List<Uniform<?>> other) {
+    public List<Uniform<?>> get() {
+        return general;
+    }
+
+    public List<Uniform<?>> getWith(List<Uniform<?>> other) {
         val list = new ArrayList<>(other);
-        list.addAll(GENERAL_UNIFORMS);
+        list.addAll(general);
         return Collections.unmodifiableList(list);
     }
 

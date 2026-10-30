@@ -13,7 +13,6 @@ package com.ventooth.swansong.platform;
 import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.mixin.extensions.WorldRendererExt;
 import com.ventooth.swansong.shader.DrawBuffers;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.ShadowPassRenderer;
 import com.ventooth.swansong.shader.ShadowProperties;
 import com.ventooth.swansong.shader.StateGraph.Node;

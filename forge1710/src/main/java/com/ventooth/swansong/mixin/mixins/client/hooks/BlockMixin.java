@@ -11,7 +11,6 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;

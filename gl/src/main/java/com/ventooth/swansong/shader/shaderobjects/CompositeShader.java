@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
+import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
@@ -17,7 +18,6 @@ import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderSamplers;
 import com.ventooth.swansong.shader.compile.CompiledProgram;
 import com.ventooth.swansong.shader.compile.IShaderPool;
-import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.uniform.Uniform;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -32,7 +32,8 @@ import java.util.Set;
 @Accessors(fluent = true,
            chain = false)
 public class CompositeShader extends ManagedShader {
-    private static final List<Uniform<?>> RELEVANT_UNIFORMS = GeneralUniforms.getWith(ShaderSamplers.Composite.uniforms());
+    private final List<Uniform<?>> relevantUniforms = OldShaderEngine.shaderState.uniforms()
+                                                                               .getWith(ShaderSamplers.Composite.uniforms());
 
     @Getter
     private final Set<CompositeTextureData> mipmapEnabled; // TODO: Do we make this sorted?
@@ -73,6 +74,6 @@ public class CompositeShader extends ManagedShader {
 
     @Override
     protected List<Uniform<?>> relevantUniforms() {
-        return RELEVANT_UNIFORMS;
+        return relevantUniforms;
     }
 }

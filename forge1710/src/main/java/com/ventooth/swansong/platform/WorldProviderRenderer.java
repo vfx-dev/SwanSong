@@ -11,7 +11,6 @@
 package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.shader.MCRenderStage;
-import com.ventooth.swansong.shader.ShaderStateOld;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import lombok.AllArgsConstructor;
 import lombok.val;
