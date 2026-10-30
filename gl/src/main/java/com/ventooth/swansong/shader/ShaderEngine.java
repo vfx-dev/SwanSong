@@ -111,6 +111,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
     private final List<Node> graphLog = new ArrayList<>();
 
     private final StateGraph graph = new StateGraph(this);
+    private final ShadersCompositeMesh compositeMesh = new ShadersCompositeMesh();
 
     protected ShaderEngine(STATE state, HostRenderer host, ShadowPassRenderer shadowPass) {
         this.state = state;
@@ -124,6 +125,10 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
     public HostRenderer host() {
         return host;
+    }
+
+    public ShadersCompositeMesh compositeMesh() {
+        return compositeMesh;
     }
 
     public StateGraph graph() {
@@ -381,9 +386,9 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
             if (anaglyph != 0) {
-                ShadersCompositeMesh.drawWithAnaglyphField(host.anaglyphField());
+                compositeMesh.drawWithAnaglyphField(host.anaglyphField());
             } else {
-                ShadersCompositeMesh.drawWithColor();
+                compositeMesh.drawWithColor();
             }
             if (DebugMarker.isEnabled()) {
                 DebugMarker.TEXTURE_COLOR_BLIT.insertFormat("{0} -> {1}", src.name(), mcTexture.name());
@@ -484,7 +489,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         fixed = FixedEngineState.init(this, host.currentDimension(), report);
         use(null);
 
-        ShadersCompositeMesh.init();
+        compositeMesh.init();
 
         gbuffersCustomTex = new EnumMap<>(CompositeTextureData.class);
         compositeCustomTex = new EnumMap<>(CompositeTextureData.class);
@@ -623,7 +628,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             noiseTex = null;
         }
         deinitFramebuffers();
-        ShadersCompositeMesh.deinit();
+        compositeMesh.deinit();
         shaderStack.clear();
         if (fixed != null) {
             fixed.deinit(host);
@@ -936,7 +941,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             dstTex.attachToFramebufferColor(GL30.GL_COLOR_ATTACHMENT0);
 
             // Draw using the regular composite
-            ShadersCompositeMesh.drawWithColor();
+            compositeMesh.drawWithColor();
 
             if (DebugMarker.isEnabled()) {
                 DebugMarker.TEXTURE_COLOR_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());
@@ -990,7 +995,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         }
 
         // Draw using the regular composite (with depth only)
-        ShadersCompositeMesh.drawWithDepth(combine);
+        compositeMesh.drawWithDepth(combine);
 
         if (DebugMarker.isEnabled()) {
             DebugMarker.TEXTURE_DEPTH_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());

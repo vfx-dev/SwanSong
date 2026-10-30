@@ -17,7 +17,6 @@ import com.ventooth.swansong.shader.CompositeTextureData;
 import com.ventooth.swansong.shader.DrawBuffers;
 import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.ShaderEngine;
-import com.ventooth.swansong.shader.ShadersCompositeMesh;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.sufrace.Framebuffer;
 import com.ventooth.swansong.sufrace.FramebufferAttachment;
@@ -375,7 +374,7 @@ public class CompositePipeline implements Runnable {
             engine.bindCompositeTextures(inputs);
 
             GLDebugGroups.RENDER_COMPOSITE_DRAW.push();
-            ShadersCompositeMesh.drawWithColor();
+            engine.compositeMesh().drawWithColor();
             GLDebugGroups.RENDER_COMPOSITE_DRAW.pop();
         }
     }
@@ -419,9 +418,9 @@ public class CompositePipeline implements Runnable {
             val anaglyph = engine.host().anaglyphOffset();
             GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.push();
             if (anaglyph != 0) {
-                ShadersCompositeMesh.drawWithAnaglyphField(engine.host().anaglyphField());
+                engine.compositeMesh().drawWithAnaglyphField(engine.host().anaglyphField());
             } else {
-                ShadersCompositeMesh.drawWithColor();
+                engine.compositeMesh().drawWithColor();
             }
             GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.pop();
             GLDebugGroups.RENDER_COMPOSITE_FINAL.pop();

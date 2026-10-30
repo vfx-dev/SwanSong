@@ -12,8 +12,6 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.debug.DebugMarker;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.val;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.APPLEVertexArrayObject;
@@ -21,18 +19,17 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ShadersCompositeMesh {
-    private static boolean isInitialized = false;
+    private boolean isInitialized = false;
 
-    private static int vao = 0;
-    private static int vbo = 0;
+    private int vao = 0;
+    private int vbo = 0;
 
-    public static void drawWithColor() {
+    public void drawWithColor() {
         draw(Mask.Color);
     }
 
-    public static void drawWithAnaglyphField(int field) {
+    public void drawWithAnaglyphField(int field) {
         if (field == 0) {
             draw(Mask.AnaglyphCyan);
         } else {
@@ -40,11 +37,11 @@ public final class ShadersCompositeMesh {
         }
     }
 
-    public static void drawWithDepth(boolean combine) {
+    public void drawWithDepth(boolean combine) {
         draw(combine ? Mask.DepthCombine : Mask.Depth);
     }
 
-    public static void draw(Mask mask) {
+    public void draw(Mask mask) {
         if (!isInitialized) {
             throw new AssertionError();
         }
@@ -112,7 +109,7 @@ public final class ShadersCompositeMesh {
         GL11.glPopAttrib();
     }
 
-    public static void init() {
+    public void init() {
         if (isInitialized) {
             return;
         }
@@ -167,7 +164,7 @@ public final class ShadersCompositeMesh {
         isInitialized = true;
     }
 
-    public static void deinit() {
+    public void deinit() {
         if (!isInitialized) {
             return;
         }
@@ -189,7 +186,7 @@ public final class ShadersCompositeMesh {
         Both
     }
 
-    private static int compat$glGenVertexArrays() {
+    private int compat$glGenVertexArrays() {
         if (EnvInfo.isMacOS()) {
             return APPLEVertexArrayObject.glGenVertexArraysAPPLE();
         } else {
@@ -197,7 +194,7 @@ public final class ShadersCompositeMesh {
         }
     }
 
-    private static void compat$glDeleteVertexArrays(int array) {
+    private void compat$glDeleteVertexArrays(int array) {
         if (EnvInfo.isMacOS()) {
             APPLEVertexArrayObject.glDeleteVertexArraysAPPLE(array);
         } else {
@@ -205,7 +202,7 @@ public final class ShadersCompositeMesh {
         }
     }
 
-    private static void compat$glBindVertexArray(int array) {
+    private void compat$glBindVertexArray(int array) {
         if (EnvInfo.isMacOS()) {
             APPLEVertexArrayObject.glBindVertexArrayAPPLE(array);
         } else {
