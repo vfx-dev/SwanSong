@@ -2,6 +2,7 @@ package com.ventooth.swansong.mixin.extensions;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Unique;
 
 import net.minecraft.client.model.ModelBase;
@@ -31,5 +32,15 @@ public final class RendererLivingEntityExt {
         } else {
             return false;
         }
+    }
+
+    public static void beginEyes() {
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glAlphaFunc(GL11.GL_GREATER, 0F);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    public static void endEyes() {
+        GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
     }
 }

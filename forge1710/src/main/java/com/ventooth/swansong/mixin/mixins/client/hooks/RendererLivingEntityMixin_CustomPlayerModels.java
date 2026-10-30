@@ -64,7 +64,9 @@ public abstract class RendererLivingEntityMixin_CustomPlayerModels {
                 return;
             }
             ArchaicShaderEngine.get().graph().push(StateGraph.Stack.SpiderEyes);
+            RendererLivingEntityExt.beginEyes();
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);
+            RendererLivingEntityExt.endEyes();
             ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.SpiderEyes);
         } else {
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);

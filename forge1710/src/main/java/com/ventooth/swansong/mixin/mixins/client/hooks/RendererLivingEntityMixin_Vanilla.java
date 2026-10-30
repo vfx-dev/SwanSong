@@ -56,7 +56,9 @@ public abstract class RendererLivingEntityMixin_Vanilla {
             }
             engine.graph()
                   .push(StateGraph.Stack.SpiderEyes);
+            RendererLivingEntityExt.beginEyes();
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+            RendererLivingEntityExt.endEyes();
             engine.graph()
                   .pop(StateGraph.Stack.SpiderEyes);
         } else {
