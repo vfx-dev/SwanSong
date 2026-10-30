@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "swansong",
+  "version": "${version}",
+  "name": "SwanSong",
+  "description": "OptiFine-compatible shader packs",
+  "authors": ["Ven", "FalsePattern"],
+  "license": "OSL-3.0",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.ventooth.swansong.ornithe.SwanSongOrnithe"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "1.8.9",
+    "java": ">=25"
+  }
+}
