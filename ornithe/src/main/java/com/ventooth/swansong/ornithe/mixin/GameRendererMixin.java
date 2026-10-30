@@ -193,7 +193,6 @@ public abstract class GameRendererMixin {
             var engine = SwanSongOrnithe.ENGINE;
             engine.graph()
                   .moveTo(Node.RenderLast);
-            engine.preRenderLast();
             engine.finishRenderFinal();
         }
     }

@@ -260,13 +260,12 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
     }
 
-    private void alphaAndDepthClear() {
+    private void alphaClear() {
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
-        GL11.glDepthMask(true);
         GL11.glColorMask(false, false, false, true);
         GL11.glClearColor(1F, 1F, 1F, 1F);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
         GL11.glPopAttrib();
     }
@@ -811,29 +810,8 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
      * <p>
      * This is closer to what vanilla does, but in turn this will cost us an additional 3 full-screen depth blits.
      */
-    private static final boolean COMBINED_DEPTH = false;
-
-    public void preRenderLast() {
-        if (COMBINED_DEPTH) {
-            DebugMarker.GENERIC.insert("PRE_SAVE_DEPTH_0");
-            blitDepth(buffers.gDepthTex, buffers.depthTex0);
-            DebugMarker.GENERIC.insert("POST_SAVE_DEPTH_0");
-
-            DebugMarker.GENERIC.insert("PRE_LOAD_DEPTH_1");
-            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-            blitDepth(buffers.depthTex1, buffers.gDepthTex);
-            DebugMarker.GENERIC.insert("POST_LOAD_DEPTH_1");
-        }
-    }
-
     public void finishRenderFinal() {
         state.updateRenderStage(MCRenderStage.NONE);
-
-        if (COMBINED_DEPTH) {
-            DebugMarker.GENERIC.insert("PRE_COMBINE_DEPTH");
-            blitDepth(buffers.depthTex0, buffers.gDepthTex, true);
-            DebugMarker.GENERIC.insert("POST_COMBINE_DEPTH");
-        }
 
         captureLastDepth();
         // Composite first
@@ -842,10 +820,26 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         host.bindMainFramebuffer(true);
         // This will either blit, or like the shader figures it out
         renderFinal();
-        // Unbind whatever shader is bound.
+        alphaClear();
+        loadSceneDepth();
         use(null);
-        // We dont want translucency, or depth.. bleh...
-        alphaAndDepthClear();
+    }
+
+    private void loadSceneDepth() {
+        assert fixed != null : "Not Initialized";
+
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glBindSampler(CompositeTextureData.blitsrc.gpuIndex());
+        }
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
+        use(fixed.manager.blit_depth_mismatched);
+        buffers.gDepthTex.bind();
+        compositeMesh.drawWithDepth(false);
+        if (blitSrcSampler != null) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
+        }
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        host.invalidateTextureBindings();
     }
 
     // TODO: [CUSTOM_TEX] Bind the custom textures if applicable

@@ -132,12 +132,10 @@ public abstract class EntityRendererMixin {
                    require = 1)
     private void hook_RenderLastAndEndRenderWorld(RenderGlobal rg, float subTick, Operation<Void> original) {
         if (ArchaicShaderEngine.isInitialized()) {
-            ArchaicShaderEngine.get().preRenderLast();
-            original.call(rg, subTick);
             ArchaicShaderEngine.get().finishRenderFinal();
-        } else {
-            original.call(rg, subTick);
+            ArchaicShaderEngine.get().graph().moveTo(Node.Unmanaged);
         }
+        original.call(rg, subTick);
     }
 
     @WrapWithCondition(method = "setupFog(IF)V",
@@ -315,7 +313,7 @@ public abstract class EntityRendererMixin {
             at = @At(value = "RETURN"),
             require = 1)
     private void unmanaged(float partialTicks, long finishTimeNano, CallbackInfo ci) {
-        if (ArchaicShaderEngine.isInitialized()) {
+        if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
             ArchaicShaderEngine.get().graph().moveTo(Node.Unmanaged);
         }
     }
