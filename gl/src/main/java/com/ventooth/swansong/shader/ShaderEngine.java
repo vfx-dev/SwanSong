@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.gl.LwjglCompat;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.debug.DebugMarker;
@@ -298,7 +299,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             }
             tempMat4.perspective(fov, aspect, near, far);
             tempMat4.get(tempDoubleBuffer);
-            GL11.glLoadMatrix(tempDoubleBuffer);
+            LwjglCompat.glLoadMatrix(tempDoubleBuffer);
         }
 
         GL11.glMatrixMode(GL11.GL_MODELVIEW);

@@ -11,16 +11,12 @@
 package com.ventooth.swansong.gl;
 
 import lombok.val;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import java.nio.IntBuffer;
 
 // TODO: Better docs...
 public class GLProgram {
-    private static final IntBuffer TEMP = BufferUtils.createIntBuffer(2);
-
     public int glName;
 
     public void glCreateProgram() {
@@ -58,21 +54,7 @@ public class GLProgram {
      * Uhh, the name of the active uniform?
      */
     public String glGetActiveUniform(int index, int maxLength) {
-        return GL20.glGetActiveUniform(glName, index, maxLength, TEMP);
-    }
-
-    /**
-     * The type of the uniform, so you know what to expect
-     */
-    public int glGetActiveUniformType(int index) {
-        return GL20.glGetActiveUniformType(glName, index);
-    }
-
-    /**
-     * What size (array-wise) is this uniform? 99% of the time? this will say 1 (ONE)
-     */
-    public int glGetActiveUniformSize(int index) {
-        return GL20.glGetActiveUniformSize(glName, index);
+        return LwjglCompat.glGetActiveUniform(glName, index, maxLength);
     }
 
     /**

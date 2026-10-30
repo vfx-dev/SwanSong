@@ -17,7 +17,7 @@ import com.falsepattern.lib.util.FileUtil;
 import com.ventooth.swansong.Tags;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.DebugConfig;
-import com.ventooth.swansong.gl.ShaderHax;
+import com.ventooth.swansong.gl.LwjglCompat;
 import com.ventooth.swansong.shader.Report;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -74,7 +74,7 @@ public final class PlatformHooks {
     }
 
     private static void ensureJnaAvailable() {
-        if (ShaderHax.isLwjgl3()) {
+        if (LwjglCompat.isLwjgl3()) {
             return;
         }
         DependencyLoader.addMavenRepo("https://repo1.maven.org/maven2/");

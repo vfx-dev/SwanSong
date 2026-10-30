@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.gl.LwjglCompat;
 import com.ventooth.swansong.util.MathUtils;
 import com.ventooth.swansong.shader.loader.ShaderLoaderOutParams;
 import com.ventooth.swansong.shader.uniform.GeneralUniforms;
@@ -564,7 +565,7 @@ public abstract class ShaderState {
                 tempMat4d.setPerspective(Math.toRadians(fov), 1, near, far);
                 tempDoubleBuf.clear();
                 tempMat4d.get(tempDoubleBuf);
-                GL11.glLoadMatrix(tempDoubleBuf);
+                LwjglCompat.glLoadMatrix(tempDoubleBuf);
             }
         }
 
@@ -590,12 +591,12 @@ public abstract class ShaderState {
         tempDoubleBuf.clear();
 
         // Yoink Projection Matrix
-        GL11.glGetDouble(GL11.GL_PROJECTION_MATRIX, tempDoubleBuf);
+        LwjglCompat.glGetDouble(GL11.GL_PROJECTION_MATRIX, tempDoubleBuf);
         shadowProjectionMat.set(tempDoubleBuf)
                            .invert(shadowProjectionMatInv);
 
         // Yoink Model View Matrix
-        GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
+        LwjglCompat.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
         shadowModelViewMat.set(tempDoubleBuf)
                           .invert(shadowModelViewMatInv);
 
@@ -608,7 +609,7 @@ public abstract class ShaderState {
 
     public void postCelestialRotate() {
         tempDoubleBuf.clear();
-        GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
+        LwjglCompat.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
         tempMat4d.set(tempDoubleBuf);
 
         sunPosition.set(sunPosModelView.mul(tempMat4d, tempVec4d));
@@ -637,12 +638,12 @@ public abstract class ShaderState {
         tempDoubleBuf.clear();
 
         // Yoink Projection Matrix
-        GL11.glGetDouble(GL11.GL_PROJECTION_MATRIX, tempDoubleBuf);
+        LwjglCompat.glGetDouble(GL11.GL_PROJECTION_MATRIX, tempDoubleBuf);
         projectionMat.set(tempDoubleBuf)
                      .invert(projectionMatInv);
 
         // Yoink Model View Matrix
-        GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
+        LwjglCompat.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
         modelViewMat.set(tempDoubleBuf)
                     .invert(modelViewMatInv);
 
@@ -665,7 +666,7 @@ public abstract class ShaderState {
     }
 
     public void setUpPosition() {
-        GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
+        LwjglCompat.glGetDouble(GL11.GL_MODELVIEW_MATRIX, tempDoubleBuf);
         tempMat4d.set(tempDoubleBuf);
         upPos.set(upPosModelView.mul(tempMat4d, tempVec4d));
         updateUniforms();

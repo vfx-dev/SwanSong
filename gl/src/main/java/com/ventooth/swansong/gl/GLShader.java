@@ -34,7 +34,7 @@ public class GLShader {
      * MUST BE NULL TERMINATED
      */
     public void glShaderSource(ByteBuffer string) {
-        ShaderHax.glShaderSource(glName, string);
+        LwjglCompat.glShaderSource(glName, string);
     }
 
     public void glCompileShader() {
