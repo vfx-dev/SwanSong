@@ -17,10 +17,11 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import lombok.val;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
@@ -28,9 +29,6 @@ import net.minecraft.entity.EntityLivingBase;
 
 @Mixin(RendererLivingEntity.class)
 public abstract class RendererLivingEntityMixin {
-    @Shadow
-    protected abstract int getColorMultiplier(EntityLivingBase entity, float brightness, float subTick);
-
     @WrapOperation(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
                    at = @At(value = "INVOKE",
                             target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;shouldRenderPass(Lnet/minecraft/entity/EntityLivingBase;IF)I"),
@@ -45,38 +43,47 @@ public abstract class RendererLivingEntityMixin {
         return original.call(thiz, entity, pass, subTick);
     }
 
-    // TODO: Mob damage kinda works, but looks horribly wrong. Try hitting a skeleton to see what I mean.
+    @WrapOperation(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
+                   at = @At(value = "INVOKE",
+                            target = "Lorg/lwjgl/opengl/GL11;glColor4f(FFFF)V",
+                            remap = false),
+                   slice = @Slice(from = @At(value = "INVOKE",
+                                             target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
+                   require = 1)
+    private void state_UpdateEntityColor(float r, float g, float b, float a, Operation<Void> original) {
+        if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().state().updateEntityColor(r, g, b, a);
+        }
+        original.call(r, g, b, a);
+    }
+
+    @WrapOperation(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
+                   at = @At(value = "INVOKE",
+                            target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;inheritRenderPass(Lnet/minecraft/entity/EntityLivingBase;IF)I"),
+                   require = 1)
+    private int fix_OverlayPassBlend(RendererLivingEntity thiz,
+                                     EntityLivingBase entity,
+                                     int pass,
+                                     float subTick,
+                                     Operation<Integer> original) {
+        val result = original.call(thiz, entity, pass, subTick);
+        if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        }
+        return result;
+    }
+
     @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
             at = @At(value = "INVOKE",
-                     target = "Lorg/lwjgl/opengl/GL11;glPushMatrix()V",
+                     target = "Lorg/lwjgl/opengl/GL11;glDepthFunc(I)V",
+                     ordinal = 1,
                      remap = false),
+            slice = @Slice(from = @At(value = "INVOKE",
+                                      target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
             require = 1)
-    private void state_UpdateEntityColor(EntityLivingBase entity,
-                                         double posX,
-                                         double posY,
-                                         double posZ,
-                                         float yaw,
-                                         float subTick,
-                                         CallbackInfo ci) {
-        if (ArchaicShaderEngine.get().graph().isManaged()) {
-            val brightness = entity.getBrightness(subTick);
-            val color = this.getColorMultiplier(entity, brightness, subTick);
-
-            if (entity.hurtTime > 0 || entity.deathTime > 0) {
-                // If the entity is hurt, apply red tint
-                ArchaicShaderEngine.get().state().updateEntityColor(brightness, 0F, 0F, 0.4F);
-            } else if ((color >> 24 & 0xFF) > 0) {
-                val a = (float) (color >> 24 & 0xFF) / 255F;
-                val r = (float) (color >> 16 & 0xFF) / 255F;
-                val g = (float) (color >> 8 & 0xFF) / 255F;
-                val b = (float) (color & 0xFF) / 255F;
-
-                // If the entity color alpha is more than zero, apply that instead
-                ArchaicShaderEngine.get().state().updateEntityColor(r, g, b, 1F - a);
-            } else {
-                // Otherwise ensure the color is reset (entity color is additive)
-                ArchaicShaderEngine.get().state().resetEntityColor();
-            }
+    private void state_ResetEntityColor(CallbackInfo ci) {
+        if (ArchaicShaderEngine.isInitialized()) {
+            ArchaicShaderEngine.get().state().resetEntityColor();
         }
     }
 

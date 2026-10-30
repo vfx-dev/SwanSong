@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -24,7 +23,6 @@ import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Slice;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RendererLivingEntity;
@@ -71,26 +69,5 @@ public abstract class RendererLivingEntityMixin_CustomPlayerModels {
         } else {
             original.call(modelBase, entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, renderer, callLoc);
         }
-    }
-
-    @Dynamic(DYNAMIC_COMMENT)
-    @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
-                       at = @At(value = "INVOKE",
-                                target = CPM_ASM_HOOK_METHOD,
-                                remap = false),
-                       slice = @Slice(from = @At(value = "INVOKE",
-                                                 target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
-                       require = 1)
-    private boolean skip_VanillaMobHurtRender(ModelBase instance,
-                                              Entity entity,
-                                              float limbSwing,
-                                              float limbSwingAmount,
-                                              float ageInTicks,
-                                              float netHeadYaw,
-                                              float headPitch,
-                                              float scale,
-                                              RendererLivingEntity renderer,
-                                              int callLoc) {
-        return !ArchaicShaderEngine.isInitialized();
     }
 }
