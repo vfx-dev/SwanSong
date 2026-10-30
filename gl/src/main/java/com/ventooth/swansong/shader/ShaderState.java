@@ -363,17 +363,13 @@ public abstract class ShaderState {
         return 0.05;
     }
 
-    public double farPlane() {
-        return 0;
-    }
+    public abstract double farPlane();
 
     public boolean isGuiHidden() {
         return false;
     }
 
-    public double screenBrightness() {
-        return 0;
-    }
+    public abstract double screenBrightness();
 
     public double frameTimeCounter() {
         return frameTimeCounter;
@@ -729,29 +725,17 @@ public abstract class ShaderState {
         return -1;
     }
 
-    public double cameraX() {
-        return 0;
-    }
+    public abstract double cameraX();
 
-    public double cameraY() {
-        return 0;
-    }
+    public abstract double cameraY();
 
-    public double cameraZ() {
-        return 0;
-    }
+    public abstract double cameraZ();
 
-    public double celestialAngle() {
-        return 0;
-    }
+    public abstract double celestialAngle();
 
-    public int displayWidth() {
-        return 0;
-    }
+    public abstract int displayWidth();
 
-    public int displayHeight() {
-        return 0;
-    }
+    public abstract int displayHeight();
 
     public WorldSample sampleWorld() {
         return WorldSample.EMPTY;

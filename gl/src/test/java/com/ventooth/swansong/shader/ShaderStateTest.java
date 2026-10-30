@@ -24,8 +24,43 @@ class ShaderStateTest {
     void customUniformsCallPlatformOverrides() {
         var state = new ShaderState() {
             @Override
+            public double cameraX() {
+                return 0;
+            }
+
+            @Override
+            public double cameraY() {
+                return 0;
+            }
+
+            @Override
+            public double cameraZ() {
+                return 0;
+            }
+
+            @Override
+            public double celestialAngle() {
+                return 0;
+            }
+
+            @Override
             public double farPlane() {
                 return 128;
+            }
+
+            @Override
+            public double screenBrightness() {
+                return 0;
+            }
+
+            @Override
+            public int displayWidth() {
+                return 0;
+            }
+
+            @Override
+            public int displayHeight() {
+                return 0;
             }
         };
         var codegen = new UniformCodegen();
