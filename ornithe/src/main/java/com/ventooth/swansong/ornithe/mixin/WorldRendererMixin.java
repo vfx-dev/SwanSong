@@ -11,10 +11,12 @@ package com.ventooth.swansong.ornithe.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.ventooth.swansong.ornithe.OrnitheRender;
 import com.ventooth.swansong.ornithe.OrnitheSkyBox;
 import com.ventooth.swansong.ornithe.SwanSongOrnithe;
 import com.ventooth.swansong.shader.MCRenderStage;
 import com.ventooth.swansong.shader.StateGraph.Node;
+import com.ventooth.swansong.shader.StateGraph.Stack;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
@@ -194,5 +196,38 @@ public abstract class WorldRendererMixin {
                                                        blockEntity.getBlockMetadata()));
         }
         original.call(instance, blockEntity, tickDelta, destroyProgress);
+    }
+
+    @Inject(method = {"renderOutlineShape(Lnet/minecraft/util/math/Box;)V",
+                      "renderOutlineShape(Lnet/minecraft/util/math/Box;IIII)V"},
+            at = @At("HEAD"),
+            cancellable = true,
+            require = 2)
+    private static void swansong$pushOutline(CallbackInfo ci) {
+        if (OrnitheRender.isManaged()) {
+            if (OrnitheRender.isShadowPass()) {
+                ci.cancel();
+                return;
+            }
+            OrnitheRender.push(Stack.AABBOutline);
+        }
+    }
+
+    @Inject(method = {"renderOutlineShape(Lnet/minecraft/util/math/Box;)V",
+                      "renderOutlineShape(Lnet/minecraft/util/math/Box;IIII)V"},
+            at = @At("RETURN"),
+            require = 2)
+    private static void swansong$popOutline(CallbackInfo ci) {
+        OrnitheRender.pop(Stack.AABBOutline);
+    }
+
+    @Inject(method = "renderBlockOutline",
+            at = @At(value = "INVOKE",
+                     target = "Lnet/minecraft/client/render/world/WorldRenderer;renderOutlineShape(Lnet/minecraft/util/math/Box;)V"))
+    private void swansong$blockOutlineState(CallbackInfo ci) {
+        if (swansong$active()) {
+            OrnitheRender.bindWhiteTexture();
+            OrnitheRender.fullBrightLightmap();
+        }
     }
 }
