@@ -7,24 +7,25 @@
  * 3.0. The full text of this license can be found in https://opensource.org/licenses/OSL-3.0
  * or in the LICENSES directory which is distributed along with the software.
  */
-
 package com.ventooth.swansong.ornithe;
 
 import com.ventooth.swansong.Share;
-import com.ventooth.swansong.shader.ShaderTypes;
-import com.ventooth.swansong.uniforms.Type;
-import com.ventooth.swansong.uniforms.UniformDef;
-import com.ventooth.swansong.uniforms.compiler.UniformCodegen;
-import net.fabricmc.api.ClientModInitializer;
-
-import java.util.List;
+import net.ornithemc.osl.entrypoints.api.client.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.ornithemc.osl.config.api.ConfigManager;
+import net.ornithemc.osl.lifecycle.api.client.MinecraftClientEvents;
 
 public final class SwanSongOrnithe implements ClientModInitializer {
+    public static final SwanSongConfig CONFIG = new SwanSongConfig();
+    public static final OrnitheShaderPackManager SHADER_PACKS =
+            new OrnitheShaderPackManager(FabricLoader.getInstance().getGameDir(), CONFIG);
+
     @Override
-    public void onInitializeClient() {
-        var uniforms = new UniformCodegen().generate(List.of(new UniformDef("smoke", Type.Float, "1.0 + 1.0", true)));
-        Share.log.info("SwanSong engine loaded: {} programs, uniform codegen errors: {}",
-                       ShaderTypes.general.size(),
-                       uniforms.errors);
+    public void initClient() {
+        ConfigManager.register(CONFIG);
+        MinecraftClientEvents.READY.register(minecraft -> {
+            SHADER_PACKS.init(CONFIG.currentShaderPack.get());
+            Share.log.info("Found shader packs: {}", SHADER_PACKS.getShaderPackNames());
+        });
     }
 }
