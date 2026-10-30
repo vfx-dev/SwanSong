@@ -1,0 +1,6 @@
+classTweaker v2 named
+accessible method net/minecraft/client/render/GameRenderer getFov (FZ)F
+accessible method net/minecraft/client/render/GameRenderer applyHurtCam (F)V
+accessible method net/minecraft/client/render/GameRenderer applyViewBobbing (F)V
+accessible method net/minecraft/client/render/GameRenderer getNightVisionScale (Lnet/minecraft/entity/living/LivingEntity;F)F
+accessible field net/minecraft/client/render/GameRenderer renderDistance F

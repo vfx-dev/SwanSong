@@ -23,6 +23,8 @@ configurations.configureEach {
 }
 
 loom {
+    accessWidenerPath = file("src/main/resources/swansong.classtweaker")
+
     runs.named("client") {
         jvmArguments.add("-XstartOnFirstThread")
         jvmArguments.addAll("--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow")

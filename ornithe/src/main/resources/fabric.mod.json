@@ -10,6 +10,7 @@
   "entrypoints": {
     "client-init": ["com.ventooth.swansong.ornithe.SwanSongOrnithe"]
   },
+  "accessWidener": "swansong.classtweaker",
   "depends": {
     "fabricloader": ">=0.19.5",
     "minecraft": "1.8.9",

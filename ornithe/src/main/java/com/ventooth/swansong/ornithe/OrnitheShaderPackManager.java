@@ -38,5 +38,6 @@ public final class OrnitheShaderPackManager extends ShaderPackManager {
     protected void onSettingsChanged() {
         config.currentShaderPack.set(getCurrentShaderPackName());
         ConfigManager.save(config);
+        SwanSongOrnithe.ENGINE.scheduleShaderPackReload();
     }
 }
