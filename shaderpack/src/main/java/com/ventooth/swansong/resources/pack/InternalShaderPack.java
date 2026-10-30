@@ -21,29 +21,30 @@ import java.io.InputStream;
 
 
 public final class InternalShaderPack extends ShaderPack {
-    public static final String NAME = "(internal)";
-    public static final InternalShaderPack INSTANCE = new InternalShaderPack();
+    public static final InternalShaderPack INSTANCE = new InternalShaderPack("(internal)");
+    public static final InternalShaderPack REFERENCE = new InternalShaderPack("(default)");
 
-    private InternalShaderPack() {
-        super(NAME);
+    private InternalShaderPack(String name) {
+        super(name);
     }
 
     @Override
     public @NotNull InputStream get(String path) throws IOException {
         path = fixPath(path);
         Share.log.trace("Reading shader from fallback path: {}", path);
-        val entry = ModJarContainer.getEntry(path);
-        if (entry == null) {
+        val is = InternalShaderPack.class.getClassLoader()
+                                         .getResourceAsStream(path);
+        if (is == null) {
             throw new FileNotFoundException("path=" + path);
         }
-        val is = ModJarContainer.getInputStream(entry);
         Share.log.trace("Yeah, the InputStream does exist for: {}", path);
         return is;
     }
 
     @Override
     public boolean has(String path) {
-        return ModJarContainer.getEntry(fixPath(path)) != null;
+        return InternalShaderPack.class.getClassLoader()
+                                       .getResource(fixPath(path)) != null;
     }
 
     private static String fixPath(String path) {

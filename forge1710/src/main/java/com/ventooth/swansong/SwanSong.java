@@ -18,7 +18,6 @@ import com.ventooth.swansong.platform.DebugCommandClient;
 import com.ventooth.swansong.platform.DebugCommandServer;
 import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.platform.ThreadedScreenshot;
-import com.ventooth.swansong.resources.pack.ModJarContainer;
 import com.ventooth.swansong.zoom.FunkyZoom;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -77,7 +76,6 @@ public final class SwanSong {
     public static final class ClientProxy implements Proxy {
         @Override
         public void preInit(FMLPreInitializationEvent event) {
-            ModJarContainer.init();
             EnvInfo.init(GLEnvProbe.probe("1.7.10", Tags.MOD_VERSION));
 
             if (EnvInfo.isMacOS()) {

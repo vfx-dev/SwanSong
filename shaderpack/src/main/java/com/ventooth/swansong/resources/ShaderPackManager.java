@@ -11,6 +11,7 @@
 package com.ventooth.swansong.resources;
 
 import com.ventooth.swansong.Share;
+import com.ventooth.swansong.resources.pack.InternalShaderPack;
 import com.ventooth.swansong.resources.pack.ResolvedShaderPack;
 import com.ventooth.swansong.resources.pack.ResolvedShaderPack.WorldSpecializationPredicate;
 import com.ventooth.swansong.resources.pack.ShaderPack;
@@ -59,7 +60,7 @@ public class ShaderPackManager {
     }
 
     public @Nullable ShaderPack referencePack() {
-        return null;
+        return InternalShaderPack.REFERENCE;
     }
 
     protected boolean referencePackEnabled() {

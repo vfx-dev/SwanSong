@@ -24,11 +24,6 @@ public final class McShaderPackManager extends ShaderPackManager {
     }
 
     @Override
-    public ShaderPack referencePack() {
-        return DefaultShaderPack.INSTANCE;
-    }
-
-    @Override
     protected boolean referencePackEnabled() {
         return ShadersConfig.enableReferenceShaderPack;
     }
