@@ -12,6 +12,7 @@ package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.shader.ShaderEntityData;
+import lombok.val;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -42,9 +43,7 @@ public abstract class MixinRenderBlocks {
             require = 1)
     private void state_pushEntityBlock(Block block, int posX, int posY, int posZ, CallbackInfoReturnable<Boolean> cir) {
         if (ArchaicShaderEngine.isInitialized()) {
-            swansong$entityData.pushEntityBlock(Block.getIdFromBlock(block),
-                                               block.getRenderType(),
-                                               blockAccess.getBlockMetadata(posX, posY, posZ));
+            swansong$pushEntityBlock(block, blockAccess.getBlockMetadata(posX, posY, posZ));
         }
     }
 
@@ -66,9 +65,7 @@ public abstract class MixinRenderBlocks {
                                                  int posZ,
                                                  CallbackInfoReturnable<Boolean> cir) {
         if (ArchaicShaderEngine.isInitialized()) {
-            swansong$entityData.pushEntityBlock(Block.getIdFromBlock(block),
-                                               block.getRenderType(),
-                                               blockAccess.getBlockMetadata(posX, posY, posZ));
+            swansong$pushEntityBlock(block, blockAccess.getBlockMetadata(posX, posY, posZ));
         }
     }
 
@@ -87,7 +84,7 @@ public abstract class MixinRenderBlocks {
               require = 1)
     private int state_pushEntityBlockFlowerpot1(Block block) {
         if (ArchaicShaderEngine.isInitialized()) {
-            swansong$entityData.pushEntityBlock(Block.getIdFromBlock(block), block.getRenderType(), 0);
+            swansong$pushEntityBlock(block, 0);
         }
         return block.getRenderType();
     }
@@ -189,4 +186,11 @@ public abstract class MixinRenderBlocks {
         return ArchaicShaderEngine.isInitialized() ? ArchaicShaderEngine.get().state().blockLightLevel(constant) : constant;
     }
     // endregion
+
+    @Unique
+    private void swansong$pushEntityBlock(Block block, int meta) {
+        val blockId = ArchaicShaderEngine.get()
+                                         .remapBlockID(Block.getIdFromBlock(block), meta);
+        swansong$entityData.pushEntityBlock(blockId, block.getRenderType(), meta);
+    }
 }

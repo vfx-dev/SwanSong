@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.platform;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
 import lombok.val;
 
 import net.minecraft.command.CommandBase;

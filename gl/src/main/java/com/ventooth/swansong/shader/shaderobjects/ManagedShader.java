@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
+import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.gl.GLProgram;
 import com.ventooth.swansong.shader.ShaderId;
@@ -71,8 +72,9 @@ public abstract class ManagedShader {
         this.renderTargets = tempRenderTargets;
     }
 
-    public void init() {
+    public void init(GeneralUniforms general) {
         program.glUseProgram();
+        val relevantUniforms = relevantUniforms(general);
 
         val uniforms = new Int2ObjectArrayMap<Uniform<?>>();
 
@@ -101,7 +103,6 @@ public abstract class ManagedShader {
                 found:
                 {
                     // TODO: Needs a hashmap lookup
-                    val relevantUniforms = relevantUniforms();
                     for (val relevantUniform : relevantUniforms) {
                         if (relevantUniform.name().equals(uniformName)) {
                             uniforms.put(index, relevantUniform);
@@ -195,5 +196,5 @@ public abstract class ManagedShader {
         }
     }
 
-    protected abstract List<Uniform<?>> relevantUniforms();
+    protected abstract List<Uniform<?>> relevantUniforms(GeneralUniforms general);
 }

@@ -10,128 +10,1107 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.EnvInfo;
+import com.ventooth.swansong.Share;
+import com.ventooth.swansong.debug.DebugMarker;
+import com.ventooth.swansong.debug.GLDebugGroups;
+import com.ventooth.swansong.debug.GLSimpleDebug;
+import com.ventooth.swansong.gl.GLSampler;
 import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.shader.StateGraph.Node;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.loader.config.PackLocalizer;
+import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
+import com.ventooth.swansong.shader.shaderobjects.GBufferShader;
+import com.ventooth.swansong.shader.shaderobjects.ManagedShader;
+import com.ventooth.swansong.shader.shaderobjects.ShadowShader;
+import com.ventooth.swansong.shader.texbuf.CompositePipeline;
+import com.ventooth.swansong.sufrace.CustomTexture2D;
+import com.ventooth.swansong.sufrace.Framebuffer;
+import com.ventooth.swansong.sufrace.HFNoiseTexture2D;
 import com.ventooth.swansong.sufrace.Texture2D;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.AbstractObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import lombok.val;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4d;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
+import java.nio.DoubleBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
-// TODO: Migrate stuff from 'OldShaderEngine' here
-// TODO: Add delegate methods for stuff like `.graph().isManaged()` etc
+// [ShaderType] -> Had a resource location, and can create a Managed Program
+// Provided defaults are: composite-style and gbuffers-style
+
+// [ManagedShader] -> Is created by a ShaderType, generally contains references to the OpenGL handles.
+// Also manages the uniforms and framebuffer attachments relevant to itself.
+
+// [GLShader/GLProgram] -> Containers for OpenGL handles
+// Loose, open, no magic or implicit behaviour, simple wrappers on top of the opengl functions
+
 public abstract class ShaderEngine<STATE extends ShaderState> {
-    public ShaderEngine(STATE state) {
+    public static final boolean DO_GRAPH_LOG = false;
+    public static final Logger log = Share.getLogger();
+
+    final ShaderEntityData shaderData = ShaderEntityData.get();
+
+    private final Matrix4d tempMat4 = new Matrix4d();
+    private final DoubleBuffer tempDoubleBuffer = BufferUtils.createDoubleBuffer(16);
+
+    @Nullable FixedEngineState fixed;
+
+    protected final STATE state;
+    protected final HostRenderer host;
+    protected final ShadowPassRenderer shadowPass;
+
+    /// runtime varying state
+
+    // TODO: [CUSTOM_TEX] Do we want to keep it loose like this?
+    private Map<CompositeTextureData, Texture2D> gbuffersCustomTex = Collections.emptyMap();
+    private Map<CompositeTextureData, Texture2D> compositeCustomTex = Collections.emptyMap();
+    private Map<CompositeTextureData, Texture2D> deferredCustomTex = Collections.emptyMap();
+
+    // TODO: [CUSTOM_TEX] Do we bundle this with the custom textures?
+    private Texture2D noiseTex;
+
+    private DrawBuffers buffers;
+
+    private @Nullable CompositePipeline deferredPipeline;
+    private @Nullable CompositePipeline compositePipeline;
+    private @Nullable CompositePipeline finalPipeline;
+    private Framebuffer mcFramebuffer;
+    private Texture2D mcTexture;
+    private @Nullable GLSampler blitSrcSampler;
+
+    private final AbstractObjectList<ManagedShader> shaderStack = new ObjectArrayList<>();
+
+    /**
+     * Currently only valid for Lifecycle events, prefer use of {@link ShaderEngine#isInitializedImpl}
+     */
+    private boolean shaderPackLoaded = false;
+
+    private boolean needsFramebufferResize;
+    private boolean needsShaderPackReload;
+
+    private boolean useShaderLocked = false;
+    private int shaderSwitches = 0;
+    private int prevFrameShaderSwitches = 0;
+    private final List<Node> graphLog = new ArrayList<>();
+
+    private final StateGraph graph = new StateGraph(this);
+
+    protected ShaderEngine(STATE state, HostRenderer host, ShadowPassRenderer shadowPass) {
         this.state = state;
-        if (OldShaderEngine.shaderState == null) {
-            OldShaderEngine.shaderState = state;
-        }
-    }
-
-    protected STATE state;
-
-    protected boolean isInitializedImpl() {
-        return OldShaderEngine.isInitialized();
-    }
-
-    public void firstInit() {
-        OldShaderEngine.firstInit();
-    }
-
-    public ShaderPackManager shaderPacks() {
-        return OldShaderEngine.host.shaderPacks();
-    }
-
-    public StateGraph graph() {
-        return OldShaderEngine.graph;
+        this.host = host;
+        this.shadowPass = shadowPass;
     }
 
     public STATE state() {
         return state;
     }
 
-    public void beginRenderAllPre() {
-        OldShaderEngine.beginRenderAllPre();
+    public HostRenderer host() {
+        return host;
     }
 
-    public void beginRenderAll() {
-        OldShaderEngine.beginRenderAll();
+    public StateGraph graph() {
+        return graph;
     }
 
-    public void endRenderAll() {
-        OldShaderEngine.endRenderAll();
-    }
-
-    public void scheduleShaderPackReload() {
-        OldShaderEngine.scheduleShaderPackReload();
-    }
-
-    public void scheduleFramebufferResize() {
-        OldShaderEngine.scheduleFramebufferResize();
-    }
-
-    public void runDeferredPipeline() {
-        OldShaderEngine.runDeferredPipeline();
-    }
-
-    public void beginRenderWorld() {
-        OldShaderEngine.beginRenderWorld();
-    }
-
-    public void preRenderLast() {
-        OldShaderEngine.preRenderLast();
-    }
-
-    public void finishRenderFinal() {
-        OldShaderEngine.finishRenderFinal();
-    }
-
-    public boolean shadowPassExists() {
-        return OldShaderEngine.shadowPassExists();
-    }
-
-    public boolean doGraphLog() {
-        return OldShaderEngine.DO_GRAPH_LOG;
-    }
-
-    public List<StateGraph.Node> graphLog() {
-        return OldShaderEngine.graphLog;
-    }
-
-    public int prevFrameShaderSwitches() {
-        return OldShaderEngine.prevFrameShaderSwitches;
-    }
-
-    public void unlockShader() {
-        OldShaderEngine.unlockShader();
-    }
-
-    public void lockShader() {
-        OldShaderEngine.lockShader();
-    }
-
-    public void blitDepth(Texture2D srcTex, Texture2D dstTex) {
-        OldShaderEngine.blitDepth(srcTex, dstTex);
-    }
-
-    public void genMipmap(@Nullable Texture2D tex) {
-        OldShaderEngine.genMipmap(tex);
+    public ShaderPackManager shaderPacks() {
+        return host.shaderPacks();
     }
 
     public Logger log() {
-        return OldShaderEngine.log;
+        return log;
     }
 
-    public int remapBlockID(int blockID, int meta) {
-        return OldShaderEngine.remapBlockID(blockID, meta);
+    public boolean doGraphLog() {
+        return DO_GRAPH_LOG;
+    }
+
+    public List<Node> graphLog() {
+        return graphLog;
+    }
+
+    public int prevFrameShaderSwitches() {
+        return prevFrameShaderSwitches;
     }
 
     public PackLocalizer locale() {
-        return OldShaderEngine.locale();
+        return fixed == null ? null : fixed.locale;
     }
 
     public ConfigEntry.RootScreen configScreen() {
-        return OldShaderEngine.configScreen();
+        return fixed == null ? null : fixed.configScreen;
+    }
+
+    public boolean isInitializedImpl() {
+        return fixed != null;
+    }
+
+    public boolean shadowPassExists() {
+        if (fixed == null) {
+            return false;
+        } else {
+            return fixed.shadow != null;
+        }
+    }
+
+    void renderHand() {
+        sampleCenterDepth();
+        DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_2");
+        blitDepth(buffers.gDepthTex, buffers.depthTex2);
+        DebugMarker.GENERIC.insert("POST_COPY_DEPTH_2");
+
+        if (!state.isHeldItemTranslucent()) {
+            if (host.isHandVisible()) {
+                renderHand(false);
+            }
+        }
+
+        DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_0");
+        blitDepth(buffers.gDepthTex, buffers.depthTex0);
+        DebugMarker.GENERIC.insert("POST_COPY_DEPTH_0");
+
+        DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_1");
+        blitDepth(buffers.gDepthTex, buffers.depthTex1);
+        DebugMarker.GENERIC.insert("POST_COPY_DEPTH_1");
+    }
+
+    private void sampleCenterDepth() {
+        assert fixed != null : "Not Initialized";
+
+        if (fixed.depthSampler != null) {
+            buffers.tempDepth.bindRead();
+
+            // TODO: .attachToFramebufferDepth() only attaches directly to a FB, here we use the READ binding ONLY!
+            GL30.glFramebufferTexture2D(GL30.GL_READ_FRAMEBUFFER,
+                                        GL30.GL_DEPTH_ATTACHMENT,
+                                        GL11.GL_TEXTURE_2D,
+                                        buffers.gDepthTex.glName(),
+                                        0);
+
+            val viewSize = state.viewSize();
+            val centerX = viewSize.x() / 2;
+            val centerY = viewSize.y() / 2;
+            fixed.depthSampler.scheduleSample(centerX, centerY);
+
+            GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+        }
+    }
+
+    public void beginRenderAllPre() {
+        if (isInitializedImpl()) {
+            return;
+        }
+        if (!needsShaderPackReload) {
+            return;
+        }
+        doShaderPackReload();
+    }
+
+    public void beginRenderAll() {
+        needsFramebufferResize = state.updateViewSize(host.renderQuality());
+        if (needsShaderPackReload) {
+            if (!doShaderPackReload()) {
+                return;
+            }
+        } else if (needsFramebufferResize) {
+            doFramebufferResize();
+        }
+        needsShaderPackReload = false;
+        needsFramebufferResize = false;
+
+        assert fixed != null : "Not Initialized";
+        prevFrameShaderSwitches = shaderSwitches;
+        if (DO_GRAPH_LOG) {
+            graphLog.clear();
+            graphLog.addAll(graph.graphLog);
+            graph.graphLog.clear();
+        }
+        shaderSwitches = 0;
+
+        clearColorBufs();
+        use(null);
+        mcFramebuffer.bind();
+    }
+
+    public void endRenderAll() {
+
+    }
+
+    private void alphaAndDepthClear() {
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+
+        GL11.glDepthMask(true);
+        GL11.glColorMask(false, false, false, true);
+        GL11.glClearColor(1F, 1F, 1F, 1F);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+        GL11.glPopAttrib();
+    }
+
+    private void renderHand(boolean isTranslucent) {
+        assert fixed != null : "Not Initialized";
+
+        val partialTick = state.getSubTick();
+        val anaglyph = host.anaglyphOffset();
+        val anaglyphField = host.anaglyphField();
+
+        // Some weird state is leaked somewhere in the pipeline, and this ensures we're working with the base value
+        host.resetLightmapCoords();
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPushMatrix();
+
+        val handDepth = host.handDepth();
+
+        {
+            val fov = Math.toRadians(host.fieldOfView(partialTick));
+            val aspect = state.aspectRatio();
+            val near = 0.05;
+            val far = host.farPlaneDistance() * 2;
+            tempDoubleBuffer.clear();
+            tempMat4.scaling(1, 1, handDepth);
+            if (anaglyph != 0) {
+                tempMat4.translate((float) (-(anaglyphField * 2 - 1) * 0.07f * anaglyph), 0, 0);
+            }
+            tempMat4.perspective(fov, aspect, near, far);
+            tempMat4.get(tempDoubleBuffer);
+            GL11.glLoadMatrix(tempDoubleBuffer);
+        }
+
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+
+        if (anaglyph != 0) {
+            GL11.glTranslatef((float) ((anaglyphField * 2 - 1) * 0.1f * anaglyph), 0, 0);
+        }
+
+        host.applyCameraEffects(partialTick);
+
+        val lastShader = fixed.manager.current();
+
+        if (isTranslucent) {
+            state.updateRenderStage(MCRenderStage.HAND_TRANSLUCENT);
+            use(fixed.manager.hand_water);
+        } else {
+            state.updateRenderStage(MCRenderStage.HAND_SOLID);
+            use(fixed.manager.hand);
+        }
+
+        GL11.glDepthMask(true);
+
+        host.renderFirstPersonItem(partialTick);
+
+        use(lastShader);
+
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPopMatrix();
+
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPopMatrix();
+
+        GL11.glPopAttrib();
+
+        state.updateRenderStage(MCRenderStage.NONE);
+    }
+
+    private void captureLastDepth() {
+        if (state.isHeldItemTranslucent()) {
+            if (host.isHandVisible()) {
+                renderHand(true);
+            }
+        }
+
+        DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_0");
+
+        blitDepth(buffers.gDepthTex, buffers.depthTex0);
+
+        DebugMarker.GENERIC.insert("POST_COPY_DEPTH_0");
+    }
+
+    private void renderComposite() {
+        assert fixed != null : "Not Initialized";
+        if (compositePipeline != null) {
+            GLDebugGroups.RENDER_COMPOSITE.push();
+            compositePipeline.run();
+            GLDebugGroups.RENDER_COMPOSITE.pop();
+        }
+    }
+
+    private void renderFinal() {
+        assert fixed != null : "Not Initialized";
+        val anaglyph = host.anaglyphOffset();
+
+        if (finalPipeline != null) {
+            // Actual shader pass doing it
+            finalPipeline.run();
+        } else {
+            // Our poor blit...
+
+            val src = buffers.gColor.get(CompositeTextureData.colortex0);
+            val dst = mcTexture;
+
+            if (Texture2D.sizeEquals(src, dst)) {
+                use(fixed.manager.blit_color_identical);
+            } else {
+                use(fixed.manager.blit_color_mismatched);
+            }
+            // I'm paranoid.
+            host.bindMainFramebuffer(false);
+
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
+            src.bind();
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+            if (anaglyph != 0) {
+                ShadersCompositeMesh.drawWithAnaglyphField(host.anaglyphField());
+            } else {
+                ShadersCompositeMesh.drawWithColor();
+            }
+            if (DebugMarker.isEnabled()) {
+                DebugMarker.TEXTURE_COLOR_BLIT.insertFormat("{0} -> {1}", src.name(), mcTexture.name());
+            }
+        }
+    }
+
+    /**
+     * Called once during initialization
+     */
+    public void firstInit() {
+        if (fixed != null) {
+            throw new IllegalStateException("First init called twice!");
+        }
+
+        log.info("Initializing for the very first time...");
+        try {
+            state.updateViewSize(host.renderQuality());
+            doShaderPackReload();
+        } catch (RuntimeException | Error e) {
+            log.fatal("Failed to initialize: ", e);
+            throw e;
+        }
+        log.info("Successful Init");
+    }
+
+    /**
+     * Called to reload the shader
+     */
+    public void scheduleShaderPackReload() {
+        log.debug("Scheduled ShaderPack Reload");
+        needsShaderPackReload = true;
+    }
+
+    /**
+     * Called any time the window resizes
+     */
+    public void scheduleFramebufferResize() {
+        assert fixed != null : "Not Initialized";
+        log.debug("Scheduled Framebuffer Resize");
+        needsFramebufferResize = true;
+    }
+
+    private boolean doShaderPackReload() {
+        host.onLifecycle(HostRenderer.Lifecycle.RELOAD_SCHEDULED);
+
+        deinit();
+        if (ShaderPackManager.DISABLED_SHADER_PACK_NAME.equals(host.shaderPacks()
+                                                                .getCurrentShaderPackName())) {
+            // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
+            reloadMinecraftRenderersSafe();
+            needsShaderPackReload = false;
+            return false;
+        }
+        val report = new Report();
+        try {
+            init(report);
+
+            val viewSize = state.viewSize();
+            val width = viewSize.x();
+            val height = viewSize.y();
+            resizeFramebuffers(width, height, report);
+
+            needsShaderPackReload = false;
+            needsFramebufferResize = false;
+
+            report.endTime = System.nanoTime();
+            report.print();
+            host.reportToChat(report);
+            return true;
+        } catch (RuntimeException e) {
+            report.endTime = System.nanoTime();
+            report.print();
+            host.reportToChat(report);
+            log.error("Caught internal error while loading shaderpack!");
+            log.error("Please report this as a bug:", e);
+            deinit();
+            host.shaderPacks()
+                .setShaderPackByName(ShaderPackManager.DISABLED_SHADER_PACK_NAME);
+            reloadMinecraftRenderersSafe();
+            needsShaderPackReload = false;
+            return false;
+        }
+    }
+
+    private void doFramebufferResize() {
+        val viewSize = state.viewSize();
+        val width = viewSize.x();
+        val height = viewSize.y();
+        resizeFramebuffers(width, height, null);
+        needsFramebufferResize = false;
+    }
+
+    private void init(Report report) {
+        GLSimpleDebug.flushError();
+
+        report.startTime = System.nanoTime();
+        fixed = FixedEngineState.init(this, host.currentDimension(), report);
+        use(null);
+
+        ShadersCompositeMesh.init();
+
+        gbuffersCustomTex = new EnumMap<>(CompositeTextureData.class);
+        compositeCustomTex = new EnumMap<>(CompositeTextureData.class);
+        deferredCustomTex = new EnumMap<>(CompositeTextureData.class);
+
+        if (!fixed.textures.isEmpty()) {
+            for (val stagedTex : fixed.textures) {
+                val index = BufferNameUtil.gbufferIndexFromName(stagedTex.bufferName());
+                if (index == null) {
+                    Share.log.error("Unknown buffer index for custom texture: {}", stagedTex);
+                    continue;
+                }
+
+                val stagedCustomTexMap = switch (stagedTex.stage()) {
+                    case "gbuffers" -> gbuffersCustomTex;
+                    case "composite" -> compositeCustomTex;
+                    case "deferred" -> deferredCustomTex;
+                    default -> null;
+                };
+                if (stagedCustomTexMap == null) {
+                    Share.log.error("Unknown stage for custom texture: {}", stagedTex);
+                    continue;
+                }
+
+                if (stagedCustomTexMap.containsKey(index)) {
+                    Share.log.error("Duplicate custom texture {} ignored", stagedTex);
+                    continue;
+                }
+
+                val path = "/shaders/" + stagedTex.path();
+                val customTex = CustomTexture2D.load(fixed.pack, path);
+                if (customTex == null) {
+                    Share.log.error("Missing custom texture {}, on exact path: {}", stagedTex, path);
+                    continue;
+                }
+
+                stagedCustomTexMap.put(index, customTex);
+                Share.log.debug("Loaded Custom Texture: {}", stagedTex);
+                // TODO: Make format look like: deferred.colortex3<TAB>lib/textures/cloud-water.png<TAB>RGBA<TAB>256x256
+                report.customTextures.put(stagedTex.path(),
+                                          new Report.TextureInfo(customTex.width(),
+                                                                 customTex.height(),
+                                                                 BufferNameUtil.gbufferFormatNameFromEnum(customTex.internalFormat())));
+            }
+        }
+
+        if (gbuffersCustomTex.isEmpty()) {
+            gbuffersCustomTex = Collections.emptyMap();
+        } else {
+            gbuffersCustomTex = Collections.unmodifiableMap(gbuffersCustomTex);
+        }
+        if (compositeCustomTex.isEmpty()) {
+            compositeCustomTex = Collections.emptyMap();
+        } else {
+            compositeCustomTex = Collections.unmodifiableMap(compositeCustomTex);
+        }
+        if (deferredCustomTex.isEmpty()) {
+            deferredCustomTex = Collections.emptyMap();
+        } else {
+            deferredCustomTex = Collections.unmodifiableMap(deferredCustomTex);
+        }
+
+        if (fixed.noiseTexPath != null) {
+            val path = "/shaders/" + fixed.noiseTexPath;
+            noiseTex = CustomTexture2D.load(fixed.pack, path);
+            if (noiseTex == null) {
+                Share.log.warn("Missing noise texture: {}", path);
+                val size = fixed.noiseTexSize == null ? 256 : fixed.noiseTexSize;
+                noiseTex = HFNoiseTexture2D.create(size, size);
+            } else {
+                // TODO: Make format look like: noise<TAB>lib/textures/noise.png<TAB>RGBA<TAB>128x128
+                report.customTextures.put(fixed.noiseTexPath,
+                                          new Report.TextureInfo(noiseTex.width(),
+                                                                 noiseTex.height(),
+                                                                 BufferNameUtil.gbufferFormatNameFromEnum(noiseTex.internalFormat())));
+            }
+        } else if (fixed.noiseTexSize != null) {
+            noiseTex = HFNoiseTexture2D.create(fixed.noiseTexSize, fixed.noiseTexSize);
+            // TODO: Make format look like: noise<TAB>(builtin)<TAB>RGBA<TAB>128x128
+            report.customTextures.put("noise",
+                                      new Report.TextureInfo(noiseTex.width(),
+                                                             noiseTex.height(),
+                                                             BufferNameUtil.gbufferFormatNameFromEnum(noiseTex.internalFormat())));
+        }
+
+        if (fixed.compiledUniforms != null) {
+            fixed.compiledUniforms.reset();
+        }
+
+        // Resets the vanilla renderers, important as the baked geometry may have invalid blockids
+        reloadMinecraftRenderersSafe();
+
+        if (EnvInfo.isMacOS()) {
+            blitSrcSampler = null;
+        } else {
+            // This whole thing was a workaround for Nvidia screaming over the debug port
+            // TL;DR the blit source is sometimes the shadow texture with hardware filtering enabled
+            // Which technically breaks the spec, so the sampler gets overridden here
+            blitSrcSampler = new GLSampler();
+            blitSrcSampler.glGenSamplers();
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+            blitSrcSampler.glSamplerParameter(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+        }
+
+        if (!shaderPackLoaded) {
+            shaderPackLoaded = true;
+            host.onLifecycle(HostRenderer.Lifecycle.LOADED);
+        }
+
+        GLSimpleDebug.checkError();
+    }
+
+    private void deinit() {
+        if (graph.isManaged()) {
+            throw new IllegalStateException("Cannot deinit renderer while in managed mode!");
+        }
+
+        shaderData.reset();
+        for (val tex : gbuffersCustomTex.values()) {
+            tex.deinit();
+        }
+        gbuffersCustomTex = Collections.emptyMap();
+        for (val tex : compositeCustomTex.values()) {
+            tex.deinit();
+        }
+        compositeCustomTex = Collections.emptyMap();
+        for (val tex : deferredCustomTex.values()) {
+            tex.deinit();
+        }
+        deferredCustomTex = Collections.emptyMap();
+
+        if (noiseTex != null) {
+            noiseTex.deinit();
+            noiseTex = null;
+        }
+        deinitFramebuffers();
+        ShadersCompositeMesh.deinit();
+        shaderStack.clear();
+        if (fixed != null) {
+            fixed.deinit(host);
+            fixed = null;
+        }
+
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glDeleteSampler();
+            blitSrcSampler = null;
+        }
+
+        if (shaderPackLoaded) {
+            shaderPackLoaded = false;
+            host.onLifecycle(HostRenderer.Lifecycle.UNLOADED);
+        }
+    }
+
+    public void runDeferredPipeline() {
+        if (deferredPipeline != null) {
+            GLDebugGroups.RENDER_DEFERRED.push();
+            deferredPipeline.run();
+            GLDebugGroups.RENDER_DEFERRED.pop();
+        }
+    }
+
+    private void resizeFramebuffers(int width, int height, @Nullable Report report) {
+        assert fixed != null : "Not Initialized";
+
+        if (buffers == null) {
+            initFramebuffers(width, height, report);
+            return;
+        }
+        buffers.resize(width, height);
+
+        if (deferredPipeline != null) {
+            deferredPipeline.resize(width, height);
+        }
+        if (compositePipeline != null) {
+            compositePipeline.resize(width, height);
+        }
+        if (finalPipeline != null) {
+            finalPipeline.resize(width, height);
+        }
+
+        if (!DrawBuffers.isMinecraftUpToDate(host, mcFramebuffer, mcTexture)) {
+            mcFramebuffer = DrawBuffers.wrapMinecraft(host);
+            mcTexture = DrawBuffers.wrapMinecraftTexture(host);
+            if (fixed.manager._final != null) {
+                fixed.manager._final.framebuffer = mcFramebuffer;
+            }
+        }
+
+        log.debug("Resized Framebuffer: {}x{}", width, height);
+    }
+
+    private void initFramebuffers(int width, int height, @Nullable Report report) {
+        assert fixed != null : "Not Initialized";
+
+        deinitFramebuffers();
+
+        val fbBuilder = DrawBuffers.builder();
+        fbBuilder.colorDrawBufferConfigs(fixed.colorDrawBufferConfigs);
+        if (shadowPassExists()) {
+            fbBuilder.shadow(fixed.shadow);
+        }
+        fbBuilder.width(width)
+                 .height(height);
+        buffers = fbBuilder.build();
+
+        buffers.attachTo(fixed.manager.gBufferList);
+
+        if (fixed.manager.deferredList != null) {
+            deferredPipeline = CompositePipeline.buildPipeline(this,
+                                                               "deferred",
+                                                               "DA_",
+                                                               fixed.colorDrawBufferConfigs,
+                                                               deferredCustomTex,
+                                                               buffers,
+                                                               fixed.manager.deferredList,
+                                                               width,
+                                                               height,
+                                                               report);
+        }
+        if (fixed.manager.compositeList != null) {
+            compositePipeline = CompositePipeline.buildPipeline(this,
+                                                                "composite",
+                                                                "CA_",
+                                                                fixed.colorDrawBufferConfigs,
+                                                                compositeCustomTex,
+                                                                buffers,
+                                                                fixed.manager.compositeList,
+                                                                width,
+                                                                height,
+                                                                report);
+        }
+
+        mcTexture = DrawBuffers.wrapMinecraftTexture(host);
+        mcFramebuffer = DrawBuffers.wrapMinecraft(host);
+
+        if (fixed.manager._final != null) {
+            fixed.manager._final.framebuffer = mcFramebuffer;
+            finalPipeline = CompositePipeline.buildPipelineFinal(this,
+                                                                 buffers,
+                                                                 ObjectLists.singleton(fixed.manager._final),
+                                                                 compositeCustomTex,
+                                                                 report);
+        }
+
+        log.debug("Initialized Framebuffers");
+    }
+
+    private void deinitFramebuffers() {
+        if (buffers != null) {
+            buffers.deinit();
+            buffers = null;
+        }
+        if (deferredPipeline != null) {
+            deferredPipeline.deinit();
+            deferredPipeline = null;
+        }
+        if (compositePipeline != null) {
+            compositePipeline.deinit();
+            compositePipeline = null;
+        }
+        if (finalPipeline != null) {
+            finalPipeline.deinit();
+            finalPipeline = null;
+        }
+
+        mcFramebuffer = null;
+        if (fixed != null) {
+            DrawBuffers.detach(fixed.manager.gBufferList);
+            if (fixed.manager._final != null) {
+                fixed.manager._final.framebuffer = null;
+            }
+        }
+
+        log.debug("Deinitialized Framebuffers");
+    }
+
+    public void beginRenderWorld() {
+        assert fixed != null : "Not Initialized";
+
+        graph.moveTo(Node.BeginFrame);
+        clearColorBufs();
+
+        if (fixed.depthSampler != null) {
+            state.updateCenterDepth(fixed.depthSampler.getSample());
+        } else {
+            state.updateCenterDepth(1F); // TODO: This assumes that far depth is 1.0
+        }
+
+        state.updatePreRenderWorld();
+
+        if (fixed.compiledUniforms != null) {
+            fixed.compiledUniforms.update();
+        }
+
+        if (noiseTex != null) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.noisetex.gpuIndex());
+            noiseTex.bind();
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        }
+
+        state.updateCelestialAngle();
+
+        if (fixed.shadow != null) {
+            shadowPass.renderShadowPass(fixed.shadow, buffers);
+        }
+    }
+
+    /**
+     * Experimental feature that might either be just left in, or put behind a toggle depending on perf overhead.
+     * <p>
+     * What we're doing is handing whatever will render in the RenderWorldLastEvent depth that excludes translucent geometry.
+     * <p>
+     * This is closer to what vanilla does, but in turn this will cost us an additional 3 full-screen depth blits.
+     */
+    private static final boolean COMBINED_DEPTH = false;
+
+    public void preRenderLast() {
+        if (COMBINED_DEPTH) {
+            DebugMarker.GENERIC.insert("PRE_SAVE_DEPTH_0");
+            blitDepth(buffers.gDepthTex, buffers.depthTex0);
+            DebugMarker.GENERIC.insert("POST_SAVE_DEPTH_0");
+
+            DebugMarker.GENERIC.insert("PRE_LOAD_DEPTH_1");
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+            blitDepth(buffers.depthTex1, buffers.gDepthTex);
+            DebugMarker.GENERIC.insert("POST_LOAD_DEPTH_1");
+        }
+    }
+
+    public void finishRenderFinal() {
+        state.updateRenderStage(MCRenderStage.NONE);
+
+        if (COMBINED_DEPTH) {
+            DebugMarker.GENERIC.insert("PRE_COMBINE_DEPTH");
+            blitDepth(buffers.depthTex0, buffers.gDepthTex, true);
+            DebugMarker.GENERIC.insert("POST_COMBINE_DEPTH");
+        }
+
+        captureLastDepth();
+        // Composite first
+        renderComposite();
+        // Both binds the framebuffer AND sets the viewport!
+        host.bindMainFramebuffer(true);
+        // This will either blit, or like the shader figures it out
+        renderFinal();
+        // Unbind whatever shader is bound.
+        use(null);
+        // We dont want translucency, or depth.. bleh...
+        alphaAndDepthClear();
+    }
+
+    // TODO: [CUSTOM_TEX] Bind the custom textures if applicable
+    public void bindCompositeTextures(Map<CompositeTextureData, Texture2D> textures) {
+        for (val entry: textures.entrySet()) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + entry.getKey().gpuIndex());
+            entry.getValue().bind();
+        }
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.depthtex0.gpuIndex());
+        buffers.depthTex0.bind();
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.depthtex1.gpuIndex());
+        buffers.depthTex1.bind();
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.depthtex2.gpuIndex());
+        buffers.depthTex2.bind();
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+    }
+
+    public void genMipmaps(ObjectList<Texture2D> mipInputs) {
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+            for (val mipInput : mipInputs) {
+                mipInput.bind();
+                GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+                DebugMarker.TEXTURE_MIP_GEN.insert(mipInput.name());
+            }
+        }
+        GL11.glPopAttrib();
+    }
+
+    public void genMipmap(@Nullable Texture2D tex) {
+        if (tex == null) {
+            return;
+        }
+
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        tex.bind();
+        GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+
+        GL11.glPopAttrib();
+
+    }
+
+    public void blitColors(Int2ObjectMap<Texture2D> src, Int2ObjectMap<Texture2D> dst) {
+        if (fixed == null) {
+            Share.log.warn("Tried to blit colors with no state");
+            return;
+        }
+        val count = src.size();
+        if (count != dst.size()) {
+            throw new AssertionError();
+        }
+
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glBindSampler(CompositeTextureData.blitsrc.gpuIndex());
+        }
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
+
+        val lastShader = fixed.manager.current();
+
+        var sizeEq = true;
+        for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
+            val i = srcEntry.getIntKey();
+            val srcTex = srcEntry.getValue();
+            val dstTex = dst.get(i);
+            if (!Texture2D.sizeEquals(srcTex, dstTex)) {
+                sizeEq = false;
+                break;
+            }
+        }
+
+        if (sizeEq) {
+            use(fixed.manager.blit_color_identical);
+        } else {
+            use(fixed.manager.blit_color_mismatched);
+        }
+        buffers.tempColor.bind();
+
+        for (val srcEntry : Int2ObjectMaps.fastIterable(src)) {
+            val index = srcEntry.getIntKey();
+
+            // Bind Source Texture
+            val srcTex = srcEntry.getValue();
+            srcTex.bind();
+
+            // Bind Destination Texture
+            val dstTex = dst.get(index);
+            if (dstTex == null) {
+                throw new AssertionError();
+            }
+            dstTex.attachToFramebufferColor(GL30.GL_COLOR_ATTACHMENT0);
+
+            // Draw using the regular composite
+            ShadersCompositeMesh.drawWithColor();
+
+            if (DebugMarker.isEnabled()) {
+                DebugMarker.TEXTURE_COLOR_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());
+            }
+        }
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+
+        if (blitSrcSampler != null) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
+        }
+
+        use(lastShader);
+    }
+
+    public void blitDepth(Texture2D srcTex, Texture2D dstTex) {
+        blitDepth(srcTex, dstTex, false);
+    }
+
+    public void blitDepth(Texture2D srcTex, Texture2D dstTex, boolean combine) {
+        if (fixed == null) {
+            Share.log.warn("Tried to blit depth with no state");
+            return;
+        }
+
+        if (blitSrcSampler != null) {
+            blitSrcSampler.glBindSampler(CompositeTextureData.blitsrc.gpuIndex());
+        }
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
+
+        val lastShader = fixed.manager.current();
+        if (Texture2D.sizeEquals(srcTex, dstTex)) {
+            use(fixed.manager.blit_depth_identical);
+        } else {
+            use(fixed.manager.blit_depth_mismatched);
+        }
+
+        buffers.tempDepth.bind();
+
+        // Bind Source Texture
+        srcTex.bind();
+
+        // Bind Destination Texture
+        dstTex.attachToFramebufferDepth();
+
+        if (!combine) {
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        }
+
+        // Draw using the regular composite (with depth only)
+        ShadersCompositeMesh.drawWithDepth(combine);
+
+        if (DebugMarker.isEnabled()) {
+            DebugMarker.TEXTURE_DEPTH_BLIT.insertFormat("{0} -> {1}", srcTex.name(), dstTex.name());
+        }
+
+        if (blitSrcSampler != null) {
+            GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
+        }
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        use(lastShader);
+    }
+
+    public void clearColorBufs() {
+        buffers.tempDepth.bind();
+
+        buffers.gDepthTex.attachToFramebufferDepth();
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        buffers.depthTex0.attachToFramebufferDepth();
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        buffers.depthTex1.attachToFramebufferDepth();
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        buffers.depthTex2.attachToFramebufferDepth();
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+
+        buffers.tempColor.bind();
+        buffers.gColor.clear(state.fogColor());
+    }
+
+    private void reloadMinecraftRenderersSafe() {
+        try {
+            host.reloadChunkRenderers();
+        } catch (Throwable t) {
+            log.error("Caught exception while reloading minecraft renderers!", t);
+        }
+    }
+
+    public int remapBlockID(int blockID, int meta) {
+        //Thread safety
+        val _state = fixed;
+        if (_state != null && _state.remapper != null) {
+            return _state.remapper.remap(blockID, meta);
+        } else {
+            return blockID;
+        }
+    }
+
+    public void useCompositeShader(CompositeShader shader) {
+        use(shader);
+    }
+
+    void pushShader() {
+        shaderStack.push(fixed.manager.current());
+    }
+
+    void popShader() {
+        if (shaderStack.isEmpty()) {
+            throw new IllegalStateException("Tried to pop empty shader stack");
+        }
+        fixed.manager.use(shaderStack.pop());
+    }
+
+    public void lockShader() {
+        useShaderLocked = true;
+    }
+
+    public void unlockShader() {
+        useShaderLocked = false;
+    }
+
+    void use(@Nullable ManagedShader shader) {
+        if (useShaderLocked) {
+            throw new IllegalStateException("Tried to switch shaders while locked!");
+        }
+        if (fixed == null) {
+            Share.log.warn("Tried to bind shader with no state!");
+            return;
+        }
+        if (!fixed.manager.use(shader)) {
+            return;
+        }
+        shaderSwitches++;
+        if (shader != null) {
+            boolean resetTexture = false;
+            val isGBuffer = shader instanceof GBufferShader;
+            val isShadow = shader instanceof ShadowShader;
+            if (isGBuffer) {
+                if (buffers.shadowColorTex0 != null) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowcolor0.gpuIndex());
+                    resetTexture = true;
+                    buffers.shadowColorTex0.bind();
+                }
+                if (buffers.shadowColorTex1 != null) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowcolor1.gpuIndex());
+                    resetTexture = true;
+                    buffers.shadowColorTex1.bind();
+                }
+                if (buffers.shadowDepthTex0 != null) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowtex0.gpuIndex());
+                    resetTexture = true;
+                    buffers.shadowDepthTex0.bind();
+                }
+                if (buffers.shadowDepthTex1 != null) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.shadowtex1.gpuIndex());
+                    resetTexture = true;
+                    buffers.shadowDepthTex1.bind();
+                }
+            }
+            if (isGBuffer || isShadow) {
+                for (val entry: gbuffersCustomTex.entrySet()) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + entry.getKey().gpuIndex());
+                    resetTexture = true;
+                    entry.getValue().bind();
+                }
+            }
+            if (resetTexture) {
+                GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            }
+        }
     }
 }

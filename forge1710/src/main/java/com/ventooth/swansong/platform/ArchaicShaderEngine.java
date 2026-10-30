@@ -20,7 +20,7 @@ import net.minecraft.client.Minecraft;
 
 public class ArchaicShaderEngine extends ShaderEngine<ArchaicShaderState> {
     public ArchaicShaderEngine() {
-        super(new ArchaicShaderState());
+        super(new ArchaicShaderState(), new McHostRenderer(), new McShadowPassRenderer());
     }
 
     /// TODO: Currently we have a 'middle' state where the engine may be either null or not-initialized.

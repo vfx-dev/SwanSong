@@ -72,50 +72,52 @@ class FixedEngineState {
     public final ConfigEntry.RootScreen configScreen;
     public final PackLocalizer locale;
 
-    private static ShaderLoader createLoader(ShaderPack pack, @Nullable DimensionInfo dimension) {
-        val loader = new ShaderLoader(pack, OldShaderEngine.host.shaderPacks(), dimension);
+    private static ShaderLoader createLoader(ShaderEngine<?> engine, ShaderPack pack, @Nullable DimensionInfo dimension) {
+        val loader = new ShaderLoader(pack, engine.host().shaderPacks(), dimension);
         loader.inExpectedShaders = ShaderTypes.general;
         loader.inParams = ShaderLoaderInParams.builder()
-                                              .handDepth(OldShaderEngine.host.handDepth())
-                                              .renderQuality(OldShaderEngine.host.renderQuality())
-                                              .shadowQuality(OldShaderEngine.host.shadowQuality())
+                                              .handDepth(engine.host().handDepth())
+                                              .renderQuality(engine.host().renderQuality())
+                                              .shadowQuality(engine.host().shadowQuality())
                                               .build();
-        loader.inShaderConfig = OldShaderEngine.host.shaderPacks()
+        loader.inShaderConfig = engine.host().shaderPacks()
                                                     .readShaderPackConfig();
         loader.inEnvInfo = EnvInfo.get();
         return loader;
     }
 
-    public static @Nullable FixedEngineState init(@Nullable DimensionInfo dimension, @Nullable Report report) {
+    public static @Nullable FixedEngineState init(ShaderEngine<?> engine,
+                                                  @Nullable DimensionInfo dimension,
+                                                  @Nullable Report report) {
         val b = builder();
         b.dimension = dimension;
         try {
-            OldShaderEngine.host.shaderPacks()
+            engine.host().shaderPacks()
                                 .cleanDebugDir();
         } catch (IOException ignored) {
         }
 
-        val pack = OldShaderEngine.host.shaderPacks()
+        val pack = engine.host().shaderPacks()
                                        .createShaderPack();
         if (pack == null) {
             return null;
         }
         b.pack = pack;
-        b.remapper = BlockIDRemapper.createRemapper(pack, OldShaderEngine.host::findBlockId);
+        b.remapper = BlockIDRemapper.createRemapper(pack, engine.host()::findBlockId);
 
         if (report != null) {
             report.name = pack.name();
         }
 
-        val mainLoader = createLoader(pack, dimension);
+        val mainLoader = createLoader(engine, pack, dimension);
 
         val loaders = new ArrayList<ShaderLoader>();
-        val referencePack = OldShaderEngine.host.shaderPacks()
+        val referencePack = engine.host().shaderPacks()
                                                 .referencePack();
         if (referencePack != null && pack != referencePack) {
-            loaders.add(createLoader(referencePack, dimension));
+            loaders.add(createLoader(engine, referencePack, dimension));
         }
-        loaders.add(createLoader(InternalShaderPack.INSTANCE, dimension));
+        loaders.add(createLoader(engine, InternalShaderPack.INSTANCE, dimension));
 
         mainLoader.load(report);
 
@@ -125,10 +127,10 @@ class FixedEngineState {
         val shaderVars = mainLoader.outShaderVars;
         b.compiledUniforms = shaderVars == null
                              ? null
-                             : CompiledUniforms.createCompiledUniforms(OldShaderEngine.shaderState.uniforms()
+                             : CompiledUniforms.createCompiledUniforms(engine.state().uniforms()
                                                                                                   .funcLookup(),
                                                                    shaderVars,
-                                                                   OldShaderEngine.host.uniformDumpDir());
+                                                                   engine.host().uniformDumpDir());
 
         if (b.compiledUniforms != null) {
             UniformGetterDanglingWires.customUniforms = b.compiledUniforms.wrapUniforms();
@@ -147,10 +149,10 @@ class FixedEngineState {
         b.noiseTexPath = outParams.noiseTexture;
         b.noiseTexSize = outParams.noiseTextureResolution;
 
-        OldShaderEngine.host.onEngineInit();
+        engine.host().onEngineInit();
 
         // TODO: Check if the shader actually needs center depth before populating, this call is not free.
-        if (OldShaderEngine.host.allowDepthOfField()) {
+        if (engine.host().allowDepthOfField()) {
             b.depthSampler = new DepthSampler();
             b.depthSampler.init();
         }
@@ -163,12 +165,16 @@ class FixedEngineState {
         try (val shaderPool = new MultiShaderPool(ShaderCompiler.compile(mainLoader,
                                                                         DanglingWiresTess.attribs,
                                                                         report), fallbackPools, report)) {
-            b.manager = ShaderBinding.init(shaderPool, dimension);
+            b.manager = ShaderBinding.init(shaderPool,
+                                           dimension,
+                                           engine.shaderPacks(),
+                                           engine.state()
+                                                 .uniforms());
 
             if (b.manager.shadow != null) {
-                b.shadow = ShadowProperties.from(outParams, (float) OldShaderEngine.host.shadowQuality());
+                b.shadow = ShadowProperties.from(outParams, (float) engine.host().shadowQuality());
             }
-            OldShaderEngine.shaderState.applyParams(outParams);
+            engine.state().applyParams(outParams);
         } catch (ShaderException e) {
             throw new AssertionError(e);
         }
@@ -252,12 +258,12 @@ class FixedEngineState {
         return b.build();
     }
 
-    public void deinit() {
+    public void deinit(HostRenderer host) {
         if (depthSampler != null) {
             depthSampler.deinit();
         }
 
-        OldShaderEngine.host.onEngineDeinit();
+        host.onEngineDeinit();
         manager.deinit();
     }
 }

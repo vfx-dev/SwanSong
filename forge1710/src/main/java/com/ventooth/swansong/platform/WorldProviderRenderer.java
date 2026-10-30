@@ -29,7 +29,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.client.IRenderHandler;
 
-import static com.ventooth.swansong.shader.OldShaderEngine.graph;
 import static com.ventooth.swansong.platform.SkyBoxRenderer.preSkyList;
 
 public final class WorldProviderRenderer {
@@ -52,7 +51,9 @@ public final class WorldProviderRenderer {
             RenderHelper.disableStandardItemLighting();
             GL11.glDepthMask(false);
 
-            graph.moveTo(Node.RenderSkyTextured);
+            ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyTextured);
             mc.renderEngine.bindTexture(RenderGlobal.locationEndSkyPng);
             Tessellator tessellator = Tessellator.instance;
 
@@ -94,7 +95,9 @@ public final class WorldProviderRenderer {
             GL11.glEnable(GL11.GL_ALPHA_TEST);
         } else if (world.provider.isSurfaceWorld()) {
             GL11.glDisable(GL11.GL_TEXTURE_2D);
-            graph.moveTo(Node.RenderSkyBasic);
+            ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyBasic);
             Vec3 vec3 = world.getSkyColor(mc.renderViewEntity, partialTickTime);
             float f1 = (float) vec3.xCoord;
             float f2 = (float) vec3.yCoord;
@@ -131,7 +134,9 @@ public final class WorldProviderRenderer {
 
             if (afloat != null) {
                 GL11.glDisable(GL11.GL_TEXTURE_2D);
-                graph.moveTo(Node.RenderSkyBasic);
+                ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyBasic);
                 GL11.glShadeModel(GL11.GL_SMOOTH);
                 GL11.glPushMatrix();
                 GL11.glRotatef(90.0F, 1.0F, 0.0F, 0.0F);
@@ -173,7 +178,9 @@ public final class WorldProviderRenderer {
             }
 
             GL11.glEnable(GL11.GL_TEXTURE_2D);
-            graph.moveTo(Node.RenderSkyTextured);
+            ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyTextured);
             OpenGlHelper.glBlendFunc(770, 1, 1, 0);
             GL11.glPushMatrix();
             f6 = 1.0F - world.getRainStrength(partialTickTime);
@@ -212,7 +219,9 @@ public final class WorldProviderRenderer {
             tess.addVertexWithUV(-f10, -100.0D, -f10, f16, f15);
             tess.draw();
             GL11.glDisable(GL11.GL_TEXTURE_2D);
-            graph.moveTo(Node.RenderSkyBasic);
+            ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyBasic);
             float f18 = world.getStarBrightness(partialTickTime) * f6;
 
             if (f18 > 0.0F) {
@@ -227,7 +236,9 @@ public final class WorldProviderRenderer {
             GL11.glEnable(GL11.GL_FOG);
             GL11.glPopMatrix();
             GL11.glDisable(GL11.GL_TEXTURE_2D);
-            graph.moveTo(Node.RenderSkyBasic);
+            ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyBasic);
             GL11.glColor3f(0.0F, 0.0F, 0.0F);
             double d0 = mc.thePlayer.getPosition(partialTickTime).yCoord - world.getHorizon();
 
@@ -275,7 +286,9 @@ public final class WorldProviderRenderer {
             GL11.glCallList(mc.renderGlobal.glSkyList2);
             GL11.glPopMatrix();
             GL11.glEnable(GL11.GL_TEXTURE_2D);
-            graph.moveTo(Node.RenderSkyTextured);
+            ArchaicShaderEngine.get()
+                               .graph()
+                               .moveTo(Node.RenderSkyTextured);
             GL11.glDepthMask(true);
         }
     }

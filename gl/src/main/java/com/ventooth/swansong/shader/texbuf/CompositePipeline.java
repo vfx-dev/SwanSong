@@ -16,7 +16,7 @@ import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
 import com.ventooth.swansong.shader.DrawBuffers;
 import com.ventooth.swansong.shader.Report;
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.shader.ShaderEngine;
 import com.ventooth.swansong.shader.ShadersCompositeMesh;
 import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.sufrace.Framebuffer;
@@ -44,7 +44,8 @@ public class CompositePipeline implements Runnable {
     private final ObjectList<Runnable> steps;
     private final @Nullable ColorBuffers aux;
 
-    public static CompositePipeline buildPipelineFinal(@NotNull DrawBuffers buffers,
+    public static CompositePipeline buildPipelineFinal(ShaderEngine<?> engine,
+                                                       @NotNull DrawBuffers buffers,
                                                        @NotNull ObjectList<CompositeShader> shaders,
                                                        @NotNull Map<CompositeTextureData, Texture2D> customTextures,
                                                        @Nullable Report report) {
@@ -60,19 +61,20 @@ public class CompositePipeline implements Runnable {
             final var mipInputs = getMipInputs(shader, inputTex);
 
             if (!mipInputs.isEmpty()) {
-                steps.add(new MipmapStep(mipInputs));
+                steps.add(new MipmapStep(engine, mipInputs));
             }
 
             if (info != null) {
                 recordShaderIOInfo(shader, info, mipInputs, inputTex, null);
             }
 
-            steps.add(new FinalStep(Collections.unmodifiableMap(inputTex), shader));
+            steps.add(new FinalStep(engine, Collections.unmodifiableMap(inputTex), shader));
         }
         return new CompositePipeline(ObjectLists.unmodifiable(steps), null);
     }
 
-    public static CompositePipeline buildPipeline(String name,
+    public static CompositePipeline buildPipeline(ShaderEngine<?> engine,
+                                                  String name,
                                                   String auxPrefix,
                                                   @NotNull Map<CompositeTextureData, BufferConfig> gBufferConfigs,
                                                   @NotNull Map<CompositeTextureData, Texture2D> customTextures,
@@ -109,7 +111,7 @@ public class CompositePipeline implements Runnable {
             final var mipInputs = getMipInputs(shader, inputTex);
 
             if (!mipInputs.isEmpty()) {
-                steps.add(new MipmapStep(mipInputs));
+                steps.add(new MipmapStep(engine, mipInputs));
             }
 
             if (info != null) {
@@ -117,9 +119,9 @@ public class CompositePipeline implements Runnable {
             }
 
             shader.framebuffer = Framebuffer.create(name + i, Collections.unmodifiableMap(outputTex));
-            steps.add(new CompositeStep(Collections.unmodifiableMap(inputTex), shader));
+            steps.add(new CompositeStep(engine, Collections.unmodifiableMap(inputTex), shader));
         }
-        genAuxPostBlit(buffers, auxTex, info, aux, steps);
+        genAuxPostBlit(engine, buffers, auxTex, info, aux, steps);
         return new CompositePipeline(ObjectLists.unmodifiable(steps), aux);
     }
 
@@ -153,7 +155,8 @@ public class CompositePipeline implements Runnable {
                                       BufferNameUtil.gbufferFormatNameFromEnum(tex.internalFormat()));
     }
 
-    private static void genAuxPostBlit(@NotNull DrawBuffers buffers,
+    private static void genAuxPostBlit(ShaderEngine<?> engine,
+                                       @NotNull DrawBuffers buffers,
                                        BitSet auxTex,
                                        Report.CompositePipelineInfo info,
                                        ColorBuffers aux,
@@ -182,7 +185,7 @@ public class CompositePipeline implements Runnable {
             if (pb != null) {
                 info.postBlit = pb;
             }
-            steps.add(new BlitStep(Int2ObjectMaps.unmodifiable(src), Int2ObjectMaps.unmodifiable(dst)));
+            steps.add(new BlitStep(engine, Int2ObjectMaps.unmodifiable(src), Int2ObjectMaps.unmodifiable(dst)));
         }
     }
 
@@ -362,13 +365,14 @@ public class CompositePipeline implements Runnable {
 
     @RequiredArgsConstructor
     private static class CompositeStep implements Runnable {
+        private final ShaderEngine<?> engine;
         private final Map<CompositeTextureData, Texture2D> inputs;
         private final CompositeShader shader;
 
         @Override
         public void run() {
-            OldShaderEngine.useCompositeShader(shader);
-            OldShaderEngine.bindCompositeTextures(inputs);
+            engine.useCompositeShader(shader);
+            engine.bindCompositeTextures(inputs);
 
             GLDebugGroups.RENDER_COMPOSITE_DRAW.push();
             ShadersCompositeMesh.drawWithColor();
@@ -378,41 +382,44 @@ public class CompositePipeline implements Runnable {
 
     @RequiredArgsConstructor
     private static class MipmapStep implements Runnable {
+        private final ShaderEngine<?> engine;
         private final ObjectList<Texture2D> mipInputs;
 
         @Override
         public void run() {
             GLDebugGroups.push(GLDebugGroups.GEN_COMPOSITE_MIPS);
-            OldShaderEngine.genMipmaps(mipInputs);
+            engine.genMipmaps(mipInputs);
             GLDebugGroups.pop(GLDebugGroups.GEN_COMPOSITE_MIPS);
         }
     }
 
     @RequiredArgsConstructor
     private static class BlitStep implements Runnable {
+        private final ShaderEngine<?> engine;
         private final Int2ObjectMap<Texture2D> src;
         private final Int2ObjectMap<Texture2D> dst;
 
         @Override
         public void run() {
-            OldShaderEngine.blitColors(src, dst);
+            engine.blitColors(src, dst);
         }
     }
 
     @RequiredArgsConstructor
     private static class FinalStep implements Runnable {
+        private final ShaderEngine<?> engine;
         private final Map<CompositeTextureData, Texture2D> inputs;
         private final CompositeShader shader;
 
         @Override
         public void run() {
             GLDebugGroups.RENDER_COMPOSITE_FINAL.push();
-            OldShaderEngine.useCompositeShader(shader);
-            OldShaderEngine.bindCompositeTextures(inputs);
-            val anaglyph = OldShaderEngine.host.anaglyphOffset();
+            engine.useCompositeShader(shader);
+            engine.bindCompositeTextures(inputs);
+            val anaglyph = engine.host().anaglyphOffset();
             GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.push();
             if (anaglyph != 0) {
-                ShadersCompositeMesh.drawWithAnaglyphField(OldShaderEngine.host.anaglyphField());
+                ShadersCompositeMesh.drawWithAnaglyphField(engine.host().anaglyphField());
             } else {
                 ShadersCompositeMesh.drawWithColor();
             }

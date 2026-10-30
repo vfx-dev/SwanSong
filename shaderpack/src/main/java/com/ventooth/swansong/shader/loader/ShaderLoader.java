@@ -141,6 +141,10 @@ public class ShaderLoader {
         this.dimension = dimension;
     }
 
+    public ShaderPackManager packs() {
+        return packs;
+    }
+
     //Discards all dynamic state to conserve memory
     public void reset() {
         inExpectedShaders = null;

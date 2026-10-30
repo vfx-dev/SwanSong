@@ -10,6 +10,8 @@
 
 package com.ventooth.swansong.shader;
 
+import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
@@ -76,8 +78,12 @@ public class ShaderBinding {
     public final @Nullable ObjectList<CompositeShader> compositeList;
     public final @Nullable CompositeShader _final;
 
-    public static ShaderBinding init(IShaderPool shaderPool, @Nullable DimensionInfo dimension) throws ShaderException {
+    public static ShaderBinding init(IShaderPool shaderPool,
+                                     @Nullable DimensionInfo dimension,
+                                     ShaderPackManager packs,
+                                     GeneralUniforms uniforms) throws ShaderException {
         val b = builder();
+        b.uniforms = uniforms;
         try {
             b.basic(b.gBuffer(shaderPool, ShaderTypes.gbuffers_basic));
             b.skybasic(b.gBuffer(shaderPool, ShaderTypes.gbuffers_skybasic));
@@ -104,7 +110,7 @@ public class ShaderBinding {
             {
                 // TODO: This code is ASS, session terminated...
                 val internalLoader = new ShaderLoader(InternalShaderPack.INSTANCE,
-                                                     OldShaderEngine.host.shaderPacks(),
+                                                     packs,
                                                      dimension);
 
                 internalLoader.inExpectedShaders = ShaderTypes.internal;
@@ -171,6 +177,8 @@ public class ShaderBinding {
 
     @SuppressWarnings("unused") //Lombok builder override
     private static class Builder {
+        private GeneralUniforms uniforms;
+
         public Builder() {
             gBufferList = new ObjectArrayList<>();
             loadedShaders = new ObjectArrayList<>();
@@ -220,7 +228,7 @@ public class ShaderBinding {
             if (shader == null) {
                 return null;
             }
-            shader.init();
+            shader.init(uniforms);
             loadedShaders.add(shader);
             return shader;
         }

@@ -19,7 +19,6 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.DebugConfig;
 import com.ventooth.swansong.gl.ShaderHax;
 import com.ventooth.swansong.shader.Report;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
@@ -48,11 +47,7 @@ public final class PlatformHooks {
             "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";
 
     public static void install() {
-        // TODO: Integrate into ArchaicShaderEngine
-        OldShaderEngine.shadowPass = new McShadowPassRenderer();
         ensureJnaAvailable();
-        // TODO: Integrate into ArchaicShaderEngine
-        OldShaderEngine.host = new McHostRenderer();
     }
 
     static @Nullable Integer findBlockId(String modId, String blockName) {

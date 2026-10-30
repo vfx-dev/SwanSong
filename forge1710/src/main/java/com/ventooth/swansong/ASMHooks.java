@@ -12,7 +12,6 @@ package com.ventooth.swansong;
 
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.SkyBoxRenderer;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.lwjgl.opengl.GL11;

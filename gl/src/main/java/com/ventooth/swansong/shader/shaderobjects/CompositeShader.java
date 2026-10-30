@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.shader.BufferNameUtil;
 import com.ventooth.swansong.shader.CompositeTextureData;
@@ -32,9 +32,6 @@ import java.util.Set;
 @Accessors(fluent = true,
            chain = false)
 public class CompositeShader extends ManagedShader {
-    private final List<Uniform<?>> relevantUniforms = OldShaderEngine.shaderState.uniforms()
-                                                                               .getWith(ShaderSamplers.Composite.uniforms());
-
     @Getter
     private final Set<CompositeTextureData> mipmapEnabled; // TODO: Do we make this sorted?
 
@@ -73,7 +70,7 @@ public class CompositeShader extends ManagedShader {
     }
 
     @Override
-    protected List<Uniform<?>> relevantUniforms() {
-        return relevantUniforms;
+    protected List<Uniform<?>> relevantUniforms(GeneralUniforms general) {
+        return general.getWith(ShaderSamplers.Composite.uniforms());
     }
 }

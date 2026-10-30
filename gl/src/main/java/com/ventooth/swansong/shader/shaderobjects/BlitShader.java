@@ -10,6 +10,7 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
+import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderSamplers;
 import com.ventooth.swansong.shader.compile.CompiledProgram;
@@ -41,7 +42,7 @@ public class BlitShader extends ManagedShader {
     }
 
     @Override
-    protected List<Uniform<?>> relevantUniforms() {
+    protected List<Uniform<?>> relevantUniforms(GeneralUniforms general) {
         return RELEVANT_UNIFORMS;
     }
 }

@@ -13,7 +13,6 @@ package com.ventooth.swansong.gui;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.PlatformHooks;
 import com.ventooth.swansong.resources.ShaderPackManager;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;

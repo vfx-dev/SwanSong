@@ -10,7 +10,7 @@
 
 package com.ventooth.swansong.shader.shaderobjects;
 
-import com.ventooth.swansong.shader.OldShaderEngine;
+import com.ventooth.swansong.shader.uniform.GeneralUniforms;
 import com.ventooth.swansong.shader.ShaderException;
 import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.ShaderSamplers;
@@ -23,9 +23,6 @@ import org.jetbrains.annotations.Contract;
 import java.util.List;
 
 public class GBufferShader extends ManagedShader {
-    private final List<Uniform<?>> relevantUniforms = OldShaderEngine.shaderState.uniforms()
-                                                                               .getWith(ShaderSamplers.GBuffer.uniforms());
-
     public GBufferShader(ShaderId loc, CompiledProgram prog) {
         super(loc, prog);
     }
@@ -44,7 +41,7 @@ public class GBufferShader extends ManagedShader {
     }
 
     @Override
-    protected List<Uniform<?>> relevantUniforms() {
-        return relevantUniforms;
+    protected List<Uniform<?>> relevantUniforms(GeneralUniforms general) {
+        return general.getWith(ShaderSamplers.GBuffer.uniforms());
     }
 }

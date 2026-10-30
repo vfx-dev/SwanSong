@@ -17,7 +17,6 @@ import com.ventooth.swansong.mixin.interfaces.PBRAtlas;
 import com.ventooth.swansong.mixin.interfaces.PBRTextureHolder;
 import com.ventooth.swansong.pbr.PBRTextureEngine;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

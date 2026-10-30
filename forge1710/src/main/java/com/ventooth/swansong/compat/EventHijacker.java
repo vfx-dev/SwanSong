@@ -14,7 +14,6 @@ import com.falsepattern.lib.util.RenderUtil;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.config.CompatConfig;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.StateGraph;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

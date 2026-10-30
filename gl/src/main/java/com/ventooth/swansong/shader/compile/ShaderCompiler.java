@@ -10,10 +10,10 @@
 
 package com.ventooth.swansong.shader.compile;
 
+import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.gl.GLProgram;
 import com.ventooth.swansong.gl.GLShader;
-import com.ventooth.swansong.shader.OldShaderEngine;
 import com.ventooth.swansong.shader.Report;
 import com.ventooth.swansong.shader.ShaderException;
 import com.ventooth.swansong.shader.loader.PreprocessedProgram;
@@ -42,7 +42,7 @@ public final class ShaderCompiler {
             pool.setDisabled(disabled);
         }
         for (val program : loader.outPrograms) {
-            val compiled = compileProgram(program, attribs, report);
+            val compiled = compileProgram(program, attribs, report, loader.packs());
             if (compiled != null) {
                 pool.insertShader(program.loc(), compiled);
             }
@@ -57,7 +57,8 @@ public final class ShaderCompiler {
 
     private static @Nullable CompiledProgram compileProgram(PreprocessedProgram program,
                                                             List<AttribMapping> attribs,
-                                                            @Nullable Report report) {
+                                                            @Nullable Report report,
+                                                            ShaderPackManager packs) {
         GLShader vert = null;
         GLShader geom = null;
         GLShader frag = null;
@@ -66,17 +67,20 @@ public final class ShaderCompiler {
             vert = createShader(GL20.GL_VERTEX_SHADER,
                                 program.path() + ".vsh",
                                 program.vert()
-                                       .getNativeBuffer(true));
+                                       .getNativeBuffer(true),
+                                packs);
             if (program.geom() != null) {
                 geom = createShader(GL32.GL_GEOMETRY_SHADER,
                                     program.path() + ".gsh",
                                     program.geom()
-                                           .getNativeBuffer(true));
+                                           .getNativeBuffer(true),
+                                    packs);
             }
             frag = createShader(GL20.GL_FRAGMENT_SHADER,
                                 program.path() + ".fsh",
                                 program.frag()
-                                       .getNativeBuffer(true));
+                                       .getNativeBuffer(true),
+                                packs);
             val prog = createProgram(program.path(), vert, geom, frag, attribs);
             return new CompiledProgram(program.path(),
                                        prog,
@@ -110,9 +114,9 @@ public final class ShaderCompiler {
                                                                              GL32.GL_GEOMETRY_SHADER,
                                                                              GL20.GL_FRAGMENT_SHADER}) int type,
                                                  String name,
-                                                 ByteBuffer src) throws ShaderException {
-        OldShaderEngine.host.shaderPacks()
-                            .dumpShader(name, src);
+                                                 ByteBuffer src,
+                                                 ShaderPackManager packs) throws ShaderException {
+        packs.dumpShader(name, src);
         val shader = new GLShader();
         shader.glCreateShader(type);
         shader.glShaderSource(src);
