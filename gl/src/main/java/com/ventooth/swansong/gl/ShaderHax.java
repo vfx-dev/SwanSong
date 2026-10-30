@@ -18,12 +18,13 @@ import org.lwjgl.BufferChecks;
 import org.lwjgl.MemoryUtil;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opengl.GLContext;
-import stubpackage.me.eigenraven.lwjgl3ify.api.Lwjgl3Aware;
-import stubpackage.org.lwjgl.opengl.GL20C;
-import stubpackage.org.lwjgl.system.MemoryStack;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 //MESA driver segfault workaround
 public class ShaderHax {
@@ -85,13 +86,35 @@ public class ShaderHax {
         }
     }
 
-    @Lwjgl3Aware
     private static class Lwjgl3 {
-        private static void glShaderSource(int shader, ByteBuffer sourceNullTerminated) {
-            try (val stack = MemoryStack.stackPush()) {
-                val ptr = stack.npointer(sourceNullTerminated);
-                GL20C.nglShaderSource(shader, 1, ptr, 0);
+        private static final MethodHandle memAddress;
+        private static final MethodHandle nglShaderSource;
+        private static final ByteBuffer pointer = ByteBuffer.allocateDirect(Long.BYTES)
+                                                            .order(ByteOrder.nativeOrder());
+
+        static {
+            try {
+                val lookup = MethodHandles.publicLookup();
+                val loader = ShaderHax.class.getClassLoader();
+                memAddress = lookup.findStatic(Class.forName("org.lwjgl.system.MemoryUtil", true, loader),
+                                               "memAddress",
+                                               MethodType.methodType(long.class, ByteBuffer.class));
+                nglShaderSource = lookup.findStatic(Class.forName("org.lwjgl.opengl.GL20C", true, loader),
+                                                    "nglShaderSource",
+                                                    MethodType.methodType(void.class,
+                                                                          int.class,
+                                                                          int.class,
+                                                                          long.class,
+                                                                          long.class));
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
             }
+        }
+
+        @SneakyThrows
+        private static synchronized void glShaderSource(int shader, ByteBuffer sourceNullTerminated) {
+            pointer.putLong(0, (long) memAddress.invokeExact(sourceNullTerminated));
+            nglShaderSource.invokeExact(shader, 1, (long) memAddress.invokeExact(pointer), 0L);
         }
     }
 }
