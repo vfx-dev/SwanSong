@@ -16,7 +16,6 @@ import com.ventooth.swansong.gl.GLProgram;
 import com.ventooth.swansong.shader.ShaderId;
 import com.ventooth.swansong.shader.compile.CompiledProgram;
 import com.ventooth.swansong.shader.uniform.Uniform;
-import com.ventooth.swansong.shader.uniform.UniformGetterDanglingWires;
 import com.ventooth.swansong.sufrace.Framebuffer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -72,7 +71,7 @@ public abstract class ManagedShader {
         this.renderTargets = tempRenderTargets;
     }
 
-    public void init(GeneralUniforms general) {
+    public void init(GeneralUniforms general, @Nullable List<Uniform<?>> customUniforms) {
         program.glUseProgram();
         val relevantUniforms = relevantUniforms(general);
 
@@ -112,7 +111,6 @@ public abstract class ManagedShader {
                     }
 
                     // TODO: Needs a hashmap lookup
-                    val customUniforms = UniformGetterDanglingWires.customUniforms;
                     if (customUniforms != null) {
                         for (val customUniform : customUniforms) {
                             if (customUniform.name().equals(uniformName)) {

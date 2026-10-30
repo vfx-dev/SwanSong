@@ -12,6 +12,7 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.resources.ShaderPackManager;
 import com.ventooth.swansong.shader.uniform.GeneralUniforms;
+import com.ventooth.swansong.shader.uniform.Uniform;
 import com.ventooth.swansong.EnvInfo;
 import com.ventooth.swansong.debug.DebugMarker;
 import com.ventooth.swansong.resources.pack.DimensionInfo;
@@ -81,9 +82,11 @@ public class ShaderBinding {
     public static ShaderBinding init(IShaderPool shaderPool,
                                      @Nullable DimensionInfo dimension,
                                      ShaderPackManager packs,
-                                     GeneralUniforms uniforms) throws ShaderException {
+                                     GeneralUniforms uniforms,
+                                     @Nullable List<Uniform<?>> customUniforms) throws ShaderException {
         val b = builder();
         b.uniforms = uniforms;
+        b.customUniforms = customUniforms;
         try {
             b.basic(b.gBuffer(shaderPool, ShaderTypes.gbuffers_basic));
             b.skybasic(b.gBuffer(shaderPool, ShaderTypes.gbuffers_skybasic));
@@ -178,6 +181,7 @@ public class ShaderBinding {
     @SuppressWarnings("unused") //Lombok builder override
     private static class Builder {
         private GeneralUniforms uniforms;
+        private @Nullable List<Uniform<?>> customUniforms;
 
         public Builder() {
             gBufferList = new ObjectArrayList<>();
@@ -228,7 +232,7 @@ public class ShaderBinding {
             if (shader == null) {
                 return null;
             }
-            shader.init(uniforms);
+            shader.init(uniforms, customUniforms);
             loadedShaders.add(shader);
             return shader;
         }

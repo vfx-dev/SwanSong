@@ -10,16 +10,12 @@
 
 package com.ventooth.swansong.shader.uniform;
 
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
 
-import java.util.List;
 
 @Deprecated
 public class UniformGetterDanglingWires {
-    public static @Nullable List<Uniform<?>> customUniforms;
-
     // @formatter:off
     // FIXED
     // TODO: PROP Needs_Test_Shader
