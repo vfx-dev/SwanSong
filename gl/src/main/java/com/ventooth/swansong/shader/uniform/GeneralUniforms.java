@@ -145,6 +145,18 @@ public final class GeneralUniforms {
             //TODO renderStage
             reg.impure(state, clazz.getDeclaredMethod("skyColor"));
 
+            val element = MatrixElements.class.getDeclaredMethod("get", int.class, int.class);
+            reg.impure(new MatrixElements(state::projectionMat), element, "gbufferProjection");
+            reg.impure(new MatrixElements(state::projectionMatInv), element, "gbufferProjectionInverse");
+            reg.impure(new MatrixElements(state::prevProjectionMat), element, "gbufferPreviousProjection");
+            reg.impure(new MatrixElements(state::modelViewMat), element, "gbufferModelView");
+            reg.impure(new MatrixElements(state::modelViewMatInv), element, "gbufferModelViewInverse");
+            reg.impure(new MatrixElements(state::prevModelViewMat), element, "gbufferPreviousModelView");
+            reg.impure(new MatrixElements(state::shadowProjection), element, "shadowProjection");
+            reg.impure(new MatrixElements(state::shadowProjectionInverse), element, "shadowProjectionInverse");
+            reg.impure(new MatrixElements(state::shadowModelView), element, "shadowModelView");
+            reg.impure(new MatrixElements(state::shadowModelViewInverse), element, "shadowModelViewInverse");
+
             funcLookup = reg;
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Someone messed up; [BIG_TIME]", e);
@@ -167,6 +179,13 @@ public final class GeneralUniforms {
         val list = new ArrayList<>(other);
         list.addAll(general);
         return Collections.unmodifiableList(list);
+    }
+
+    public record MatrixElements(Supplier<Matrix4dc> matrix) {
+        public double get(int column, int row) {
+            return matrix.get()
+                         .get(column, row);
+        }
     }
 
     @NoArgsConstructor

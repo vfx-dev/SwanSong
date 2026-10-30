@@ -190,6 +190,11 @@ public abstract class AbstractParser<Node> {
                     val idx = Integer.parseInt(swizzleToken.text());
                     yield createSwizzle(value, idx);
                 }
+                case Float -> {
+                    val idx = swizzleToken.text()
+                                          .split("\\.");
+                    yield createSwizzle(createSwizzle(value, Integer.parseInt(idx[0])), Integer.parseInt(idx[1]));
+                }
                 case Identifier -> {
                     val txt = swizzleToken.text();
                     yield createSwizzle(value, switch (txt) {

@@ -62,6 +62,10 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
         } else if (input instanceof UntypedFunctionNode fn) {
             return resolveFunction(fn.name, transform(fn.params));
         } else if (input instanceof UntypedSwizzleNode swiz) {
+            if (swiz.value instanceof UntypedSwizzleNode column && column.value instanceof UntypedVarNode matrix) {
+                return resolveFunction(matrix.name,
+                                       Arrays.asList(ConstNode.Int.of(column.index), ConstNode.Int.of(swiz.index)));
+            }
             return resolveSwizzle(transform(swiz.value), swiz.index);
         } else if (input instanceof UntypedUnaryNode un) {
             return resolveUnary(transform(un.param), un.op);
