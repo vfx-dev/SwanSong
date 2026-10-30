@@ -11,6 +11,7 @@
 package com.ventooth.swansong.shader.compile;
 
 import com.ventooth.swansong.shader.ShaderId;
+import com.ventooth.swansong.shader.ShaderTypes;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
@@ -49,8 +50,12 @@ public class ShaderPool implements IShaderPool {
         if (shader == null) {
             return null;
         }
-        if (disabled != null && disabled.contains(shader.path())) {
-            return null;
+        if (disabled != null) {
+            val path = shader.path();
+            if (disabled.contains(path.substring(path.lastIndexOf('/') + 1))) {
+                val fallback = ShaderTypes.getFallback(loc);
+                return fallback == null ? null : borrowShader(fallback, essential);
+            }
         }
         borrowed.add(loc);
         return shader;
