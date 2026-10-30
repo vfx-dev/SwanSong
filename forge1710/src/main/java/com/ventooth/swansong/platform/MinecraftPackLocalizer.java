@@ -11,35 +11,20 @@
 package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.resources.pack.ShaderPack;
-import com.ventooth.swansong.shader.loader.config.PackLocalizer;
-import lombok.val;
+import com.ventooth.swansong.shader.loader.config.LangPackLocalizer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.Locale;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public final class MinecraftPackLocalizer implements PackLocalizer {
-    private final Locale packLocale;
-
+public final class MinecraftPackLocalizer extends LangPackLocalizer {
     public MinecraftPackLocalizer(ShaderPack pack) {
-        packLocale = new Locale();
-        val current = Minecraft.getMinecraft()
-                               .getLanguageManager()
-                               .getCurrentLanguage();
-        val langs = new ArrayList<String>();
-        langs.add("en_US");
-        if (!"en_US".equals(current.getLanguageCode())) {
-            langs.add(current.getLanguageCode());
-        }
-        packLocale.loadLocaleDataFiles(new ShaderpackResourceManagerAdapter(pack), langs);
-    }
-
-    @Override
-    public String packText(String key, Object... args) {
-        return packLocale.formatMessage(key, args);
+        super(pack,
+              Minecraft.getMinecraft()
+                       .getLanguageManager()
+                       .getCurrentLanguage()
+                       .getLanguageCode());
     }
 
     @Override

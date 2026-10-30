@@ -25,4 +25,13 @@ dependencies {
     compileOnly("org.apache.commons:commons-lang3:3.3.2")
     compileOnly("commons-io:commons-io:2.4")
     compileOnly("org.jetbrains:annotations:26.1.0")
+
+    testImplementation("org.apache.logging.log4j:log4j-api:2.0-beta9")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform()
 }
