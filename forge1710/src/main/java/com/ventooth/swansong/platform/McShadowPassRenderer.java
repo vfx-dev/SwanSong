@@ -112,9 +112,9 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
 
         // region Shadow culling stuff
         val viewEntity = mc.renderViewEntity;
-        ch.shadowModelViewMatrix.set(ArchaicShaderEngine.get().state().shadowModelView());
+        ch.frustum.shadowModelViewMatrix.set(ArchaicShaderEngine.get().state().shadowModelView());
 
-        ch.begin();
+        ch.frustum.begin();
 
         addWorldToShadowReceivers(wrs);
 
@@ -142,7 +142,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
             }
         }
 
-        ch.end();
+        ch.frustum.end();
 
         clipRenderersByFrustumShadow(wrs);
         // endregion
