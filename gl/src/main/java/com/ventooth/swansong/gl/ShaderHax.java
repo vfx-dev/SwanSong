@@ -54,9 +54,7 @@ public class ShaderHax {
 
     private static class Lwjgl2 {
         private static final Field glShaderSourceCaps;
-        //java 8 doesn't have Reference.reachabilityFence, so we cheat
-        public static Pointer jnaPointerReachability;
-        public static PointerBuffer pointerReachability;
+        private static final PointerBuffer pointers = PointerBuffer.allocateDirect(1);
 
         static {
             try {
@@ -75,14 +73,8 @@ public class ShaderHax {
             val fn = Function.getFunction(new Pointer(function_pointer));
             BufferChecks.checkFunctionAddress(function_pointer);
             BufferChecks.checkDirect(sourceNullTerminated);
-            val ptrs = PointerBuffer.allocateDirect(1);
-            ptrs.put(0, MemoryUtil.getAddress(sourceNullTerminated));
-            pointerReachability = ptrs;
-            val jnaPointer = new Pointer(MemoryUtil.getAddress(ptrs));
-            jnaPointerReachability = jnaPointer;
-            fn.invoke(new Object[]{shader, 1, jnaPointer, null});
-            jnaPointerReachability = null;
-            pointerReachability = null;
+            pointers.put(0, MemoryUtil.getAddress(sourceNullTerminated));
+            fn.invoke(new Object[]{shader, 1, new Pointer(MemoryUtil.getAddress(pointers)), null});
         }
     }
 
