@@ -50,7 +50,8 @@ import static com.ventooth.swansong.mixin.TargetMod.Zume;
 public enum Mixin implements IMixins {
     //@formatter:off
     Base(Phase.EARLY,
-         client("GuiVideoSettingsMixin",
+         client("ChunkMixin",
+                "GuiVideoSettingsMixin",
                 "EntityRendererMixin",
                 "TessellatorMixin",
                 "TessellatorAccessor",
