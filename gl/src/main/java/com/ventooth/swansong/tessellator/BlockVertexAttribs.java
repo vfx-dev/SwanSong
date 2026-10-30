@@ -108,5 +108,8 @@ public final class BlockVertexAttribs {
         GL20.glDisableVertexAttribArray(DanglingWiresTess.entityAttrib);
         GL20.glDisableVertexAttribArray(DanglingWiresTess.midTexCoordAttrib);
         GL20.glDisableVertexAttribArray(DanglingWiresTess.tangentAttrib);
+        GL20.glVertexAttrib4f(DanglingWiresTess.entityAttrib, 0, 0, 0, 1);
+        GL20.glVertexAttrib4f(DanglingWiresTess.midTexCoordAttrib, 0, 0, 0, 1);
+        GL20.glVertexAttrib4f(DanglingWiresTess.tangentAttrib, 0, 0, 0, 1);
     }
 }
