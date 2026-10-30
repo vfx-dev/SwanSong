@@ -12,15 +12,44 @@ package com.ventooth.swansong.platform;
 
 import com.ventooth.swansong.mixin.extensions.RenderGlobalExt;
 import com.ventooth.swansong.shader.ShaderEngine;
-import com.ventooth.swansong.shader.ShaderState;
+import com.ventooth.swansong.shader.StateGraph;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.Minecraft;
 
+import static com.ventooth.swansong.shader.StateGraph.Node.*;
+
 public class ArchaicShaderEngine extends ShaderEngine<ArchaicShaderState> {
+    private static final StateGraph.Order STAGE_ORDER = StateGraph.Order.frame()
+            .edge(ShadowBegin, ShadowChunk0)
+            .edge(ShadowChunk0, ShadowEntities0, ShadowChunk1)
+            .edge(ShadowEntities0, ShadowBlockEntities0)
+            .edge(ShadowBlockEntities0, ShadowEntities0, ShadowChunk1)
+            .edge(ShadowChunk1, ShadowEntities1, ShadowLast)
+            .edge(ShadowEntities1, ShadowBlockEntities1)
+            .edge(ShadowBlockEntities1, ShadowEntities1, ShadowLast)
+            .edge(RenderBegin, RenderSkyBasic, RenderClouds, RenderChunk0)
+            .edge(RenderSkyBasic, RenderSkyBasic, RenderSkyTextured, RenderClouds, RenderChunk0)
+            .edge(RenderSkyTextured, RenderSkyBasic, RenderSkyTextured, RenderClouds, RenderChunk0)
+            .edge(RenderClouds, RenderChunk0, RenderLast)
+            .edge(RenderChunk0, RenderWeatherEntities0, RenderSelectionBox)
+            .edge(RenderWeatherEntities0, RenderEntities0)
+            .edge(RenderEntities0, RenderBlockEntities0)
+            .edge(RenderBlockEntities0, RenderWeatherEntities0, RenderSelectionBox)
+            .edge(RenderSelectionBox, RenderBlockDamage)
+            .edge(RenderBlockDamage, RenderParticlesLit)
+            .edge(RenderParticlesLit, RenderParticles)
+            .edge(RenderParticles, RenderWeather)
+            .edge(RenderWeather, RenderHand0)
+            .edge(RenderHand0, RenderChunk1)
+            .edge(RenderChunk1, RenderWeatherEntities1, RenderClouds, RenderLast)
+            .edge(RenderWeatherEntities1, RenderEntities1)
+            .edge(RenderEntities1, RenderBlockEntities1)
+            .edge(RenderBlockEntities1, RenderWeatherEntities1, RenderClouds, RenderLast);
+
     public ArchaicShaderEngine() {
-        super(new ArchaicShaderState(), new McHostRenderer(), new McShadowPassRenderer());
+        super(new ArchaicShaderState(), new McHostRenderer(), new McShadowPassRenderer(), STAGE_ORDER);
     }
 
     /// TODO: Currently we have a 'middle' state where the engine may be either null or not-initialized.

@@ -12,257 +12,33 @@ package com.ventooth.swansong.shader;
 
 import com.ventooth.swansong.Share;
 import com.ventooth.swansong.StackStateTracker;
+import com.ventooth.swansong.shader.shaderobjects.ManagedShader;
 import lombok.val;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.ventooth.swansong.shader.StateGraph.Node.BeginFrame;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderBegin;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockDamage;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockEntities0;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderBlockEntities1;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderChunk0;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderChunk1;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderClouds;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderEntities0;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderEntities1;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderHand0;
 import static com.ventooth.swansong.shader.StateGraph.Node.RenderLast;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderParticles;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderParticlesLit;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderSelectionBox;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderSkyBasic;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderSkyTextured;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderWeather;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderWeatherEntities0;
-import static com.ventooth.swansong.shader.StateGraph.Node.RenderWeatherEntities1;
 import static com.ventooth.swansong.shader.StateGraph.Node.ShadowBegin;
-import static com.ventooth.swansong.shader.StateGraph.Node.ShadowBlockEntities0;
-import static com.ventooth.swansong.shader.StateGraph.Node.ShadowBlockEntities1;
-import static com.ventooth.swansong.shader.StateGraph.Node.ShadowChunk0;
-import static com.ventooth.swansong.shader.StateGraph.Node.ShadowChunk1;
-import static com.ventooth.swansong.shader.StateGraph.Node.ShadowEntities0;
-import static com.ventooth.swansong.shader.StateGraph.Node.ShadowEntities1;
 import static com.ventooth.swansong.shader.StateGraph.Node.ShadowLast;
 import static com.ventooth.swansong.shader.StateGraph.Node.Unmanaged;
 
 // TODO: Do we prefix this with 'shader'?
 @SuppressWarnings("Convert2MethodRef")
 public class StateGraph {
-    private static final EnumMap<Node, EnumMap<Node, Consumer<ShaderEngine<?>>>> graph = new EnumMap<>(Node.class);
-
-    private static void edge(Node from, Node to, @NotNull Consumer<ShaderEngine<?>> logic) {
-        val map = graph.computeIfAbsent(from, _from -> new EnumMap<>(Node.class));
-        if (map.containsKey(to)) {
-            throw new AssertionError("Duplicate graph edge: " + from.name() + " -> " + to.name());
-        }
-        map.put(to, logic);
-    }
-
-
-    private static void edge(Node from, Node[] to, @NotNull Consumer<ShaderEngine<?>> logic) {
-        for (val b : to) {
-            edge(from, b, logic);
-        }
-    }
-
-    private static void edge(Node[] from, Node to, @NotNull Consumer<ShaderEngine<?>> logic) {
-        for (val a : from) {
-            edge(a, to, logic);
-        }
-    }
-
-    private static void edge(Node[] from, Node[] to, @NotNull Consumer<ShaderEngine<?>> logic) {
-        for (val a : from) {
-            for (val b : to) {
-                edge(a, b, logic);
-            }
-        }
-    }
-
-    private static void edge(Node from, Node to) {
-        edge(from, to, e -> {});
-    }
-
-    //Mirrors the layout of MANAGED_STATE.adoc
-    static {
-        edge(Unmanaged, BeginFrame);
-        edge(BeginFrame, ShadowBegin, e -> {
-            e.use(e.fixed.manager.shadow);
-            e.lockShader();
-        });
-        edge(BeginFrame, RenderBegin);
-        edge(RenderLast, Unmanaged);
-
-        edge(ShadowLast, RenderBegin, e -> {
-            e.unlockShader();
-        });
-
-        edge(ShadowBegin, ShadowChunk0, e -> {
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_SOLID);
-        });
-        edge(ShadowChunk0, ShadowEntities0, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-        });
-        edge(ShadowChunk0, ShadowChunk1, e -> {
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_TRANSLUCENT);
-        });
-        edge(ShadowEntities0, ShadowBlockEntities0, e -> {
-            e.state().updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
-        });
-        edge(ShadowBlockEntities0, ShadowEntities0, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-        });
-        edge(ShadowBlockEntities0, ShadowChunk1, e -> {
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_TRANSLUCENT);
-        });
-        edge(ShadowChunk1, ShadowEntities1, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-        });
-        edge(ShadowChunk1, ShadowLast);
-        edge(ShadowEntities1, ShadowBlockEntities1, e -> {
-            e.state().updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
-        });
-        //Can happen (CNPC+ DBC Addon is one example)
-        edge(ShadowBlockEntities1, ShadowEntities1, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-        });
-        edge(ShadowBlockEntities1, ShadowLast);
-
-        edge(RenderBegin, RenderSkyBasic, e -> {
-            e.shaderData.pushEntity(ShaderEntityData.SKY);
-            e.state().updateRenderStage(MCRenderStage.SKY);
-            e.use(e.fixed.manager.skybasic);
-        });
-        edge(RenderBegin, RenderClouds, e -> {
-            e.shaderData.pushEntity(ShaderEntityData.CLOUDS);
-            e.state().updateRenderStage(MCRenderStage.CLOUDS);
-            e.use(e.fixed.manager.clouds);
-        });
-        edge(RenderBegin, RenderChunk0, e -> {
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_SOLID);
-            e.use(e.fixed.manager.terrain);
-        });
-        edge(new Node[]{RenderSkyBasic, RenderSkyTextured}, RenderClouds, e -> {
-            e.shaderData.popEntity();
-
-            e.shaderData.pushEntity(ShaderEntityData.CLOUDS);
-            e.state().updateRenderStage(MCRenderStage.CLOUDS);
-            e.use(e.fixed.manager.clouds);
-        });
-        edge(new Node[]{RenderSkyBasic, RenderSkyTextured}, RenderChunk0, e -> {
-            e.shaderData.popEntity();
-
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_SOLID);
-            e.use(e.fixed.manager.terrain);
-        });
-        edge(RenderSkyBasic, RenderSkyBasic);
-        edge(RenderSkyBasic, RenderSkyTextured, e -> e.use(e.fixed.manager.skytextured));
-        edge(RenderSkyTextured, RenderSkyBasic, e -> e.use(e.fixed.manager.skybasic));
-        edge(RenderSkyTextured, RenderSkyTextured);
-
-        edge(RenderClouds, RenderChunk0, e -> {
-            e.shaderData.popEntity();
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_SOLID);
-            e.use(e.fixed.manager.terrain);
-        });
-        edge(RenderChunk0, RenderWeatherEntities0, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-            e.use(e.fixed.manager.entities);
-        });
-        edge(RenderChunk0, RenderSelectionBox, e -> {
-            e.state().updateRenderStage(MCRenderStage.NONE);
-            e.use(e.fixed.manager.basic);
-        });
-        edge(RenderWeatherEntities0, RenderEntities0);
-        edge(RenderEntities0, RenderBlockEntities0, e -> {
-            e.state().updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
-            e.use(e.fixed.manager.block);
-        });
-        //Can happen (CNPC+ DBC Addon is one example)
-        edge(RenderBlockEntities0, RenderWeatherEntities0, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-            e.use(e.fixed.manager.entities);
-        });
-        edge(RenderBlockEntities0, RenderSelectionBox, e -> {
-            e.state().updateRenderStage(MCRenderStage.NONE);
-            e.use(e.fixed.manager.basic);
-        });
-        edge(RenderSelectionBox, RenderBlockDamage, e -> {
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_SOLID);
-            e.use(e.fixed.manager.terrain);
-        });
-        edge(RenderBlockDamage, RenderParticlesLit, e -> {
-            e.state().updateRenderStage(MCRenderStage.PARTICLES);
-            e.use(e.fixed.manager.textured_lit);
-        });
-        edge(RenderParticlesLit, RenderParticles, e -> {
-            e.use(e.fixed.manager.textured);
-        });
-        edge(RenderParticles, RenderWeather, e -> {
-            e.state().updateRenderStage(MCRenderStage.RAIN_SNOW);
-            e.use(e.fixed.manager.weather);
-        });
-        edge(RenderWeather, RenderHand0, e -> {
-            e.renderHand();
-        });
-        edge(RenderHand0, RenderChunk1, e -> {
-            e.state().updateRenderStage(MCRenderStage.TERRAIN_TRANSLUCENT);
-            e.use(e.fixed.manager.water);
-        });
-        edge(RenderChunk1, RenderWeatherEntities1, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-            e.use(e.fixed.manager.entities);
-        });
-        edge(RenderChunk1, RenderClouds, e -> {
-            e.shaderData.pushEntity(ShaderEntityData.CLOUDS);
-            e.state().updateRenderStage(MCRenderStage.CLOUDS);
-            e.use(e.fixed.manager.clouds);
-        });
-        edge(RenderChunk1, RenderLast, e -> {
-            e.state().updateRenderStage(MCRenderStage.NONE);
-            e.use(e.fixed.manager.textured_lit);
-        });
-        edge(RenderWeatherEntities1, RenderEntities1);
-        edge(RenderEntities1, RenderBlockEntities1, e -> {
-            e.state().updateRenderStage(MCRenderStage.BLOCK_ENTITIES);
-            e.use(e.fixed.manager.block);
-        });
-        //Can happen (CNPC+ DBC Addon is one example)
-        edge(RenderBlockEntities1, RenderWeatherEntities1, e -> {
-            e.state().updateRenderStage(MCRenderStage.ENTITIES);
-            e.use(e.fixed.manager.entities);
-        });
-        edge(RenderBlockEntities1, RenderClouds, e -> {
-            e.shaderData.pushEntity(ShaderEntityData.CLOUDS);
-            e.state().updateRenderStage(MCRenderStage.CLOUDS);
-            e.use(e.fixed.manager.clouds);
-        });
-        edge(RenderBlockEntities1, RenderLast, e -> {
-            e.state().updateRenderStage(MCRenderStage.NONE);
-            e.use(e.fixed.manager.textured_lit);
-        });
-        edge(RenderClouds, RenderLast, e -> {
-            e.shaderData.popEntity();
-
-            e.state().updateRenderStage(MCRenderStage.NONE);
-            e.use(e.fixed.manager.textured_lit);
-        });
-        edge(RenderLast, RenderBegin, e -> {
-            e.use(null);
-            e.clearColorBufs();
-        });
-    }
-
     private final ShaderEngine<?> engine;
+    private final Order order;
 
-    StateGraph(ShaderEngine<?> engine) {
+    StateGraph(ShaderEngine<?> engine, Order order) {
         this.engine = engine;
+        this.order = order;
     }
 
     public List<Node> graphLog = new ArrayList<>();
@@ -272,43 +48,35 @@ public class StateGraph {
     private final StackStateTracker<Void> stack = new StackStateTracker<>(false);
 
     public void moveTo(Node to) {
-        val targets = graph.get(current);
-        assert targets != null : "No graph edge source for " + current.name();
-        val code = targets.get(to);
-        if (code == null) {
+        if (!order.allows(current, to)) {
             val err = new IllegalStateException("Nonexistent graph edge: " + current.name() + " -> " + to.name());
             Share.log.fatal("StateGraph: ", err);
             throw err;
         }
-        execMove(to, code);
+        execMove(to);
     }
 
     public void moveToEither(Node... nodes) {
         assert nodes.length >= 1;
-        val targets = graph.get(current);
-        assert targets != null : "No graph edge source for " + current.name();
-        Node to = null;
-        Consumer<ShaderEngine<?>> code = null;
-        for (val node: nodes) {
-            to = node;
-            code = targets.get(node);
-            if (code != null) {
-                break;
+        for (val node : nodes) {
+            if (order.allows(current, node)) {
+                execMove(node);
+                return;
             }
         }
-        if (code == null) {
-            val sb = new StringBuilder("Nonexistent graph edges:\n");
-            for (val node: nodes) {
-                sb.append(current.name()).append(" -> ").append(node.name()).append('\n');
-            }
-            val err = new IllegalStateException(sb.toString());
-            Share.log.fatal("StateGraph: ", err);
-            throw err;
+        val sb = new StringBuilder("Nonexistent graph edges:\n");
+        for (val node : nodes) {
+            sb.append(current.name())
+              .append(" -> ")
+              .append(node.name())
+              .append('\n');
         }
-        execMove(to, code);
+        val err = new IllegalStateException(sb.toString());
+        Share.log.fatal("StateGraph: ", err);
+        throw err;
     }
 
-    private void execMove(Node to, Consumer<ShaderEngine<?>> code) {
+    private void execMove(Node to) {
         if (!stack.isEmpty()) {
             var b = new StringBuilder("Tried to move graph when stack was not empty!\nEdge: ").append(current.name())
                                                                                               .append(" -> ")
@@ -319,7 +87,10 @@ public class StateGraph {
             Share.log.fatal("StateGraph: ", err);
             throw err;
         }
-        code.accept(engine);
+        if (to != current) {
+            current.exit(engine, to);
+            to.enter(engine, current);
+        }
         if (ShaderEngine.DO_GRAPH_LOG) {
             graphLog.add(to);
         }
@@ -376,43 +147,167 @@ public class StateGraph {
         node.pop(engine, current);
     }
 
+    public static final class Order {
+        private final EnumMap<Node, EnumSet<Node>> edges = new EnumMap<>(Node.class);
+
+        public static Order frame() {
+            return new Order().edge(Unmanaged, BeginFrame)
+                              .edge(BeginFrame, ShadowBegin, RenderBegin)
+                              .edge(ShadowLast, RenderBegin)
+                              .edge(RenderLast, Unmanaged, RenderBegin);
+        }
+
+        public Order edge(Node from, Node... to) {
+            edges.computeIfAbsent(from, f -> EnumSet.noneOf(Node.class))
+                 .addAll(Arrays.asList(to));
+            return this;
+        }
+
+        boolean allows(Node from, Node to) {
+            val targets = edges.get(from);
+            return targets != null && targets.contains(to);
+        }
+    }
+
     public enum Node {
         Unmanaged,
 
         BeginFrame,
 
-        ShadowBegin,
-        ShadowChunk0,
-        ShadowEntities0,
-        ShadowBlockEntities0,
-        ShadowChunk1,
-        ShadowEntities1,
-        ShadowBlockEntities1,
-        ShadowLast,
+        ShadowBegin {
+            @Override
+            void enter(ShaderEngine<?> e, Node from) {
+                e.use(e.fixed.manager.shadow);
+                e.lockShader();
+            }
+        },
+        ShadowChunk0(MCRenderStage.TERRAIN_SOLID),
+        ShadowEntities0(MCRenderStage.ENTITIES),
+        ShadowBlockEntities0(MCRenderStage.BLOCK_ENTITIES),
+        ShadowChunk1(MCRenderStage.TERRAIN_TRANSLUCENT),
+        ShadowEntities1(MCRenderStage.ENTITIES),
+        ShadowBlockEntities1(MCRenderStage.BLOCK_ENTITIES),
+        ShadowLast {
+            @Override
+            void exit(ShaderEngine<?> e, Node to) {
+                e.unlockShader();
+            }
+        },
 
         RenderBegin,
-        RenderSkyBasic,
-        RenderSkyTextured,
-        RenderClouds,
-        RenderChunk0,
-        RenderWeatherEntities0,
+        RenderSkyBasic {
+            @Override
+            void enter(ShaderEngine<?> e, Node from) {
+                enterSky(e, from);
+                e.use(e.fixed.manager.skybasic);
+            }
+
+            @Override
+            void exit(ShaderEngine<?> e, Node to) {
+                exitSky(e, to);
+            }
+        },
+        RenderSkyTextured {
+            @Override
+            void enter(ShaderEngine<?> e, Node from) {
+                enterSky(e, from);
+                e.use(e.fixed.manager.skytextured);
+            }
+
+            @Override
+            void exit(ShaderEngine<?> e, Node to) {
+                exitSky(e, to);
+            }
+        },
+        RenderClouds {
+            @Override
+            void enter(ShaderEngine<?> e, Node from) {
+                e.shaderData.pushEntity(ShaderEntityData.CLOUDS);
+                e.state()
+                 .updateRenderStage(MCRenderStage.CLOUDS);
+                e.use(e.fixed.manager.clouds);
+            }
+
+            @Override
+            void exit(ShaderEngine<?> e, Node to) {
+                e.shaderData.popEntity();
+            }
+        },
+        RenderChunk0(MCRenderStage.TERRAIN_SOLID, b -> b.terrain),
+        RenderWeatherEntities0(MCRenderStage.ENTITIES, b -> b.entities),
         RenderEntities0,
-        RenderBlockEntities0,
-        RenderSelectionBox,
-        RenderBlockDamage,
-        RenderParticlesLit,
-        RenderParticles,
-        RenderWeather,
-        RenderHand0,
-        RenderChunk1,
-        RenderWeatherEntities1,
+        RenderBlockEntities0(MCRenderStage.BLOCK_ENTITIES, b -> b.block),
+        RenderSelectionBox(MCRenderStage.NONE, b -> b.basic),
+        RenderBlockDamage(MCRenderStage.TERRAIN_SOLID, b -> b.terrain),
+        RenderParticlesLit(MCRenderStage.PARTICLES, b -> b.textured_lit),
+        RenderParticles(null, b -> b.textured),
+        RenderWeather(MCRenderStage.RAIN_SNOW, b -> b.weather),
+        RenderHand0 {
+            @Override
+            void enter(ShaderEngine<?> e, Node from) {
+                e.renderHand();
+            }
+        },
+        RenderChunk1(MCRenderStage.TERRAIN_TRANSLUCENT, b -> b.water),
+        RenderWeatherEntities1(MCRenderStage.ENTITIES, b -> b.entities),
         RenderEntities1,
-        RenderBlockEntities1,
-        RenderLast;
+        RenderBlockEntities1(MCRenderStage.BLOCK_ENTITIES, b -> b.block),
+        RenderLast(MCRenderStage.NONE, b -> b.textured_lit) {
+            @Override
+            void exit(ShaderEngine<?> e, Node to) {
+                if (to == RenderBegin) {
+                    e.use(null);
+                    e.clearColorBufs();
+                }
+            }
+        };
 
         public final boolean isShadow = name().startsWith("Shadow");
         public final boolean isRender = name().startsWith("Render");
         public final boolean isSky = name().startsWith("RenderSky");
+
+        private final @Nullable MCRenderStage stage;
+        private final @Nullable Function<ShaderBinding, ManagedShader> program;
+
+        Node() {
+            this(null, null);
+        }
+
+        Node(MCRenderStage stage) {
+            this(stage, null);
+        }
+
+        Node(@Nullable MCRenderStage stage, @Nullable Function<ShaderBinding, ManagedShader> program) {
+            this.stage = stage;
+            this.program = program;
+        }
+
+        void enter(ShaderEngine<?> e, Node from) {
+            if (stage != null) {
+                e.state()
+                 .updateRenderStage(stage);
+            }
+            if (program != null) {
+                e.use(program.apply(e.fixed.manager));
+            }
+        }
+
+        void exit(ShaderEngine<?> e, Node to) {
+        }
+
+        private static void enterSky(ShaderEngine<?> e, Node from) {
+            if (!from.isSky) {
+                e.shaderData.pushEntity(ShaderEntityData.SKY);
+                e.state()
+                 .updateRenderStage(MCRenderStage.SKY);
+            }
+        }
+
+        private static void exitSky(ShaderEngine<?> e, Node to) {
+            if (!to.isSky) {
+                e.shaderData.popEntity();
+            }
+        }
     }
 
     private static final EnumSet<Node> ALL_ALLOWED = EnumSet.allOf(Node.class);

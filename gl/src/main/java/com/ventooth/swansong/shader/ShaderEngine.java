@@ -110,13 +110,14 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
     private int prevFrameShaderSwitches = 0;
     private final List<Node> graphLog = new ArrayList<>();
 
-    private final StateGraph graph = new StateGraph(this);
+    private final StateGraph graph;
     private final ShadersCompositeMesh compositeMesh = new ShadersCompositeMesh();
 
-    protected ShaderEngine(STATE state, HostRenderer host, ShadowPassRenderer shadowPass) {
+    protected ShaderEngine(STATE state, HostRenderer host, ShadowPassRenderer shadowPass, StateGraph.Order stageOrder) {
         this.state = state;
         this.host = host;
         this.shadowPass = shadowPass;
+        this.graph = new StateGraph(this, stageOrder);
     }
 
     public STATE state() {
