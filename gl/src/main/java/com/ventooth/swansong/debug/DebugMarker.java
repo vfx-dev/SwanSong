@@ -11,8 +11,6 @@
 package com.ventooth.swansong.debug;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.KHRDebug;
 
 import java.text.MessageFormat;
@@ -30,9 +28,6 @@ public enum DebugMarker {
     SCREENSHOT_TAKEN(530),
 
     ;
-
-    private static final Logger log = LogManager.getLogger("GLDebug|Marker");
-    private static boolean withTraceLog = false;
 
     private final int id;
 
@@ -67,9 +62,6 @@ public enum DebugMarker {
     }
 
     private void doInsertMessage(String message) {
-        if (withTraceLog) {
-            log.trace(message);
-        }
         KHRDebug.glDebugMessageInsert(KHRDebug.GL_DEBUG_SOURCE_APPLICATION,
                                       KHRDebug.GL_DEBUG_TYPE_MARKER,
                                       id,
