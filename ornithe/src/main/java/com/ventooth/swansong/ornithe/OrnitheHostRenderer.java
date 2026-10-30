@@ -16,6 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.platform.GLX;
+import net.minecraft.client.render.platform.GlStateManager;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.resource.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -167,5 +168,13 @@ public final class OrnitheHostRenderer implements HostRenderer {
 
     @Override
     public void onLifecycle(Lifecycle stage) {
+    }
+
+    @Override
+    public void invalidateTextureBindings() {
+        for (var texture : GlStateManager.TEXTURES) {
+            texture.texture = -1;
+        }
+        GlStateManager.texture = 0;
     }
 }

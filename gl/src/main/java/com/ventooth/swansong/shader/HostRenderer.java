@@ -74,6 +74,9 @@ public interface HostRenderer {
     default void reportToChat(Report report) {
     }
 
+    default void invalidateTextureBindings() {
+    }
+
     enum Lifecycle {
         RELOAD_SCHEDULED,
         LOADED,

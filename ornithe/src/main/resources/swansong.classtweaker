@@ -4,3 +4,11 @@ accessible method net/minecraft/client/render/GameRenderer applyHurtCam (F)V
 accessible method net/minecraft/client/render/GameRenderer applyViewBobbing (F)V
 accessible method net/minecraft/client/render/GameRenderer getNightVisionScale (Lnet/minecraft/entity/living/LivingEntity;F)F
 accessible field net/minecraft/client/render/GameRenderer renderDistance F
+accessible class net/minecraft/client/render/platform/GlStateManager$Texture
+accessible field net/minecraft/client/render/platform/GlStateManager TEXTURES [Lnet/minecraft/client/render/platform/GlStateManager$Texture;
+accessible field net/minecraft/client/render/platform/GlStateManager texture I
+accessible method net/minecraft/client/render/GameRenderer setupCamera (FI)V
+accessible field net/minecraft/client/render/world/WorldRenderer viewChanged Z
+accessible field net/minecraft/client/render/world/WorldRenderer compiledChunks Ljava/util/List;
+accessible class net/minecraft/client/render/world/WorldRenderer$RenderChunkInfo
+accessible field net/minecraft/client/render/world/WorldRenderer$RenderChunkInfo chunk Lnet/minecraft/client/render/world/RenderChunk;

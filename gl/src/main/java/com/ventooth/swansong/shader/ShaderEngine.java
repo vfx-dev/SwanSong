@@ -386,6 +386,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.blitsrc.gpuIndex());
             src.bind();
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            host.invalidateTextureBindings();
 
             if (anaglyph != 0) {
                 compositeMesh.drawWithAnaglyphField(host.anaglyphField());
@@ -793,6 +794,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.noisetex.gpuIndex());
             noiseTex.bind();
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
+            host.invalidateTextureBindings();
         }
 
         state.updateCelestialAngle();
@@ -861,6 +863,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         buffers.depthTex2.bind();
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        host.invalidateTextureBindings();
     }
 
     public void genMipmaps(ObjectList<Texture2D> mipInputs) {
@@ -953,6 +956,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        host.invalidateTextureBindings();
 
         if (blitSrcSampler != null) {
             GL33.glBindSampler(CompositeTextureData.blitsrc.gpuIndex(), 0);
@@ -1010,6 +1014,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        host.invalidateTextureBindings();
         use(lastShader);
     }
 
@@ -1117,6 +1122,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             }
             if (resetTexture) {
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
+                host.invalidateTextureBindings();
             }
         }
     }
