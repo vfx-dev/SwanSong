@@ -313,9 +313,8 @@ public class ShaderTess {
     }
 
     protected void addTrianglePrimitive() {
-        calculateTriangleNormal();
-        calculateTangent();
-        calculateTriangleMidAndEdgeTexUV();
+        ShaderVert.completeTriangle(vertA, vertB, vertC);
+        tess.hasNormals = true;
 
         addVertex(vertA);
         addVertex(vertB);
@@ -323,9 +322,8 @@ public class ShaderTess {
     }
 
     protected void addQuadPrimitive() {
-        calculateQuadNormal();
-        calculateTangent();
-        calculateQuadMidAndEdgeTexUV();
+        ShaderVert.completeQuad(vertA, vertB, vertC, vertD);
+        tess.hasNormals = true;
 
         addVertex(vertA);
         addVertex(vertB);
@@ -333,247 +331,9 @@ public class ShaderTess {
         addVertex(vertD);
     }
 
-    protected void calculateTriangleNormal() {
-        val length_AC_X = vertC.positionX - vertA.positionX;
-        val length_AC_Y = vertC.positionY - vertA.positionY;
-        val length_AC_Z = vertC.positionZ - vertA.positionZ;
-
-        val length_AB_X = vertA.positionX - vertB.positionX;
-        val length_AB_Y = vertA.positionY - vertB.positionY;
-        val length_AB_Z = vertA.positionZ - vertB.positionZ;
-
-        var normalX = (length_AC_Y * length_AB_Z) - (length_AC_Z * length_AB_Y);
-        var normalY = (length_AC_Z * length_AB_X) - (length_AC_X * length_AB_Z);
-        var normalZ = (length_AC_X * length_AB_Y) - (length_AC_Y * length_AB_X);
-
-        val length = safeSqrt(normalX * normalX + normalY * normalY + normalZ * normalZ);
-        normalX /= length;
-        normalY /= length;
-        normalZ /= length;
-
-        setVertNormal(vertA, normalX, normalY, normalZ);
-        setVertNormal(vertB, normalX, normalY, normalZ);
-        setVertNormal(vertC, normalX, normalY, normalZ);
-
-        tess.hasNormals = true;
-    }
-
-    protected void calculateQuadNormal() {
-        val length_AC_X = vertC.positionX - vertA.positionX;
-        val length_AC_Y = vertC.positionY - vertA.positionY;
-        val length_AC_Z = vertC.positionZ - vertA.positionZ;
-
-        val length_DB_X = vertD.positionX - vertB.positionX;
-        val length_DB_Y = vertD.positionY - vertB.positionY;
-        val length_DB_Z = vertD.positionZ - vertB.positionZ;
-
-        var normalX = (length_AC_Y * length_DB_Z) - (length_AC_Z * length_DB_Y);
-        var normalY = (length_AC_Z * length_DB_X) - (length_AC_X * length_DB_Z);
-        var normalZ = (length_AC_X * length_DB_Y) - (length_AC_Y * length_DB_X);
-
-        val length = safeSqrt(normalX * normalX + normalY * normalY + normalZ * normalZ);
-        normalX /= length;
-        normalY /= length;
-        normalZ /= length;
-
-        setVertNormal(vertA, normalX, normalY, normalZ);
-        setVertNormal(vertB, normalX, normalY, normalZ);
-        setVertNormal(vertC, normalX, normalY, normalZ);
-        setVertNormal(vertD, normalX, normalY, normalZ);
-
-        tess.hasNormals = true;
-    }
-
-    protected void setVertNormal(ShaderVert vert, float normalX, float normalY, float normalZ) {
-        vert.normalX = normalX;
-        vert.normalY = normalY;
-        vert.normalZ = normalZ;
-    }
-
-    protected void calculateTangent() {
-        val length_AB_X = vertB.positionX - vertA.positionX;
-        val length_AB_Y = vertB.positionY - vertA.positionY;
-        val length_AB_Z = vertB.positionZ - vertA.positionZ;
-
-        val length_AC_X = vertC.positionX - vertA.positionX;
-        val length_AC_Y = vertC.positionY - vertA.positionY;
-        val length_AC_Z = vertC.positionZ - vertA.positionZ;
-
-        val length_AB_U = vertB.textureU - vertA.textureU;
-        val length_AB_V = vertB.textureV - vertA.textureV;
-
-        val length_AC_U = vertC.textureU - vertA.textureU;
-        val length_AC_V = vertC.textureV - vertA.textureV;
-
-        val lengthSq_UV = length_AB_U * length_AC_V - length_AC_U * length_AB_V;
-
-        final float deltaFactor;
-        if (lengthSq_UV == 0.0) {
-            deltaFactor = 1.0f;
-        } else {
-            deltaFactor = 1.0f / lengthSq_UV;
-        }
-
-        final float tangentX;
-        final float tangentY;
-        final float tangentZ;
-        {
-            val tangentXUnscaled = deltaFactor * (length_AC_V * length_AB_X - length_AB_V * length_AC_X);
-            val tangentYUnscaled = deltaFactor * (length_AC_V * length_AB_Y - length_AB_V * length_AC_Y);
-            val tangentZUnscaled = deltaFactor * (length_AC_V * length_AB_Z - length_AB_V * length_AC_Z);
-
-            val tangentLength = safeSqrt(tangentXUnscaled * tangentXUnscaled +
-                                         tangentYUnscaled * tangentYUnscaled +
-                                         tangentZUnscaled * tangentZUnscaled);
-            tangentX = tangentXUnscaled / tangentLength;
-            tangentY = tangentYUnscaled / tangentLength;
-            tangentZ = tangentZUnscaled / tangentLength;
-        }
-
-        final float biTangentX;
-        final float biTangentY;
-        final float biTangentZ;
-        {
-            val biTangentXUnscaled = deltaFactor * (-length_AC_U * length_AB_X + length_AB_U * length_AC_X);
-            val biTangentYUnscaled = deltaFactor * (-length_AC_U * length_AB_Y + length_AB_U * length_AC_Y);
-            val biTangentZUnscaled = deltaFactor * (-length_AC_U * length_AB_Z + length_AB_U * length_AC_Z);
-
-            val biTangentLength = safeSqrt(biTangentXUnscaled * biTangentXUnscaled +
-                                           biTangentYUnscaled * biTangentYUnscaled +
-                                           biTangentZUnscaled * biTangentZUnscaled);
-            biTangentX = biTangentXUnscaled / biTangentLength;
-            biTangentY = biTangentYUnscaled / biTangentLength;
-            biTangentZ = biTangentZUnscaled / biTangentLength;
-        }
-
-        val otherBiTangentX = tangentY * vertA.normalZ - tangentZ * vertA.normalY;
-        val otherBiTangentY = tangentZ * vertA.normalX - tangentX * vertA.normalZ;
-        val otherBiTangentZ = tangentX * vertA.normalY - tangentY * vertA.normalX;
-
-        val tangentDotProduct = (biTangentX * otherBiTangentX) +
-                                (biTangentY * otherBiTangentY) +
-                                (biTangentZ * otherBiTangentZ);
-
-        final float tangentW;
-        if (tangentDotProduct < 0) {
-            tangentW = -1.0F;
-        } else {
-            tangentW = 1.0F;
-        }
-
-        if (tess.drawMode == GL11.GL_TRIANGLES) {
-            setVertTangent(vertA, tangentX, tangentY, tangentZ, tangentW);
-            setVertTangent(vertB, tangentX, tangentY, tangentZ, tangentW);
-            setVertTangent(vertC, tangentX, tangentY, tangentZ, tangentW);
-        } else if (tess.drawMode == GL11.GL_QUADS) {
-            setVertTangent(vertA, tangentX, tangentY, tangentZ, tangentW);
-            setVertTangent(vertB, tangentX, tangentY, tangentZ, tangentW);
-            setVertTangent(vertC, tangentX, tangentY, tangentZ, tangentW);
-            setVertTangent(vertD, tangentX, tangentY, tangentZ, tangentW);
-        }
-    }
-
-    protected void setVertTangent(ShaderVert vert, float tangentX, float tangentY, float tangentZ, float tangentW) {
-        vert.tangentX = tangentX;
-        vert.tangentY = tangentY;
-        vert.tangentZ = tangentZ;
-        vert.tangentW = tangentW;
-    }
-
-    @SuppressWarnings("DuplicatedCode")
-    protected void calculateTriangleMidAndEdgeTexUV() {
-        val a = vertA;
-        val au = a.textureU;
-        val av = a.textureV;
-        val b = vertB;
-        val bu = b.textureU;
-        val bv = b.textureV;
-        val c = vertC;
-        val cu = c.textureU;
-        val cv = c.textureV;
-        val minU = min(au, bu, cu);
-        val minV = min(av, bv, cv);
-        val maxU = max(au, bu, cu);
-        val maxV = max(av, bv, cv);
-
-        val midU = (minU + maxU) / 2;
-        val midV = (minV + maxV) / 2;
-
-        setVertEdgeAndMidTexture(a, minU, minV, midU, midV);
-        setVertEdgeAndMidTexture(b, minU, minV, midU, midV);
-        setVertEdgeAndMidTexture(c, minU, minV, midU, midV);
-    }
-
-    @SuppressWarnings("DuplicatedCode")
-    protected void calculateQuadMidAndEdgeTexUV() {
-        val a = vertA;
-        val au = a.textureU;
-        val av = a.textureV;
-        val b = vertB;
-        val bu = b.textureU;
-        val bv = b.textureV;
-        val c = vertC;
-        val cu = c.textureU;
-        val cv = c.textureV;
-        val d = vertD;
-        val du = d.textureU;
-        val dv = d.textureV;
-        val minU = min(au, bu, cu, du);
-        val minV = min(av, bv, cv, dv);
-        val maxU = max(au, bu, cu, du);
-        val maxV = max(av, bv, cv, dv);
-
-        val midU = (minU + maxU) / 2;
-        val midV = (minV + maxV) / 2;
-
-        setVertEdgeAndMidTexture(a, minU, minV, midU, midV);
-        setVertEdgeAndMidTexture(b, minU, minV, midU, midV);
-        setVertEdgeAndMidTexture(c, minU, minV, midU, midV);
-        setVertEdgeAndMidTexture(d, minU, minV, midU, midV);
-    }
-
-    protected void setVertEdgeAndMidTexture(ShaderVert vert,
-                                            float edgeTextureU,
-                                            float edgeTextureV,
-                                            float midTextureU,
-                                            float midTextureV) {
-        setVertEdgeTexture(vert, edgeTextureU, edgeTextureV);
-        setVertMidTexture(vert, midTextureU, midTextureV);
-    }
-
-    protected void setVertMidTexture(ShaderVert vert, float midTextureU, float midTextureV) {
-        vert.midTextureU = midTextureU;
-        vert.midTextureV = midTextureV;
-    }
-
-    protected void setVertEdgeTexture(ShaderVert vert, float edgeTextureU, float edgeTextureV) {
-        vert.edgeTextureU = edgeTextureU;
-        vert.edgeTextureV = edgeTextureV;
-    }
-
     protected void addVertex(ShaderVert vertex) {
         prepareBuffer();
         vertex.toIntArray(tess.rawBufferIndex, tess.rawBuffer);
         tess.rawBufferIndex += vertexStrideInt();
-    }
-
-    protected static float min(float a, float b, float c) {
-        return Math.min(Math.min(a, b), c);
-    }
-
-    protected static float max(float a, float b, float c) {
-        return Math.max(Math.max(a, b), c);
-    }
-
-    protected static float min(float a, float b, float c, float d) {
-        return Math.min(Math.min(a, b), Math.min(c, d));
-    }
-
-    protected static float max(float a, float b, float c, float d) {
-        return Math.max(Math.max(a, b), Math.max(c, d));
-    }
-
-    protected static float safeSqrt(float value) {
-        return value != 0F ? (float) Math.sqrt(value) : 1F;
     }
 }
