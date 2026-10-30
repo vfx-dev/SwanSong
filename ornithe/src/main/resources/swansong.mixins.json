@@ -19,6 +19,7 @@
     "RenderChunkMixin",
     "TextRendererMixin",
     "VboRenderChunkListMixin",
+    "VideoOptionsScreenMixin",
     "WorldRendererMixin"
   ],
   "injectors": {
