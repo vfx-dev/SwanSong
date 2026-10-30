@@ -174,10 +174,14 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
         val size = params.size();
         switch (name) {
             case "if" -> {
-                if (size != 3) {
+                if (size < 3 || size % 2 == 0) {
                     throw new IllegalArgumentException();
                 }
-                return resolveBranch(params.get(0), params.get(1), params.get(2));
+                var result = params.get(size - 1);
+                for (int i = size - 3; i >= 0; i -= 2) {
+                    result = resolveBranch(params.get(i), params.get(i + 1), result);
+                }
+                return result;
             }
             case "in" -> {
                 if (size < 2) {
