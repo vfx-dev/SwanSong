@@ -13,6 +13,7 @@ package com.ventooth.swansong.shader.preprocessor.macro;
 import com.ventooth.swansong.mathparser.AbstractParser;
 import com.ventooth.swansong.mathparser.Lexer;
 import com.ventooth.swansong.mathparser.ParserException;
+import com.ventooth.swansong.mathparser.Token;
 import com.ventooth.swansong.mathparser.TokenType;
 import com.ventooth.swansong.shader.preprocessor.Option;
 import lombok.val;
@@ -34,6 +35,29 @@ public class MacroExpressionInterpreter extends AbstractParser<InterpreterValue>
     private MacroExpressionInterpreter(Lexer lexer, Map<String, Option.Value> defines) {
         super(lexer);
         this.defines = defines;
+    }
+
+    @Override
+    protected InterpreterValue parseFunOrVar(String name) throws ParserException {
+        if (name.equals("defined") && lexer.hasNext() && lexer.peek()
+                                                              .type() == TokenType.LeftParen) {
+            lexer.next();
+            val identifier = expect(TokenType.Identifier);
+            expect(TokenType.RightParen);
+            return new InterpreterValue.IntValue(defines.containsKey(identifier.text()) ? 1 : 0);
+        }
+        return super.parseFunOrVar(name);
+    }
+
+    private Token expect(TokenType type) throws ParserException {
+        if (!lexer.hasNext()) {
+            throw new UnexpectedEndOfTokenStreamException("Unterminated defined()");
+        }
+        val token = lexer.next();
+        if (token.type() != type) {
+            throw new UnexpectedTokenException(type, token);
+        }
+        return token;
     }
 
     @Override
