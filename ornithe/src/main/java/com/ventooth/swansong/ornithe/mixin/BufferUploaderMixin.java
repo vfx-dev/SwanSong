@@ -25,7 +25,7 @@ public abstract class BufferUploaderMixin {
                      target = "Lorg/lwjgl/opengl/GL11;glDrawArrays(III)V",
                      remap = false))
     private void swansong$enableAttribs(BufferBuilder builder, CallbackInfo ci) {
-        if (builder.getFormat() == OrnitheVertexFormats.SHADER_BLOCK) {
+        if (OrnitheVertexFormats.SHADER_BLOCK.equals(builder.getFormat())) {
             BlockVertexAttribs.enableClient(builder.getBuffer());
         }
     }
@@ -36,7 +36,7 @@ public abstract class BufferUploaderMixin {
                      shift = At.Shift.AFTER,
                      remap = false))
     private void swansong$disableAttribs(BufferBuilder builder, CallbackInfo ci) {
-        if (builder.getFormat() == OrnitheVertexFormats.SHADER_BLOCK) {
+        if (OrnitheVertexFormats.SHADER_BLOCK.equals(builder.getFormat())) {
             BlockVertexAttribs.disable();
         }
     }
