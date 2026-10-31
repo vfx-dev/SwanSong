@@ -4,7 +4,11 @@ plugins {
 }
 
 group = "com.ventooth"
-version = "0.0.0-dev"
+version = providers.exec { commandLine("git", "describe", "--tags", "--dirty") }.standardOutput.asText.get().trim()
+
+base {
+    archivesName = "swansong-mc1.8.9"
+}
 
 java.toolchain {
     languageVersion = JavaLanguageVersion.of(25)
