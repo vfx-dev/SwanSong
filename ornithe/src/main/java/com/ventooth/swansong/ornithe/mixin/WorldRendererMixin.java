@@ -9,8 +9,10 @@
  */
 package com.ventooth.swansong.ornithe.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.ventooth.swansong.ornithe.OrnitheRender;
 import com.ventooth.swansong.ornithe.OrnitheSkyBox;
 import com.ventooth.swansong.ornithe.SwanSongOrnithe;
@@ -21,6 +23,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.world.RenderChunk;
 import net.minecraft.client.render.world.WorldRenderer;
 import net.minecraft.entity.Entities;
 import net.minecraft.entity.Entity;
@@ -28,6 +31,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Set;
 
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin {
@@ -229,5 +234,10 @@ public abstract class WorldRendererMixin {
             OrnitheRender.bindWhiteTexture();
             OrnitheRender.fullBrightLightmap();
         }
+    }
+
+    @Inject(method = "setupRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/world/ChunkRenderDispatcher;rebuildSync(Lnet/minecraft/client/render/world/RenderChunk;)Z"))
+    private void swansong$dequeueNearBuild(CallbackInfo ci, @Local Set<RenderChunk> queued, @Local(ordinal = 1) RenderChunk chunk) {
+        queued.remove(chunk);
     }
 }
