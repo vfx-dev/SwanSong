@@ -101,7 +101,10 @@ public final class OrnitheShadowPassRenderer implements ShadowPassRenderer {
         GlStateManager.enableAlphaTest();
 
         worldRenderer.viewChanged = true;
-        worldRenderer.setupRender(camera, partialTick, culler, frame++, mc.player.isSpectator());
+        var smartCull = mc.smartCull;
+        mc.smartCull = false;
+        worldRenderer.setupRender(camera, partialTick, culler, frame++, true);
+        mc.smartCull = smartCull;
 
         engine.graph()
               .moveTo(Node.ShadowChunk0);
