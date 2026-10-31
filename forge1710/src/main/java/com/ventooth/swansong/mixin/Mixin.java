@@ -82,6 +82,7 @@ public enum Mixin implements IMixins {
           client("hooks.FontRendererMixin",
                  "hooks.EntityRendererMixin",
                  "hooks.ItemRendererMixin",
+                 "hooks.RenderItemMixin",
                  "hooks.RenderFishMixin",
                  "hooks.RenderGlobalMixin",
                  "hooks.RenderManagerMixin",

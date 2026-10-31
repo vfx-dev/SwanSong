@@ -11,6 +11,7 @@
 package com.ventooth.swansong.mixin.mixins.client.hooks;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import com.ventooth.swansong.platform.McShaderIds;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,6 +36,28 @@ public abstract class ItemRendererMixin {
                        require = 2)
     private boolean skip_DepthMask(boolean flag) {
         return !ArchaicShaderEngine.isInitialized() && flag;
+    }
+
+    @Inject(method = "renderItem(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraftforge/client/IItemRenderer$ItemRenderType;)V",
+            at = @At(value = "INVOKE",
+                     target = "Lorg/lwjgl/opengl/GL11;glDepthFunc(I)V",
+                     ordinal = 0,
+                     remap = false),
+            remap = false,
+            require = 1)
+    private void hook_BeginGlint(CallbackInfo ci) {
+        RendererLivingEntityExt.beginGlint();
+    }
+
+    @Inject(method = "renderItem(Lnet/minecraft/entity/EntityLivingBase;Lnet/minecraft/item/ItemStack;ILnet/minecraftforge/client/IItemRenderer$ItemRenderType;)V",
+            at = @At(value = "INVOKE",
+                     target = "Lorg/lwjgl/opengl/GL11;glDepthFunc(I)V",
+                     ordinal = 1,
+                     remap = false),
+            remap = false,
+            require = 1)
+    private void hook_EndGlint(CallbackInfo ci) {
+        RendererLivingEntityExt.endGlint();
     }
 
     @Inject(method = "updateEquippedItem",

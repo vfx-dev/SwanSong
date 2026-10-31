@@ -1,5 +1,7 @@
 package com.ventooth.swansong.mixin.extensions;
 
+import com.ventooth.swansong.platform.ArchaicShaderEngine;
+import com.ventooth.swansong.shader.StateGraph;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.lwjgl.opengl.GL11;
@@ -42,5 +44,17 @@ public final class RendererLivingEntityExt {
 
     public static void endEyes() {
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+    }
+
+    public static void beginGlint() {
+        if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().push(StateGraph.Stack.ArmorGlint);
+        }
+    }
+
+    public static void endGlint() {
+        if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
+            ArchaicShaderEngine.get().graph().pop(StateGraph.Stack.ArmorGlint);
+        }
     }
 }

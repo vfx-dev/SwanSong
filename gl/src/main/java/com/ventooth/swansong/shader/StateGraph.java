@@ -334,6 +334,23 @@ public class StateGraph {
             }
         };
 
+        public static final Stack ArmorGlint = new Stack("ArmorGlint") {
+            @Override
+            protected void push(ShaderEngine<?> e, Node currentNode) {
+                if (currentNode.isRender) {
+                    e.pushShader();
+                    e.use(e.fixed.manager.armor_glint);
+                }
+            }
+
+            @Override
+            protected void pop(ShaderEngine<?> e, Node currentNode) {
+                if (currentNode.isRender) {
+                    e.popShader();
+                }
+            }
+        };
+
         public static final Stack SpiderEyes = new Stack("SpiderEyes") {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {

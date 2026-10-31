@@ -15,6 +15,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.ventooth.swansong.mixin.extensions.RendererLivingEntityExt;
 import com.ventooth.swansong.platform.ArchaicShaderEngine;
 import lombok.val;
 import org.lwjgl.opengl.GL11;
@@ -85,6 +86,26 @@ public abstract class RendererLivingEntityMixin {
         if (ArchaicShaderEngine.isInitialized()) {
             ArchaicShaderEngine.get().state().resetEntityColor();
         }
+    }
+
+    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
+            at = @At(value = "INVOKE",
+                     target = "Lorg/lwjgl/opengl/GL11;glDepthFunc(I)V",
+                     ordinal = 0,
+                     remap = false),
+            require = 1)
+    private void hook_BeginGlint(CallbackInfo ci) {
+        RendererLivingEntityExt.beginGlint();
+    }
+
+    @Inject(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",
+            at = @At(value = "INVOKE",
+                     target = "Lorg/lwjgl/opengl/GL11;glDepthFunc(I)V",
+                     ordinal = 1,
+                     remap = false),
+            require = 1)
+    private void hook_EndGlint(CallbackInfo ci) {
+        RendererLivingEntityExt.endGlint();
     }
 
     @WrapWithCondition(method = "doRender(Lnet/minecraft/entity/EntityLivingBase;DDDFF)V",

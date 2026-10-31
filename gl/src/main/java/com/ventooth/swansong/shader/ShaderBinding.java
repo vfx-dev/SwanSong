@@ -53,6 +53,7 @@ public class ShaderBinding {
     public final GBufferShader skybasic;
 
     public final GBufferShader textured;
+    public final GBufferShader armor_glint;
     public final GBufferShader spidereyes;
     public final GBufferShader beaconbeam;
     public final GBufferShader clouds;
@@ -92,6 +93,7 @@ public class ShaderBinding {
             b.skybasic(b.gBuffer(shaderPool, ShaderTypes.gbuffers_skybasic));
 
             b.textured(b.gBuffer(shaderPool, ShaderTypes.gbuffers_textured));
+            b.armor_glint(b.gBuffer(shaderPool, ShaderTypes.gbuffers_armor_glint));
             b.spidereyes(b.gBuffer(shaderPool, ShaderTypes.gbuffers_spidereyes));
             b.beaconbeam(b.gBuffer(shaderPool, ShaderTypes.gbuffers_beaconbeam));
             b.clouds(b.gBuffer(shaderPool, ShaderTypes.gbuffers_clouds));
