@@ -776,6 +776,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         graph.moveTo(Node.BeginFrame);
         clearColorBufs();
+        mcFramebuffer.bind();
 
         if (fixed.depthSampler != null) {
             state.updateCenterDepth(fixed.depthSampler.getSample());
