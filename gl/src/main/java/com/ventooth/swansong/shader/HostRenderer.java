@@ -15,8 +15,15 @@ import com.ventooth.swansong.resources.pack.DimensionInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileNotFoundException;
 
 public interface HostRenderer {
+    default InputStream openResource(String location) throws IOException {
+        throw new FileNotFoundException(location);
+    }
+
     boolean isHandVisible();
 
     double fieldOfView(float partialTick);

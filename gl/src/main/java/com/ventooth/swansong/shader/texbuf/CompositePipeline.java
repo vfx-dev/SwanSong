@@ -21,6 +21,8 @@ import com.ventooth.swansong.shader.shaderobjects.CompositeShader;
 import com.ventooth.swansong.sufrace.Framebuffer;
 import com.ventooth.swansong.sufrace.FramebufferAttachment;
 import com.ventooth.swansong.sufrace.Texture2D;
+import com.ventooth.swansong.sufrace.CustomTexture;
+import java.util.List;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
@@ -47,6 +49,7 @@ public class CompositePipeline implements Runnable {
                                                        @NotNull DrawBuffers buffers,
                                                        @NotNull ObjectList<CompositeShader> shaders,
                                                        @NotNull Map<CompositeTextureData, Texture2D> customTextures,
+                                                  List<CustomTexture> custom,
                                                        @Nullable Report report) {
         val info = report == null ? null
                                   : report.pipelines.computeIfAbsent("final", n -> new Report.CompositePipelineInfo());
@@ -67,7 +70,7 @@ public class CompositePipeline implements Runnable {
                 recordShaderIOInfo(shader, info, mipInputs, inputTex, null);
             }
 
-            steps.add(new FinalStep(engine, Collections.unmodifiableMap(inputTex), shader));
+            steps.add(new FinalStep(engine, Collections.unmodifiableMap(inputTex), shader, custom));
         }
         return new CompositePipeline(ObjectLists.unmodifiable(steps), null);
     }
@@ -77,6 +80,7 @@ public class CompositePipeline implements Runnable {
                                                   String auxPrefix,
                                                   @NotNull Map<CompositeTextureData, BufferConfig> gBufferConfigs,
                                                   @NotNull Map<CompositeTextureData, Texture2D> customTextures,
+                                                  List<CustomTexture> custom,
                                                   @NotNull DrawBuffers buffers,
                                                   @NotNull ObjectList<CompositeShader> shaders,
                                                   int width,
@@ -118,7 +122,7 @@ public class CompositePipeline implements Runnable {
             }
 
             shader.framebuffer = Framebuffer.create(name + i, Collections.unmodifiableMap(outputTex));
-            steps.add(new CompositeStep(engine, Collections.unmodifiableMap(inputTex), shader));
+            steps.add(new CompositeStep(engine, Collections.unmodifiableMap(inputTex), shader, custom));
         }
         genAuxPostBlit(engine, buffers, auxTex, info, aux, steps);
         return new CompositePipeline(ObjectLists.unmodifiable(steps), aux);
@@ -367,11 +371,12 @@ public class CompositePipeline implements Runnable {
         private final ShaderEngine<?> engine;
         private final Map<CompositeTextureData, Texture2D> inputs;
         private final CompositeShader shader;
+        private final List<CustomTexture> custom;
 
         @Override
         public void run() {
             engine.useCompositeShader(shader);
-            engine.bindCompositeTextures(inputs);
+            engine.bindCompositeTextures(inputs, custom);
 
             GLDebugGroups.RENDER_COMPOSITE_DRAW.push();
             engine.compositeMesh().drawWithColor();
@@ -409,12 +414,13 @@ public class CompositePipeline implements Runnable {
         private final ShaderEngine<?> engine;
         private final Map<CompositeTextureData, Texture2D> inputs;
         private final CompositeShader shader;
+        private final List<CustomTexture> custom;
 
         @Override
         public void run() {
             GLDebugGroups.RENDER_COMPOSITE_FINAL.push();
             engine.useCompositeShader(shader);
-            engine.bindCompositeTextures(inputs);
+            engine.bindCompositeTextures(inputs, custom);
             val anaglyph = engine.host().anaglyphOffset();
             GLDebugGroups.RENDER_COMPOSITE_FINAL_DRAW.push();
             if (anaglyph != 0) {

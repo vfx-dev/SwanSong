@@ -10,7 +10,6 @@
 
 package com.ventooth.swansong.gl;
 
-import org.intellij.lang.annotations.MagicConstant;
 import org.lwjgl.opengl.GL11;
 
 public class GLTexture {
@@ -29,7 +28,7 @@ public class GLTexture {
         glBindTexture(GL11.GL_TEXTURE_2D);
     }
 
-    public void glBindTexture(@MagicConstant(intValues = GL11.GL_TEXTURE_2D) int target) {
+    public void glBindTexture(int target) {
         GL11.glBindTexture(target, glName);
     }
 }

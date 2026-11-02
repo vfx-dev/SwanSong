@@ -27,6 +27,7 @@ import com.ventooth.swansong.shader.shaderobjects.ManagedShader;
 import com.ventooth.swansong.shader.shaderobjects.ShadowShader;
 import com.ventooth.swansong.shader.texbuf.CompositePipeline;
 import com.ventooth.swansong.sufrace.CustomTexture2D;
+import com.ventooth.swansong.sufrace.CustomTexture;
 import com.ventooth.swansong.sufrace.Framebuffer;
 import com.ventooth.swansong.sufrace.HFNoiseTexture2D;
 import com.ventooth.swansong.sufrace.Texture2D;
@@ -80,7 +81,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
     /// runtime varying state
 
     // TODO: [CUSTOM_TEX] Do we want to keep it loose like this?
-    private Map<CompositeTextureData, Texture2D> gbuffersCustomTex = Collections.emptyMap();
+    private final Map<String, java.util.List<CustomTexture>> customTextures = new java.util.HashMap<>();
     private Map<CompositeTextureData, Texture2D> compositeCustomTex = Collections.emptyMap();
     private Map<CompositeTextureData, Texture2D> deferredCustomTex = Collections.emptyMap();
 
@@ -493,42 +494,34 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         compositeMesh.init();
 
-        gbuffersCustomTex = new EnumMap<>(CompositeTextureData.class);
         compositeCustomTex = new EnumMap<>(CompositeTextureData.class);
         deferredCustomTex = new EnumMap<>(CompositeTextureData.class);
 
         if (!fixed.textures.isEmpty()) {
             for (val stagedTex : fixed.textures) {
-                val index = BufferNameUtil.gbufferIndexFromName(stagedTex.bufferName());
+                val index = BufferNameUtil.gbufferIndexFromName(stagedTex.bufferName().replaceFirst("\\.[0-9]$", ""));
                 if (index == null) {
                     Share.log.error("Unknown buffer index for custom texture: {}", stagedTex);
                     continue;
                 }
 
-                val stagedCustomTexMap = switch (stagedTex.stage()) {
-                    case "gbuffers" -> gbuffersCustomTex;
-                    case "composite" -> compositeCustomTex;
-                    case "deferred" -> deferredCustomTex;
-                    default -> null;
-                };
-                if (stagedCustomTexMap == null) {
+                if (!java.util.Set.of("gbuffers", "composite", "deferred").contains(stagedTex.stage())) {
                     Share.log.error("Unknown stage for custom texture: {}", stagedTex);
                     continue;
                 }
-
-                if (stagedCustomTexMap.containsKey(index)) {
-                    Share.log.error("Duplicate custom texture {} ignored", stagedTex);
+                if (index.gpuIndex() >= EnvInfo.get().maxTextureUnits) {
+                    Share.log.error("Custom texture exceeds available texture units: {}", stagedTex);
                     continue;
                 }
-
-                val path = "/shaders/" + stagedTex.path();
-                val customTex = CustomTexture2D.load(fixed.pack, path);
-                if (customTex == null) {
-                    Share.log.error("Missing custom texture {}, on exact path: {}", stagedTex, path);
-                    continue;
+                val customTex = CustomTexture.load(index, fixed.pack, host, stagedTex.path());
+                if (customTex == null) continue;
+                customTextures.computeIfAbsent(stagedTex.stage(), _ -> new java.util.ArrayList<>()).add(customTex);
+                if (customTex.image() != null) {
+                    switch (stagedTex.stage()) {
+                        case "composite" -> compositeCustomTex.put(index, customTex.image());
+                        case "deferred" -> deferredCustomTex.put(index, customTex.image());
+                    }
                 }
-
-                stagedCustomTexMap.put(index, customTex);
                 Share.log.debug("Loaded Custom Texture: {}", stagedTex);
                 // TODO: Make format look like: deferred.colortex3<TAB>lib/textures/cloud-water.png<TAB>RGBA<TAB>256x256
                 report.customTextures.put(stagedTex.path(),
@@ -538,11 +531,6 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
             }
         }
 
-        if (gbuffersCustomTex.isEmpty()) {
-            gbuffersCustomTex = Collections.emptyMap();
-        } else {
-            gbuffersCustomTex = Collections.unmodifiableMap(gbuffersCustomTex);
-        }
         if (compositeCustomTex.isEmpty()) {
             compositeCustomTex = Collections.emptyMap();
         } else {
@@ -612,17 +600,9 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         }
 
         shaderData.reset();
-        for (val tex : gbuffersCustomTex.values()) {
-            tex.deinit();
-        }
-        gbuffersCustomTex = Collections.emptyMap();
-        for (val tex : compositeCustomTex.values()) {
-            tex.deinit();
-        }
+        customTextures.values().forEach(textures -> textures.forEach(CustomTexture::deinit));
+        customTextures.clear();
         compositeCustomTex = Collections.emptyMap();
-        for (val tex : deferredCustomTex.values()) {
-            tex.deinit();
-        }
         deferredCustomTex = Collections.emptyMap();
 
         if (noiseTex != null) {
@@ -708,6 +688,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
                                                                "DA_",
                                                                fixed.colorDrawBufferConfigs,
                                                                deferredCustomTex,
+                                                               customTextures.getOrDefault("deferred", java.util.List.of()),
                                                                buffers,
                                                                fixed.manager.deferredList,
                                                                width,
@@ -720,6 +701,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
                                                                 "CA_",
                                                                 fixed.colorDrawBufferConfigs,
                                                                 compositeCustomTex,
+                                                                customTextures.getOrDefault("composite", java.util.List.of()),
                                                                 buffers,
                                                                 fixed.manager.compositeList,
                                                                 width,
@@ -736,6 +718,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
                                                                  buffers,
                                                                  ObjectLists.singleton(fixed.manager._final),
                                                                  compositeCustomTex,
+                                                                 customTextures.getOrDefault("composite", java.util.List.of()),
                                                                  report);
         }
 
@@ -843,8 +826,19 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         host.invalidateTextureBindings();
     }
 
-    // TODO: [CUSTOM_TEX] Bind the custom textures if applicable
-    public void bindCompositeTextures(Map<CompositeTextureData, Texture2D> textures) {
+    private void bindCustomTextures(java.util.List<CustomTexture> active) {
+        for (val textures : customTextures.values()) {
+            for (val texture : textures) {
+                if (texture.target() != GL11.GL_TEXTURE_2D) {
+                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + texture.unit().gpuIndex());
+                    GL11.glBindTexture(texture.target(), 0);
+                }
+            }
+        }
+        active.forEach(CustomTexture::bind);
+    }
+
+    public void bindCompositeTextures(Map<CompositeTextureData, Texture2D> textures, java.util.List<CustomTexture> custom) {
         for (val entry: textures.entrySet()) {
             GL13.glActiveTexture(GL13.GL_TEXTURE0 + entry.getKey().gpuIndex());
             entry.getValue().bind();
@@ -856,6 +850,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         buffers.depthTex1.bind();
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + CompositeTextureData.depthtex2.gpuIndex());
         buffers.depthTex2.bind();
+        bindCustomTextures(custom);
 
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         host.invalidateTextureBindings();
@@ -1109,11 +1104,8 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
                 }
             }
             if (isGBuffer || isShadow) {
-                for (val entry: gbuffersCustomTex.entrySet()) {
-                    GL13.glActiveTexture(GL13.GL_TEXTURE0 + entry.getKey().gpuIndex());
-                    resetTexture = true;
-                    entry.getValue().bind();
-                }
+                bindCustomTextures(customTextures.getOrDefault("gbuffers", java.util.List.of()));
+                resetTexture |= !customTextures.isEmpty();
             }
             if (resetTexture) {
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);

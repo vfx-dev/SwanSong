@@ -40,6 +40,11 @@ public final class OrnitheHostRenderer implements HostRenderer {
     }
 
     @Override
+    public java.io.InputStream openResource(String location) throws java.io.IOException {
+        return Minecraft.getInstance().getResourceManager().getResource(new Identifier(location)).asStream();
+    }
+
+    @Override
     public OrnitheShaderPackManager shaderPacks() {
         return shaderPacks;
     }

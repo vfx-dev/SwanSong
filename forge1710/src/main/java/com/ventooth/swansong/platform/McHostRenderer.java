@@ -23,12 +23,20 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 
 public final class McHostRenderer implements HostRenderer {
     private final McShaderPackManager shaderPacks = new McShaderPackManager(Minecraft.getMinecraft().mcDataDir.toPath());
+
+    @Override
+    public InputStream openResource(String location) throws IOException {
+        return Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation(location)).getInputStream();
+    }
 
     @Override
     public McShaderPackManager shaderPacks() {

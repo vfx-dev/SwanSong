@@ -14,7 +14,6 @@ import com.ventooth.swansong.Share;
 import com.ventooth.swansong.gl.GLTexture;
 import com.ventooth.swansong.shader.preprocessor.FSProvider;
 import lombok.val;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -35,8 +34,8 @@ public final class CustomTexture2D extends Texture2D {
         final int width;
         final int height;
         final IntBuffer buf;
-        try {
-            val img = ImageIO.read(fs.get(path));
+        try (val input = fs.get(path)) {
+            val img = ImageIO.read(input);
             width = img.getWidth();
             height = img.getHeight();
 
@@ -53,8 +52,8 @@ public final class CustomTexture2D extends Texture2D {
         }
 
         TextureMeta meta;
-        try {
-            val str = IOUtils.toString(fs.get(path + ".mcmeta"));
+        try (val input = fs.get(path + ".mcmeta")) {
+            val str = new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
             meta = TextureMeta.read(str);
             if (meta == null) {
                 log.debug("Texture meta is null");
