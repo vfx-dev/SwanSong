@@ -70,6 +70,10 @@ public class TypeResolver implements Transformation<UntypedNode, TypedNode> {
         } else if (input instanceof UntypedUnaryNode un) {
             return resolveUnary(transform(un.param), un.op);
         } else if (input instanceof UntypedVarNode var) {
+            val constant = lookup.lookupConstant(var.name);
+            if (constant != null) {
+                return ConstNode.Int.of(constant);
+            }
             return resolveFunction(var.name, Collections.emptyList());
         } else {
             throw new AssertionError(input.getClass()

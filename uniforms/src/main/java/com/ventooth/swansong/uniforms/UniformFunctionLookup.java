@@ -24,9 +24,16 @@ import java.util.function.Function;
 public sealed interface UniformFunctionLookup {
     @Nullable UniformFunction lookup(String name, List<Type> paramTypes);
 
+    @Nullable Integer lookupConstant(String name);
+
     @NoArgsConstructor
     final class Single implements UniformFunctionLookup {
         private final Map<String, List<UniformFunction>> fnMap = new HashMap<>();
+        private final Map<String, Integer> constants = new HashMap<>();
+
+        public void constant(String name, int value) {
+            constants.put(name, value);
+        }
 
         public UniformFunction pure(Method method) {
             return pure(method, method.getName());
@@ -153,6 +160,11 @@ public sealed interface UniformFunctionLookup {
             }
             return null;
         }
+
+        @Override
+        public @Nullable Integer lookupConstant(String name) {
+            return constants.get(name);
+        }
     }
 
     @NoArgsConstructor
@@ -169,6 +181,17 @@ public sealed interface UniformFunctionLookup {
                 val fn = lookup.lookup(name, paramTypes);
                 if (fn != null) {
                     return fn;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public @Nullable Integer lookupConstant(String name) {
+            for (val lookup : lookups) {
+                val value = lookup.lookupConstant(name);
+                if (value != null) {
+                    return value;
                 }
             }
             return null;

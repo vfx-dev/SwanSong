@@ -19,6 +19,9 @@ import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.entity.living.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
+
+import java.util.Map;
 
 public final class OrnitheShaderState extends ShaderState {
     @Override
@@ -135,6 +138,12 @@ public final class OrnitheShaderState extends ShaderState {
                                skyColor.y,
                                skyColor.z,
                                biome.id,
-                               biome.getTemperature(pos));
+                               biome.getTemperature(pos),
+                               biome.getDownfall());
+    }
+
+    @Override
+    public Map<String, Integer> biomeConstants() {
+        return legacyBiomeConstants(Biome.getAll(), biome -> biome.name, biome -> biome.id);
     }
 }

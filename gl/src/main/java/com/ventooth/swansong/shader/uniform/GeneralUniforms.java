@@ -26,11 +26,14 @@ import java.util.function.Supplier;
 
 
 public final class GeneralUniforms {
+    private final ShaderState state;
     private final List<Uniform<?>> live;
     private final List<Uniform<?>> general;
-    private final UniformFunctionLookup funcLookup;
+    private final UniformFunctionLookup.Single funcLookup;
+    private boolean biomeConstantsRegistered;
 
     public GeneralUniforms(ShaderState state) {
+        this.state = state;
         //@formatter:off
         live = new GeneralUniformListBuilder()
             .addInt("fogMode", state::fogMode)
@@ -69,6 +72,7 @@ public final class GeneralUniforms {
             .addFloat("sunAngle", state::sunAngle)
             .addFloat("shadowAngle", state::shadowAngle)
             .addFloat("rainStrength", state::rainStrength)
+            .addFloat("rainfall", state::rainfall)
             .addFloat("aspectRatio", state::aspectRatio)
             .addFloat("viewWidth", state::viewWidth)
             .addFloat("viewHeight", state::viewHeight)
@@ -133,6 +137,7 @@ public final class GeneralUniforms {
             reg.impure(state, clazz.getDeclaredMethod("shadowAngle"));
             reg.impure(state, clazz.getDeclaredMethod("moonPhase"));
             reg.impure(state, clazz.getDeclaredMethod("rainStrength"));
+            reg.impure(state, clazz.getDeclaredMethod("rainfall"));
             reg.impure(state, clazz.getDeclaredMethod("wetness"));
             reg.impure(state, clazz.getDeclaredMethod("worldTime"));
             reg.impure(state, clazz.getDeclaredMethod("worldDay"));
@@ -168,6 +173,10 @@ public final class GeneralUniforms {
     }
 
     public UniformFunctionLookup funcLookup() {
+        if (!biomeConstantsRegistered) {
+            state.biomeConstants().forEach(funcLookup::constant);
+            biomeConstantsRegistered = true;
+        }
         return funcLookup;
     }
 

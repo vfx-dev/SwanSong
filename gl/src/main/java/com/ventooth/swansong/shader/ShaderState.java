@@ -33,6 +33,11 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.DoubleBuffer;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 public abstract class ShaderState {
     private final DoubleBuffer tempDoubleBuf = BufferUtils.createDoubleBuffer(16);
@@ -132,6 +137,7 @@ public abstract class ShaderState {
 
     private int biome = 0;
     private double temperature = 0;
+    private double rainfall = 0;
 
     private double wetnessHalfLife = 600D;
     private double drynessHalfLife = 200D;
@@ -179,6 +185,10 @@ public abstract class ShaderState {
 
     public double temperature() {
         return temperature;
+    }
+
+    public double rainfall() {
+        return rainfall;
     }
 
     public float blockLightLevel(float old) {
@@ -534,6 +544,7 @@ public abstract class ShaderState {
 
         biome = sample.biomeId();
         temperature = sample.temperature();
+        rainfall = sample.rainfall();
 
         entityId = -1;
         blockEntityId = -1;
@@ -746,6 +757,35 @@ public abstract class ShaderState {
 
     public WorldSample sampleWorld() {
         return WorldSample.EMPTY;
+    }
+
+    public Map<String, Integer> biomeConstants() {
+        return Map.of();
+    }
+
+    protected static <T> Map<String, Integer> legacyBiomeConstants(T[] biomes,
+                                                                     Function<T, String> name,
+                                                                     ToIntFunction<T> id) {
+        val constants = new HashMap<String, Integer>();
+        for (val biome : biomes) {
+            if (biome != null) {
+                constants.put("BIOME_" + name.apply(biome).replaceAll("[^A-Za-z0-9]+", "_").toUpperCase(Locale.ROOT),
+                              id.applyAsInt(biome));
+            }
+        }
+        val swamp = constants.get("BIOME_SWAMPLAND");
+        if (swamp != null) {
+            constants.put("BIOME_SWAMP", swamp);
+        }
+        val swampHills = constants.get("BIOME_SWAMPLAND_M");
+        if (swampHills != null) {
+            constants.put("BIOME_SWAMP_HILLS", swampHills);
+        }
+        val hills = constants.get("BIOME_EXTREME_HILLS");
+        if (hills != null) {
+            constants.put("BIOME_HILLS", hills);
+        }
+        return Map.copyOf(constants);
     }
 
     private void updateUniforms() {

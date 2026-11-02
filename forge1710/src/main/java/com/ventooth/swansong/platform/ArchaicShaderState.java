@@ -19,6 +19,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.biome.BiomeGenBase;
+
+import java.util.Map;
 
 public class ArchaicShaderState extends ShaderState {
     @Override
@@ -136,6 +139,12 @@ public class ArchaicShaderState extends ShaderState {
                                skyColor.yCoord,
                                skyColor.zCoord,
                                biome.biomeID,
-                               biome.getFloatTemperature(camPos.x(), camPos.y(), camPos.z()));
+                               biome.getFloatTemperature(camPos.x(), camPos.y(), camPos.z()),
+                               biome.getIntRainfall() / 65536.0D);
+    }
+
+    @Override
+    public Map<String, Integer> biomeConstants() {
+        return legacyBiomeConstants(BiomeGenBase.getBiomeGenArray(), biome -> biome.biomeName, biome -> biome.biomeID);
     }
 }
