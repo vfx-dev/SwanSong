@@ -88,6 +88,11 @@ public class RecursiveIncluder {
             boolean prevInclude = false;
             while ((line = reader.readLine()) != null) {
                 val lineI = reader.getLineNumber();
+                while (line.endsWith("\\")) {
+                    val next = reader.readLine();
+                    if (next == null) break;
+                    line = line.substring(0, line.length() - 1) + next;
+                }
                 if (isInclude(line)) {
                     if (!parseInclude(line, absPath, lineI, absPath)) {
                         return false;
