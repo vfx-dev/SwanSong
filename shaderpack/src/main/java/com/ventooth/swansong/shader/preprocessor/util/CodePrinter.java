@@ -55,7 +55,7 @@ public class CodePrinter {
             val opt = opts.get(i);
             String txt;
             if (opt != null) {
-                if (opt.isToggle() && !opt.isEnabled()) {
+                if (opt instanceof Option.Define && opt.isToggle() && !opt.isEnabled()) {
                     continue;
                 }
                 txt = null;
