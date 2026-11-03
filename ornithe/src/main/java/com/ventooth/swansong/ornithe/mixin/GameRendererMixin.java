@@ -10,6 +10,8 @@
 package com.ventooth.swansong.ornithe.mixin;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.ventooth.swansong.ornithe.SwanSongOrnithe;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import net.minecraft.client.render.GameRenderer;
@@ -60,6 +62,20 @@ public abstract class GameRendererMixin {
             require = 1)
     private void swansong$renderBegin(CallbackInfo ci) {
         swansong$moveTo(Node.RenderBegin);
+    }
+
+    @WrapOperation(method = "render(IFJ)V",
+                   at = @At(value = "INVOKE",
+                            target = "Lnet/minecraft/client/render/platform/GlStateManager;viewport(IIII)V"),
+                   require = 1)
+    private void swansong$scaleViewport(int x, int y, int width, int height, Operation<Void> original) {
+        if (swansong$active()) {
+            var size = SwanSongOrnithe.ENGINE.state()
+                                             .viewSize();
+            width = size.x();
+            height = size.y();
+        }
+        original.call(x, y, width, height);
     }
 
     @Inject(method = "render(IFJ)V",
