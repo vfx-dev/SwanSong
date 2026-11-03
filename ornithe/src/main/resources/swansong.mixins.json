@@ -9,6 +9,7 @@
     "BufferUploaderMixin",
     "DebugOverlayMixin",
     "EnchantmentGlintMixin",
+    "EndPortalRendererMixin",
     "EntityRenderDispatcherMixin",
     "EntityRendererMixin",
     "EyesLayerMixin",
