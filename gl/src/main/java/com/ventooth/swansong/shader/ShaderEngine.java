@@ -51,8 +51,10 @@ import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // [ShaderType] -> Had a resource location, and can create a Managed Program
 // Provided defaults are: composite-style and gbuffers-style
@@ -89,6 +91,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
     private Texture2D noiseTex;
 
     private DrawBuffers buffers;
+    private Set<CompositeTextureData> sampledTextures = EnumSet.noneOf(CompositeTextureData.class);
 
     private @Nullable CompositePipeline deferredPipeline;
     private @Nullable CompositePipeline compositePipeline;
@@ -181,7 +184,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
     void renderHand() {
         sampleCenterDepth();
         DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_2");
-        blitDepth(buffers.gDepthTex, buffers.depthTex2);
+        copyDepth(buffers.depthTex2, CompositeTextureData.depthtex2);
         DebugMarker.GENERIC.insert("POST_COPY_DEPTH_2");
 
         if (!state.isHeldItemTranslucent()) {
@@ -191,11 +194,11 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         }
 
         DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_0");
-        blitDepth(buffers.gDepthTex, buffers.depthTex0);
+        copyDepth(buffers.depthTex0, CompositeTextureData.depthtex0);
         DebugMarker.GENERIC.insert("POST_COPY_DEPTH_0");
 
         DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_1");
-        blitDepth(buffers.gDepthTex, buffers.depthTex1);
+        copyDepth(buffers.depthTex1, CompositeTextureData.depthtex1);
         DebugMarker.GENERIC.insert("POST_COPY_DEPTH_1");
     }
 
@@ -347,7 +350,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         DebugMarker.GENERIC.insert("PRE_COPY_DEPTH_0");
 
-        blitDepth(buffers.gDepthTex, buffers.depthTex0);
+        copyDepth(buffers.depthTex0, CompositeTextureData.depthtex0);
 
         DebugMarker.GENERIC.insert("POST_COPY_DEPTH_0");
     }
@@ -489,6 +492,16 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         report.startTime = System.nanoTime();
         fixed = FixedEngineState.init(this, host.currentDimension(), report);
+        sampledTextures = EnumSet.noneOf(CompositeTextureData.class);
+        for (val shader : fixed.manager.loadedShaders) {
+            for (val uniform : shader.getUniforms()
+                                     .values()) {
+                val id = BufferNameUtil.gbufferIndexFromName(uniform.name());
+                if (id != null) {
+                    sampledTextures.add(id);
+                }
+            }
+        }
         use(null);
 
         compositeMesh.init();
@@ -954,6 +967,19 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         use(lastShader);
     }
 
+    private void copyDepth(Texture2D target, CompositeTextureData id) {
+        if (sampledTextures.contains(id)) {
+            blitDepth(buffers.gDepthTex, target);
+        }
+    }
+
+    private void clearDepth(Texture2D target, CompositeTextureData id) {
+        if (sampledTextures.contains(id)) {
+            target.attachToFramebufferDepth();
+            GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        }
+    }
+
     public void blitDepth(Texture2D srcTex, Texture2D dstTex) {
         blitDepth(srcTex, dstTex, false);
     }
@@ -1012,12 +1038,9 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         buffers.gDepthTex.attachToFramebufferDepth();
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        buffers.depthTex0.attachToFramebufferDepth();
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        buffers.depthTex1.attachToFramebufferDepth();
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        buffers.depthTex2.attachToFramebufferDepth();
-        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        clearDepth(buffers.depthTex0, CompositeTextureData.depthtex0);
+        clearDepth(buffers.depthTex1, CompositeTextureData.depthtex1);
+        clearDepth(buffers.depthTex2, CompositeTextureData.depthtex2);
 
         buffers.tempColor.bind();
         buffers.gColor.clear(state.fogColor());
