@@ -252,7 +252,6 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         }
         shaderSwitches = 0;
 
-        clearColorBufs();
         use(null);
         mcFramebuffer.bind();
     }
