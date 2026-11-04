@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MacroInterpreter {
@@ -136,6 +135,10 @@ public class MacroInterpreter {
         return macro.split("\\s+", 2);
     }
 
+    private static String name(String macro) {
+        return macro.split("\\s+|//|/\\*", 3)[1];
+    }
+
     private boolean processIfdef(String macro) {
         if (!macro.startsWith("#ifdef ")) {
             return false;
@@ -144,8 +147,7 @@ public class MacroInterpreter {
         if (disabled.previousSetBit(depth - 1) != -1) {
             return true;
         }
-        val parts = split(macro);
-        val res = defines.containsKey(parts[1]);
+        val res = defines.containsKey(name(macro));
         elifChainBranchTaken.set(depth, res);
         disabled.set(depth, !res);
         return true;
@@ -159,8 +161,7 @@ public class MacroInterpreter {
         if (disabled.previousSetBit(depth - 1) != -1) {
             return true;
         }
-        val parts = split(macro);
-        val res = !defines.containsKey(parts[1]);
+        val res = !defines.containsKey(name(macro));
         elifChainBranchTaken.set(depth, res);
         disabled.set(depth, !res);
         return true;
@@ -267,8 +268,7 @@ public class MacroInterpreter {
             return false;
         }
         if (disabled.isEmpty()) {
-            val parts = split(macro);
-            defines.remove(parts[1]);
+            defines.remove(name(macro));
         }
         return true;
     }
