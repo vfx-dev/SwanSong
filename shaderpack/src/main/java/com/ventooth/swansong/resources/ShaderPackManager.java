@@ -31,6 +31,7 @@ import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -191,6 +192,7 @@ public class ShaderPackManager {
                                                   .toString());
                         }
                     }
+                } catch (NoSuchFileException ignored) {
                 } catch (IOException e) {
                     Share.log.error("Error while processing shaderpack {}", subPath.getFileName().toString());
                     Share.log.error("Stacktrace:", e);
