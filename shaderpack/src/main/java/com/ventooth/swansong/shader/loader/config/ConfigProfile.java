@@ -26,7 +26,6 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
     private final PackLocalizer localizer;
     private final ObjectList<Option> allOptions;
     private final ObjectList<Profile> profiles;
-    private int currentProfile = -1;
     private int defaultProfile = -1;
     private int initialProfile = -1;
     private boolean detected = false;
@@ -48,9 +47,8 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
     @Override
     public void nextValue() {
         ensureDetected();
-        val prev = currentProfile;
+        val prev = detectProfile(false);
         val prof = (prev + 1) % profiles.size();
-        currentProfile = prof;
         profiles.get(prof)
                 .apply(allOptions);
     }
@@ -59,9 +57,8 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
     public void prevValue() {
         ensureDetected();
         val s = profiles.size();
-        val prev = currentProfile;
+        val prev = detectProfile(false);
         val prof = prev <= 0 ? s - 1 : prev - 1;
-        currentProfile = prof;
         profiles.get(prof)
                 .apply(allOptions);
     }
@@ -74,18 +71,19 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
     @Override
     public boolean isDefault() {
         ensureDetected();
-        return currentProfile == defaultProfile;
+        return detectProfile(false) == defaultProfile;
     }
 
     @Override
     public boolean isModified() {
         ensureDetected();
-        return currentProfile != initialProfile;
+        return detectProfile(false) != initialProfile;
     }
 
     @Override
     public String valueName() {
         ensureDetected();
+        val currentProfile = detectProfile(false);
         if (currentProfile == -1) {
             return localizer.modText("gui.swansong.shaders.profile.custom");
         }
@@ -99,8 +97,7 @@ public class ConfigProfile extends ConfigEntryBase implements ConfigEntry.Profil
         }
         detected = true;
         defaultProfile = detectProfile(true);
-        currentProfile = detectProfile(false);
-        initialProfile = currentProfile;
+        initialProfile = detectProfile(false);
     }
 
     private int detectProfile(boolean isDefault) {

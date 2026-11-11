@@ -178,6 +178,11 @@ public final class GuiShaderOptions extends GuiScreen {
         }
 
         applyButton.enabled = rootScreen.isModified();
+        for (val button : buttonList) {
+            if (button instanceof ConfigButton c) {
+                c.refresh();
+            }
+        }
 
         if (guibutton instanceof ScreenButton screenBtn) {
             this.mc.displayGuiScreen(new GuiShaderOptions(refresh(), rootScreen, screenBtn.screen));
@@ -248,6 +253,9 @@ public final class GuiShaderOptions extends GuiScreen {
         }
 
         abstract ObjectList<String> tooltip();
+
+        void refresh() {
+        }
     }
 
     private class ScreenButton extends ConfigButton {
@@ -292,6 +300,11 @@ public final class GuiShaderOptions extends GuiScreen {
         }
 
         @Override
+        void refresh() {
+            displayString = coloredStr();
+        }
+
+        @Override
         public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
             if (super.mousePressed(mc, mouseX, mouseY)) {
                 switchable.nextValue();
@@ -319,6 +332,11 @@ public final class GuiShaderOptions extends GuiScreen {
 
         private String coloredStr() {
             return toggleable.optionName() + ": " + Colors.forConfig(toggleable) + toggleLang(toggleable.getValue());
+        }
+
+        @Override
+        void refresh() {
+            displayString = coloredStr();
         }
 
         @Override
@@ -391,6 +409,12 @@ public final class GuiShaderOptions extends GuiScreen {
 
         private String coloredStr() {
             return draggable.optionName() + ": " + Colors.forConfig(draggable) + draggable.valueName();
+        }
+
+        @Override
+        void refresh() {
+            sliderPos = draggable.getValue();
+            displayString = coloredStr();
         }
 
         void updatePos(int mouseX) {
