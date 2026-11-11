@@ -31,6 +31,7 @@ import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 
+// TODO: [VEN_PLS_REVIEW] right place for the LWJGL 2/3 split? lwjgl3ify untested
 public final class LwjglCompat {
     private static final boolean lwjgl3;
 
@@ -48,6 +49,7 @@ public final class LwjglCompat {
         return lwjgl3;
     }
 
+    // TODO: [VEN_PLS_REVIEW] ok to look up the lwjgl3 call by name and keep a pointer buffer?
     public static void glShaderSource(int shader, ByteBuffer sourceNullTerminated) {
         if (lwjgl3) {
             Lwjgl3.glShaderSource(shader, sourceNullTerminated);

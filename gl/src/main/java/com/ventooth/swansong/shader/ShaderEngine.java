@@ -65,6 +65,7 @@ import java.util.Set;
 // [GLShader/GLProgram] -> Containers for OpenGL handles
 // Loose, open, no magic or implicit behaviour, simple wrappers on top of the opengl functions
 
+// TODO: [VEN_PLS_REVIEW] is init/reload/deinit the right lifecycle?
 public abstract class ShaderEngine<STATE extends ShaderState> {
     public static final boolean DO_GRAPH_LOG = false;
     public static final Logger log = Share.getLogger();
@@ -255,6 +256,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         }
         shaderSwitches = 0;
 
+        // TODO: [VEN_PLS_REVIEW] safe to drop this clear since beginRenderWorld clears?
         use(null);
         mcFramebuffer.bind();
     }
@@ -263,6 +265,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
     }
 
+    // TODO: [VEN_PLS_REVIEW] ok to skip the depth clear now RenderWorldLast draws after final?
     private void alphaClear() {
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 
@@ -287,6 +290,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glPushMatrix();
 
+        // TODO: [VEN_PLS_REVIEW] should HandDepth scale the hand projection like this?
         val handDepth = host.handDepth();
 
         {
@@ -437,6 +441,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         needsFramebufferResize = true;
     }
 
+    // TODO: [VEN_PLS_REVIEW] does reload still clean up everything after the refactor?
     private boolean doShaderPackReload() {
         host.onLifecycle(HostRenderer.Lifecycle.RELOAD_SCHEDULED);
 
@@ -492,6 +497,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         report.startTime = System.nanoTime();
         fixed = FixedEngineState.init(this, host.currentDimension(), report);
+        // TODO: [VEN_PLS_REVIEW] safe to trust active uniforms to skip depth copies?
         sampledTextures = EnumSet.noneOf(CompositeTextureData.class);
         for (val shader : fixed.manager.loadedShaders) {
             for (val uniform : shader.getUniforms()
@@ -557,6 +563,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         if (fixed.noiseTexPath != null) {
             val path = "/shaders/" + fixed.noiseTexPath;
             noiseTex = CustomTexture2D.load(fixed.pack, path);
+            // TODO: [VEN_PLS_REVIEW] ok to fall back to generated noise when texture.noise fails?
             if (noiseTex == null) {
                 Share.log.warn("Missing noise texture: {}", path);
                 val size = fixed.noiseTexSize == null ? 256 : fixed.noiseTexSize;
@@ -771,6 +778,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
         graph.moveTo(Node.BeginFrame);
         clearColorBufs();
+        // TODO: [VEN_PLS_REVIEW] right fix for Temp_Color staying bound?
         mcFramebuffer.bind();
 
         if (fixed.depthSampler != null) {

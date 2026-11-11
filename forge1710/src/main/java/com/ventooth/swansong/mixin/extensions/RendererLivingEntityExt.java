@@ -36,6 +36,7 @@ public final class RendererLivingEntityExt {
         }
     }
 
+    // TODO: [VEN_PLS_REVIEW] is alpha blending right for eye layers under a pack?
     public static void beginEyes() {
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0F);
@@ -46,6 +47,7 @@ public final class RendererLivingEntityExt {
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
     }
 
+    // TODO: [VEN_PLS_REVIEW] is gbuffers_armor_glint right for every glint here?
     public static void beginGlint() {
         if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
             ArchaicShaderEngine.get().graph().push(StateGraph.Stack.ArmorGlint);

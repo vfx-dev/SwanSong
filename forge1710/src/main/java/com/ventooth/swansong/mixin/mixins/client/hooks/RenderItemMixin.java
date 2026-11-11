@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.renderer.entity.RenderItem;
 
 @Mixin(RenderItem.class)
+// TODO: [VEN_PLS_REVIEW] should dropped item glint use gbuffers_armor_glint too?
 public abstract class RenderItemMixin {
     @Inject(method = "renderDroppedItem(Lnet/minecraft/entity/item/EntityItem;Lnet/minecraft/util/IIcon;IFFFFI)V",
             at = @At(value = "INVOKE",

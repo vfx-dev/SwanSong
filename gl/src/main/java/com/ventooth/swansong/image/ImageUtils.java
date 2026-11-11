@@ -28,6 +28,7 @@ import java.util.List;
 public final class ImageUtils {
     public static final Logger log = Share.getLogger();
 
+    // TODO: [VEN_PLS_REVIEW] per-call readback buffers ok, or worth caching?
     public static @Nullable RawImage downloadGLTextureAsBGRA(int tex) {
         if (tex == 0) {
             log.warn("Tried to download zero texture");

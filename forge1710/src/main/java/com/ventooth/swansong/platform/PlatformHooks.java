@@ -42,6 +42,7 @@ import java.time.ZonedDateTime;
 import java.util.TimeZone;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+// TODO: [VEN_PLS_REVIEW] is this split the right shape, or a grab bag?
 public final class PlatformHooks {
     private static final String CHAT_PREFIX =
             "[" + EnumChatFormatting.BLUE + "Swan" + EnumChatFormatting.AQUA + "Song" + EnumChatFormatting.RESET + "] ";

@@ -135,6 +135,7 @@ public class MacroInterpreter {
         return macro.split("\\s+", 2);
     }
 
+    // TODO: [VEN_PLS_REVIEW] should names stop at comments like this?
     private static String name(String macro) {
         return macro.split("\\s+|//|/\\*", 3)[1];
     }

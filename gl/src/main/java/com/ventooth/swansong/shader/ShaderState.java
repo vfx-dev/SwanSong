@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
+// TODO: [VEN_PLS_REVIEW] are the right hooks abstract?
 public abstract class ShaderState {
     private final DoubleBuffer tempDoubleBuf = BufferUtils.createDoubleBuffer(16);
 

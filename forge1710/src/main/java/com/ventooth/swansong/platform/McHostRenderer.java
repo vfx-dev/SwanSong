@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+// TODO: [VEN_PLS_REVIEW] does each method match master's inline code?
 public final class McHostRenderer implements HostRenderer {
     private final McShaderPackManager shaderPacks = new McShaderPackManager(Minecraft.getMinecraft().mcDataDir.toPath());
 

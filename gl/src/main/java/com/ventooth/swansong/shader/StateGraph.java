@@ -133,6 +133,7 @@ public class StateGraph {
         node.pop(engine, current);
     }
 
+    // TODO: [VEN_PLS_REVIEW] does the platform order match the old hardcoded one?
     public static final class Order {
         private final EnumMap<Node, EnumSet<Node>> edges = new EnumMap<>(Node.class);
 
@@ -301,6 +302,7 @@ public class StateGraph {
             @Override
             protected void push(ShaderEngine<?> e, Node currentNode) {
                 if (currentNode.isRender) {
+                    // TODO: [VEN_PLS_REVIEW] is pushing before basic the right fix for the restore?
                     e.pushShader();
                     e.use(e.fixed.manager.basic);
                 }

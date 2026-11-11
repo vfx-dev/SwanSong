@@ -11,6 +11,7 @@
 package com.ventooth.swansong.shader;
 
 @FunctionalInterface
+// TODO: [VEN_PLS_REVIEW] is this seam enough for other platforms' shadow culling?
 public interface ShadowPassRenderer {
     void renderShadowPass(ShadowProperties shadow, DrawBuffers buffers);
 

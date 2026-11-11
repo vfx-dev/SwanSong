@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @NoArgsConstructor
+// TODO: [VEN_PLS_REVIEW] do the static fallback chains still match OF?
 public final class ShaderTypes {
     public static final ShaderId gbuffers_basic;
     public static final ShaderId gbuffers_skybasic;

@@ -39,6 +39,7 @@ public class MacroExpressionInterpreter extends AbstractParser<InterpreterValue>
 
     @Override
     protected InterpreterValue parseFunOrVar(String name) throws ParserException {
+        // TODO: [VEN_PLS_REVIEW] is defined(NAME) handled right?
         if (name.equals("defined") && lexer.hasNext() && lexer.peek()
                                                               .type() == TokenType.LeftParen) {
             lexer.next();

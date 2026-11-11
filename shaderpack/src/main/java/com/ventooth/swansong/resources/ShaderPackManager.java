@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipFile;
 
+// TODO: [VEN_PLS_REVIEW] ok to skip dangling links silently?
 public class ShaderPackManager {
     private static final Logger log = Share.getLogger();
 

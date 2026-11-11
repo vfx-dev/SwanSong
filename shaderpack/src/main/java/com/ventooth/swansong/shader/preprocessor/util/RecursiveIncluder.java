@@ -88,6 +88,7 @@ public class RecursiveIncluder {
             boolean prevInclude = false;
             while ((line = reader.readLine()) != null) {
                 val lineI = reader.getLineNumber();
+                // TODO: [VEN_PLS_REVIEW] right place to join backslash continuations?
                 while (line.endsWith("\\")) {
                     val next = reader.readLine();
                     if (next == null) break;

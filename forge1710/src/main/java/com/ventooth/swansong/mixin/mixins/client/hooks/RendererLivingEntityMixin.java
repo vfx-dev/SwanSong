@@ -51,6 +51,7 @@ public abstract class RendererLivingEntityMixin {
                    slice = @Slice(from = @At(value = "INVOKE",
                                              target = "Lnet/minecraft/client/renderer/entity/RendererLivingEntity;renderEquippedItems(Lnet/minecraft/entity/EntityLivingBase;F)V")),
                    require = 1)
+    // TODO: [VEN_PLS_REVIEW] ok to fold the per-mod hurt tint variants into one?
     private void state_UpdateEntityColor(float r, float g, float b, float a, Operation<Void> original) {
         if (ArchaicShaderEngine.isInitialized() && ArchaicShaderEngine.get().graph().isManaged()) {
             ArchaicShaderEngine.get().state().updateEntityColor(r, g, b, a);

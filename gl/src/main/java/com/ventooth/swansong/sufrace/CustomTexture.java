@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+// TODO: [VEN_PLS_REVIEW] do stage and unit match OF's semantics?
 public record CustomTexture(CompositeTextureData unit, int target, @Nullable Texture2D image,
                             @Nullable GLTexture raw, int internalFormat, int width, int height) {
     public static @Nullable CustomTexture load(CompositeTextureData unit, FSProvider pack, HostRenderer host, String declaration) {

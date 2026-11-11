@@ -65,6 +65,7 @@ public final class McShadowPassRenderer implements ShadowPassRenderer {
     }
 
     @Override
+    // TODO: [VEN_PLS_REVIEW] anything lost moving this out of renderShadowMap?
     public void renderShadowPass(ShadowProperties shadow, DrawBuffers buffers) {
         val engine = ArchaicShaderEngine.get(); // TODO: Should be provided as an arg?
 

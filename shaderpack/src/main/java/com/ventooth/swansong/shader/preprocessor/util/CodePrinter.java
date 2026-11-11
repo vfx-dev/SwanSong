@@ -55,6 +55,7 @@ public class CodePrinter {
             val opt = opts.get(i);
             String txt;
             if (opt != null) {
+                // TODO: [VEN_PLS_REVIEW] should only #define toggles be dropped when off?
                 if (opt instanceof Option.Define && opt.isToggle() && !opt.isEnabled()) {
                     continue;
                 }

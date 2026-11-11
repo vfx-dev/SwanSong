@@ -23,6 +23,7 @@ import java.util.IllegalFormatException;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+// TODO: [VEN_PLS_REVIEW] lang files are parsed in engine, not resource manager, is that ok?
 public abstract class LangPackLocalizer implements PackLocalizer {
     private static final Pattern NUMERIC_FORMAT = Pattern.compile("%(\\d+\\$)?[\\d.]*[df]");
 

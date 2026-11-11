@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
 
+// TODO: [VEN_PLS_REVIEW] anything 1.7.10 needs missing, or platform bits leaked in?
 public interface HostRenderer {
     default InputStream openResource(String location) throws IOException {
         throw new FileNotFoundException(location);

@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// TODO: [VEN_PLS_REVIEW] is the UniformFunction and instance provider design ok?
 public class UniformCodegen {
     private static final Logger log = LogManager.getLogger("SwanSong|UniformCodegen");
 

@@ -50,6 +50,7 @@ public class ShaderPool implements IShaderPool {
         if (shader == null) {
             return null;
         }
+        // TODO: [VEN_PLS_REVIEW] should pack-disabled programs fall back like this?
         if (disabled != null) {
             val path = shader.path();
             if (disabled.contains(path.substring(path.lastIndexOf('/') + 1))) {
