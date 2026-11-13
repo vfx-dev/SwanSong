@@ -18,6 +18,7 @@ import com.ventooth.swansong.debug.GLDebugGroups;
 import com.ventooth.swansong.debug.GLSimpleDebug;
 import com.ventooth.swansong.gl.GLSampler;
 import com.ventooth.swansong.resources.ShaderPackManager;
+import com.ventooth.swansong.resources.pack.DimensionInfo;
 import com.ventooth.swansong.shader.StateGraph.Node;
 import com.ventooth.swansong.shader.config.ConfigEntry;
 import com.ventooth.swansong.shader.loader.config.PackLocalizer;
@@ -54,6 +55,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 // [ShaderType] -> Had a resource location, and can create a Managed Program
@@ -110,6 +112,7 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
     private boolean needsFramebufferResize;
     private boolean needsShaderPackReload;
+    private @Nullable DimensionInfo lastDimension;
 
     private boolean useShaderLocked = false;
     private int shaderSwitches = 0;
@@ -237,6 +240,13 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
 
     public void beginRenderAll() {
         needsFramebufferResize = state.updateViewSize(host.renderQuality());
+        val dimension = host.currentDimension();
+        if (fixed != null && dimension != null && !dimension.equals(lastDimension)) {
+            lastDimension = dimension;
+            if (!Objects.equals(fixed.pack.getWorldSpecialization(dimension), fixed.pack.getWorldSpecialization(fixed.dimension))) {
+                needsShaderPackReload = true;
+            }
+        }
         if (needsShaderPackReload) {
             if (!doShaderPackReload()) {
                 return;
@@ -496,7 +506,8 @@ public abstract class ShaderEngine<STATE extends ShaderState> {
         GLSimpleDebug.flushError();
 
         report.startTime = System.nanoTime();
-        fixed = FixedEngineState.init(this, host.currentDimension(), report);
+        lastDimension = host.currentDimension();
+        fixed = FixedEngineState.init(this, lastDimension, report);
         // TODO: [VEN_PLS_REVIEW] safe to trust active uniforms to skip depth copies?
         sampledTextures = EnumSet.noneOf(CompositeTextureData.class);
         for (val shader : fixed.manager.loadedShaders) {

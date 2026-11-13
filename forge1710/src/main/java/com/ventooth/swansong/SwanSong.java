@@ -24,16 +24,15 @@ import lombok.val;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLModIdMappingEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
@@ -65,6 +64,11 @@ public final class SwanSong {
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
+    }
+
+    @Mod.EventHandler
+    public void remap(FMLModIdMappingEvent event) {
+        proxy.remap();
     }
 
     @Mod.EventHandler
@@ -143,9 +147,9 @@ public final class SwanSong {
             }
         }
 
-        @SubscribeEvent
-        public void onDimensionChange(EntityJoinWorldEvent event) {
-            if (event.world.isRemote && event.entity instanceof EntityPlayerSP) {
+        @Override
+        public void remap() {
+            if (ArchaicShaderEngine.isInitialized()) {
                 ArchaicShaderEngine.get().scheduleShaderPackReload();
             }
         }
@@ -177,6 +181,9 @@ public final class SwanSong {
         }
 
         default void postInit(FMLPostInitializationEvent event) {
+        }
+
+        default void remap() {
         }
     }
 }
